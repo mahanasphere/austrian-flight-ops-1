@@ -12,7 +12,7 @@ const supabaseClient = supabase.createClient(
 /* CONFIG */
 /* ============================= */
 
-const ADMIN_DISCORD_ID = "";
+const ADMIN_DISCORD_ID = "1214124494340493312";
 
 
 /* ============================= */
