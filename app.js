@@ -211,9 +211,15 @@ function updateAdminUI() {
 
 
     if (
-        currentUser &&
-        ADMIN_DISCORD_ID &&
-        currentUser.id === ADMIN_DISCORD_ID
+        const discordId =
+    currentUser?.user_metadata?.provider_id ||
+    currentUser?.user_metadata?.sub ||
+    "";
+
+if (
+    currentUser &&
+    discordId === ADMIN_DISCORD_ID
+) {
     ) {
 
         panel.classList.remove("hidden");
