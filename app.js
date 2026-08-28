@@ -1598,4 +1598,38 @@ document.addEventListener(
         await loadFlights();
 
     }
+
+    async function completeFlight(id) {
+
+    if (!currentUser) {
+        return;
+    }
+
+    const { error } =
+        await supabaseClient
+            .from("flights")
+            .update({
+                status: "completed",
+                completed_at: new Date().toISOString()
+            })
+            .eq("id", id)
+            .eq("claimed_by", currentUser.id);
+
+    if (error) {
+
+        console.error(
+            "Complete flight error:",
+            error
+        );
+
+        showMessage(
+            "Could not end flight: " +
+            error.message
+        );
+
+        return;
+    }
+
+    await loadFlights();
+}
 );
