@@ -1559,10 +1559,13 @@ function setupButtons() {
 async function completeFlight(id) {
 
     if (!currentUser) {
+        showMessage("You must be logged in.");
         return;
     }
 
-    const { error } =
+    console.log("Ending flight:", id);
+
+    const { data, error } =
         await supabaseClient
             .from("flights")
             .update({
@@ -1570,14 +1573,12 @@ async function completeFlight(id) {
                 completed_at: new Date().toISOString()
             })
             .eq("id", id)
-            .eq("claimed_by", currentUser.id);
+            .eq("claimed_by", currentUser.id)
+            .select();
+
+    console.log("Complete flight result:", data, error);
 
     if (error) {
-
-        console.error(
-            "Complete flight error:",
-            error
-        );
 
         showMessage(
             "Could not end flight: " +
@@ -1586,6 +1587,19 @@ async function completeFlight(id) {
 
         return;
     }
+
+    if (!data || data.length === 0) {
+
+        showMessage(
+            "Flight could not be completed. No matching flight was found."
+        );
+
+        return;
+    }
+
+    showMessage(
+        "Flight completed successfully."
+    );
 
     await loadFlights();
 }
