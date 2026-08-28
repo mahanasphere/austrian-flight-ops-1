@@ -1114,5 +1114,158 @@ async function loadAdminFlights() {
 
 
     if (error) {
+                console.error(error);
+        return;
+    }
 
-      
+    const container =
+        document.getElementById("adminFlights");
+
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    (data || []).forEach(flight => {
+
+        const div =
+            document.createElement("div");
+
+        div.className = "admin-flight";
+
+        div.innerHTML = `
+            <div>
+                <strong>
+                    ${escapeHTML(flight.flight_number)}
+                </strong>
+
+                &nbsp;
+
+                ${escapeHTML(flight.departure_airport)}
+                →
+                ${escapeHTML(flight.arrival_airport)}
+
+                <br>
+
+                <small>
+                    ${formatDate(flight.scheduled_departure)}
+                </small>
+            </div>
+
+            <button
+                class="danger"
+                onclick="deleteFlight('${flight.id}')">
+
+                DELETE
+
+            </button>
+        `;
+
+        container.appendChild(div);
+    });
+}
+
+
+/* ============================= */
+/* ADMIN — DELETE FLIGHT */
+/* ============================= */
+
+async function deleteFlight(id) {
+
+    if (
+        !currentUser ||
+        currentUser.id !== ADMIN_DISCORD_ID
+    ) {
+        return;
+    }
+
+    if (!confirm("Delete this flight?")) {
+        return;
+    }
+
+    const {
+        error
+    } = await supabaseClient
+        .from("flights")
+        .delete()
+        .eq("id", id);
+
+    if (error) {
+        showMessage(error.message);
+        return;
+    }
+
+    await loadFlights();
+    await loadAdminFlights();
+}
+
+
+/* ============================= */
+/* BUTTON CONNECTIONS */
+/* ============================= */
+
+function setupButtons() {
+
+    const loginButton =
+        document.getElementById("loginButton");
+
+    const logoutButton =
+        document.getElementById("logoutButton");
+
+    if (loginButton) {
+
+        loginButton.addEventListener(
+            "click",
+            loginWithDiscord
+        );
+
+    }
+
+    if (logoutButton) {
+
+        logoutButton.addEventListener(
+            "click",
+            logout
+        );
+
+    }
+}
+
+
+/* ============================= */
+/* AUTH STATE */
+/* ============================= */
+
+supabaseClient.auth.onAuthStateChange(
+    async (_event, session) => {
+
+        currentUser =
+            session?.user || null;
+
+        updateLoginUI();
+
+        await loadFlights();
+
+    }
+);
+
+
+/* ============================= */
+/* START APPLICATION */
+/* ============================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    async () => {
+
+        console.log(
+            "Austrian Airlines Flight Operations loaded."
+        );
+
+        setupButtons();
+
+        await loadUser();
+
+        await loadFlights();
+
+    }
+);
