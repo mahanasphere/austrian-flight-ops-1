@@ -1577,6 +1577,27 @@ supabaseClient.auth.onAuthStateChange(
 
 
 /* ============================= */
+/* AUTH STATE */
+/* ============================= */
+
+supabaseClient.auth.onAuthStateChange(
+    async (
+        _event,
+        session
+    ) => {
+
+        currentUser =
+            session?.user || null;
+
+        updateLoginUI();
+
+        await loadFlights();
+
+    }
+);
+
+
+/* ============================= */
 /* START APPLICATION */
 /* ============================= */
 
@@ -1588,48 +1609,11 @@ document.addEventListener(
             "Austrian Airlines Flight Operations loaded."
         );
 
-
         setupButtons();
 
-
         await loadUser();
-
 
         await loadFlights();
 
     }
-
-    async function completeFlight(id) {
-
-    if (!currentUser) {
-        return;
-    }
-
-    const { error } =
-        await supabaseClient
-            .from("flights")
-            .update({
-                status: "completed",
-                completed_at: new Date().toISOString()
-            })
-            .eq("id", id)
-            .eq("claimed_by", currentUser.id);
-
-    if (error) {
-
-        console.error(
-            "Complete flight error:",
-            error
-        );
-
-        showMessage(
-            "Could not end flight: " +
-            error.message
-        );
-
-        return;
-    }
-
-    await loadFlights();
-}
 );
