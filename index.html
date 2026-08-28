@@ -1,3 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Austrian Airlines — Flight Operations</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f3f3f3;
+    color: #222;
+}
+
+header {
+    background: white;
+    border-top: 7px solid #e30613;
+    border-bottom: 1px solid #ddd;
+    padding: 18px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #e30613;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 26px;
+    font-weight: bold;
+}
+
+.brand-name {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.brand-sub {
+    font-size: 12px;
+    color: #777;
+    margin-top: 3px;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 17px;
+    font-weight: bold;
+}
+
+.primary {
+    background: #e30613;
+    color: white;
+}
+
+.primary:hover {
+    background: #c9000c;
+}
+
+.secondary {
+    background: #222;
+    color: white;
+}
+
+.light {
+    background: #eeeeee;
+    color: #222;
+}
+
+.danger {
+    background: #b00000;
+    color: white;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.container {
+    max-width: 1250px;
+    margin: auto;
+    padding: 40px 25px;
+}
+
+.hero {
+    background: linear-gradient(135deg, #e30613, #a9000b);
+    color: white;
+    border-radius: 18px;
+    padding: 45px;
+    margin-bottom: 28px;
+}
+
+.hero h1 {
+    margin: 0 0 12px;
+    font-size: 38px;
+}
+
+.hero p {
+    margin: 0;
+    max-width: 750px;
+    line-height: 1.6;
+    opacity: .95;
+}
+
+.section {
+    background: white;
+    border-radius: 16px;
+    padding: 27px;
+    margin-bottom: 25px;
+    border: 1px solid #ddd;
+}
+
+.section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.section-title h2 {
+    margin: 0;
+}
+
+.flight-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(370px, 1fr));
+    gap: 18px;
+}
+
+.flight {
+    border: 1px solid #ddd;
+    border-radius: 14px;
+    padding: 21px;
+    background: white;
+}
+
+.flight:hover {
+    border-color: #e30613;
+}
+
+.flight-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.flight-number {
+    font-size: 23px;
+    font-weight: bold;
+}
+
+.status {
+    font-size: 10px;
+    font-weight: bold;
+    padding: 6px 10px;
+    border-radius: 999px;
+}
+
+.available {
+    background: #e7f7eb;
+    color: #19733b;
+}
+
+.claimed {
+    background: #fff3d6;
+    color: #865900;
+}
+
+.progress {
+    background: #e5efff;
+    color: #245a9d;
+}
+
+.completed {
+    background: #e5f7ef;
+    color: #19734d;
+}
+
+.route {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 21px 0;
+    font-size: 29px;
+    font-weight: bold;
+}
+
+.route span:nth-child(2) {
+    color: #aaa;
+    font-size: 20px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+}
+
+.info {
+    background: #f7f7f7;
+    padding: 11px;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.info strong {
+    display: block;
+    font-size: 10px;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.delay {
+    color: #e30613;
+    font-weight: bold;
+}
+
+.additional {
+    margin-top: 13px;
+    padding: 13px;
+    border-left: 4px solid #e30613;
+    background: #fafafa;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 17px;
+}
+
+.event-times {
+    margin-top: 15px;
+    padding: 12px;
+    background: #f8f8f8;
+    border-radius: 9px;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.admin-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 13px;
+}
+
+.admin-form input,
+.admin-form select,
+.admin-form textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-family: inherit;
+}
+
+.admin-form textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+.full {
+    grid-column: 1 / -1;
+}
+
+.admin-flight {
+    padding: 14px;
+    border: 1px solid #ddd;
+    border-radius: 9px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+#message {
+    margin-bottom: 20px;
+    padding: 14px;
+    border-radius: 9px;
+    background: #fff4d8;
+}
+
+footer {
+    text-align: center;
+    color: #999;
+    font-size: 11px;
+    padding: 40px 20px;
+}
+
+@media (max-width: 750px) {
+
+    header {
+        padding: 15px;
+    }
+
+    .brand-name {
+        font-size: 18px;
+    }
+
+    .container {
+        padding: 20px 13px;
+    }
+
+    .hero {
+        padding: 28px;
+    }
+
+    .hero h1 {
+        font-size: 30px;
+    }
+
+    .flight-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-form {
+        grid-template-columns: 1fr;
+    }
+
+    .full {
+        grid-column: auto;
+    }
+
+    .route {
+        font-size: 24px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+<div class="brand">
+
+    <div class="logo">
+        A
+    </div>
+
+    <div>
+        <div class="brand-name">
+            Austrian Airlines
+        </div>
+
+        <div class="brand-sub">
+            Flight Operations
+        </div>
+    </div>
+
+</div>
+
+<div>
+
+    <span id="userName"></span>
+
+    <button
+        id="loginButton"
+        class="primary">
+        Login with Discord
+    </button>
+
+    <button
+        id="logoutButton"
+        class="light hidden">
+        Logout
+    </button>
+
+</div>
+
+</header>
+
+
+<main class="container">
+
+<section class="hero">
+
+<h1>
+Flight Operations
+</h1>
+
+<p>
+Welcome to Austrian Airlines Flight Operations.
+View scheduled flights, claim flights and record your operation.
+</p>
+
+</section>
+
+
+<div
+    id="message"
+    class="hidden">
+</div>
+
+
+<section class="section">
+
+<div class="section-title">
+
+<h2>
+Today's Flights
+</h2>
+
+<span id="flightCount">
+</span>
+
+</div>
+
+
+<div
+    id="flightBoard"
+    class="flight-grid">
+</div>
+
+</section>
+
+
+<section
+    id="adminPanel"
+    class="section hidden">
+
+<div class="section-title">
+
+<h2>
+Admin — Flight Management
+</h2>
+
+</div>
+
+
+<div class="admin-form">
+
+<input
+    id="flightNumber"
+    placeholder="Flight Number — OS101">
+
+<input
+    id="departure"
+    placeholder="Departure — VIE">
+
+<input
+    id="arrival"
+    placeholder="Arrival — LHR">
+
+<input
+    id="scheduled"
+    type="datetime-local">
+
+<input
+    id="aircraft"
+    placeholder="Aircraft Model — Airbus A320">
+
+<input
+    id="operator"
+    placeholder="Operator Airline — Austrian Airlines">
+
+<input
+    id="livery"
+    placeholder="Livery Airline — Austrian Airlines">
+
+
+<select id="recurrence">
+
+<option value="once">
+One-time flight
+</option>
+
+<option value="daily">
+Every day
+</option>
+
+<option value="weekdays">
+Monday–Friday
+</option>
+
+<option value="weekends">
+Saturday–Sunday
+</option>
+
+</select>
+
+
+<textarea
+    id="additionalInfo"
+    placeholder="Additional Information (optional)">
+</textarea>
+
+
+<div class="full">
+
+<button
+    class="primary"
+    onclick="createFlight()">
+
+CREATE FLIGHT
+
+</button>
+
+</div>
+
+</div>
+
+
+<h3>
+Existing Flights
+</h3>
+
+<div id="adminFlights">
+</div>
+
+</section>
+
+</main>
+
+
 <footer>
 
 Austrian Airlines Flight Operations
