@@ -2,7 +2,7 @@ const SUPABASE_URL =
     "https://qdtpwggllgnyzazmshyf.supabase.co";
 
 const SUPABASE_KEY =
-    "DEIN_BISHERIGER_SUPABASE_KEY";
+    "sb_publishable_zgfXsfelbYVAGcvKk1wRhA_ok9n8jjl";
 
 const supabaseClient =
     supabase.createClient(
