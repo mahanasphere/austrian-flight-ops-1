@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -295,6 +296,107 @@ button {
     gap: 12px;
 }
 
+/* EVENT FLIGHTS */
+
+.event-flight {
+    border: 1px solid #ddd;
+    border-radius: 14px;
+    padding: 21px;
+    background: white;
+    transition: .15s;
+}
+
+.event-flight:hover {
+    border-color: #e30613;
+}
+
+.event-flight-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.event-flight-number {
+    font-size: 23px;
+    font-weight: bold;
+}
+
+.event-badge {
+    background: #fbe5e7;
+    color: #b00000;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 6px 10px;
+    border-radius: 999px;
+}
+
+.event-route {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 21px 0;
+    font-size: 29px;
+    font-weight: bold;
+}
+
+.event-route span:nth-child(2) {
+    color: #aaa;
+    font-size: 18px;
+}
+
+.capacity {
+    margin-top: 15px;
+}
+
+.capacity-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+}
+
+.capacity-row:last-child {
+    border-bottom: none;
+}
+
+.class-name {
+    font-weight: bold;
+}
+
+.economy {
+    color: #19733b;
+}
+
+.business {
+    color: #245a9d;
+}
+
+.first {
+    color: #865900;
+}
+
+.event-date {
+    background: #f7f7f7;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 12px;
+    font-size: 13px;
+}
+
+.admin-event {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+.admin-event-info {
+    line-height: 1.7;
+    font-size: 13px;
+}
+
 #message {
     margin-bottom: 20px;
     padding: 14px;
@@ -343,7 +445,8 @@ footer {
         grid-column: auto;
     }
 
-    .route {
+    .route,
+    .event-route {
         font-size: 24px;
     }
 }
@@ -415,12 +518,14 @@ View scheduled flights, claim flights and record your operation.
 </div>
 
 
+<!-- ATC24 FLIGHTS -->
+
 <section class="section">
 
 <div class="section-title">
 
 <h2>
-Today's Flights
+Today's ATC24 Flights
 </h2>
 
 <span id="flightCount">
@@ -436,6 +541,41 @@ Today's Flights
 
 </section>
 
+
+<!-- EVENT FLIGHTS -->
+
+<section class="section">
+
+<div class="section-title">
+
+<div>
+
+<h2>
+✈️ Event Flights
+</h2>
+
+<p style="margin:6px 0 0;color:#777;font-size:13px;">
+Book your seat and earn Miles & More Miles and Points.
+</p>
+
+</div>
+
+<span id="eventFlightCount">
+</span>
+
+</div>
+
+
+<div
+    id="eventFlightBoard"
+    class="flight-grid">
+
+</div>
+
+</section>
+
+
+<!-- ADMIN ATC24 -->
 
 <section
     id="adminPanel"
@@ -514,7 +654,7 @@ Saturday–Sunday
     class="primary"
     onclick="createFlight()">
 
-CREATE FLIGHT
+CREATE ATC24 FLIGHT
 
 </button>
 
@@ -524,10 +664,124 @@ CREATE FLIGHT
 
 
 <h3>
-Existing Flights
+Existing ATC24 Flights
 </h3>
 
 <div id="adminFlights">
+</div>
+
+</section>
+
+
+<!-- ADMIN EVENT FLIGHTS -->
+
+<section
+    id="eventAdminPanel"
+    class="section hidden">
+
+<div class="section-title">
+
+<h2>
+Admin — Event Flight Management
+</h2>
+
+</div>
+
+
+<div class="admin-form">
+
+<input
+    id="eventFlightNumber"
+    placeholder="Flight Number — OS101">
+
+<input
+    id="eventDeparture"
+    placeholder="Departure — VIE">
+
+<input
+    id="eventArrival"
+    placeholder="Arrival — LHR">
+
+<input
+    id="eventDepartureTime"
+    type="datetime-local">
+
+<input
+    id="eventAircraft"
+    placeholder="Aircraft Model — Airbus A320">
+
+<input
+    id="eventPilot"
+    placeholder="Pilot Discord ID (optional)">
+
+<input
+    id="economyCapacity"
+    type="number"
+    min="0"
+    value="0"
+    placeholder="Economy Capacity">
+
+<input
+    id="businessCapacity"
+    type="number"
+    min="0"
+    value="0"
+    placeholder="Business Capacity">
+
+<input
+    id="firstCapacity"
+    type="number"
+    min="0"
+    value="0"
+    placeholder="First Capacity">
+
+
+<select
+    id="eventStatus">
+
+<option value="scheduled">
+Scheduled
+</option>
+
+<option value="boarding">
+Boarding
+</option>
+
+<option value="departed">
+Departed
+</option>
+
+<option value="completed">
+Completed
+</option>
+
+<option value="cancelled">
+Cancelled
+</option>
+
+</select>
+
+
+<div class="full">
+
+<button
+    class="primary"
+    onclick="createEventFlight()">
+
+CREATE EVENT FLIGHT
+
+</button>
+
+</div>
+
+</div>
+
+
+<h3>
+Existing Event Flights
+</h3>
+
+<div id="adminEventFlights">
 </div>
 
 </section>
@@ -553,3 +807,4 @@ Not affiliated with or endorsed by Austrian Airlines.
 
 </body>
 </html>
+```
