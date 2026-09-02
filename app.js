@@ -3,7 +3,7 @@ const SUPABASE_URL = "https://qdtpwggllgnyzazmshyf.supabase.co";
 // WICHTIG:
 // Hier deinen BISHERIGEN Supabase Publishable/Anon Key einsetzen.
 // NICHT den Service-Role-Key verwenden.
-const SUPABASE_KEY = "DEIN_BISHERIGER_PUBLISHABLE_KEY_HIER_EINSETZEN";
+const SUPABASE_KEY = "sb_publishable_zgfXsfelbYVAGcvKk1wRhA_ok9n8jjl";
 
 const supabaseClient = supabase.createClient(
     SUPABASE_URL,
