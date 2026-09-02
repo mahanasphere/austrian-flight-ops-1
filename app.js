@@ -1,30 +1,35 @@
-const SUPABASE_URL =
-    "https://qdtpwggllgnyzazmshyf.supabase.co";
+const SUPABASE_URL = "https://qdtpwggllgnyzazmshyf.supabase.co";
 
-const SUPABASE_KEY =
-    "sb_publishable_zgfXsfelbYVAGcvKk1wRhA_ok9n8jjl";
+// WICHTIG:
+// Hier deinen BISHERIGEN Supabase Publishable/Anon Key einsetzen.
+// NICHT den Service-Role-Key verwenden.
+const SUPABASE_KEY = "DEIN_BISHERIGER_PUBLISHABLE_KEY_HIER_EINSETZEN";
 
-const supabaseClient =
-    supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-    );
+const supabaseClient = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY,
+    {
+        auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true
+        }
+    }
+);
 
 
-/* ============================= */
-/* CONFIG */
-/* ============================= */
+// ============================================================
+// ADMIN
+// ============================================================
 
-const ADMIN_DISCORD_ID =
-    "1214124494340493312";
+const ADMIN_DISCORD_ID = "1214124494340493312";
 
 
-/* ============================= */
-/* MILES & MORE CONFIG */
-/* ============================= */
+// ============================================================
+// MILES & MORE
+// ============================================================
 
 const MILES_AND_MORE_STATUS = {
-
     member: {
         name: "Member",
         points: 0
@@ -44,66 +49,48 @@ const MILES_AND_MORE_STATUS = {
         name: "HON Circle Member",
         points: 120
     }
-
 };
 
 
-/*
- * Event Flight distance:
- *
- * Short-haul  = 1 Point
- * Medium-haul = 2 Points
- * Long-haul   = 3 Points
- */
+// ============================================================
+// EVENT DISTANCE
+// ============================================================
 
 const EVENT_DISTANCE_POINTS = {
-
     short: 1,
     medium: 2,
     long: 3
-
 };
 
 
-/* ============================= */
-/* GLOBAL STATE */
-/* ============================= */
-
 let currentUser = null;
-
 let currentProfile = null;
 
 
-/* ============================= */
-/* HELPERS */
-/* ============================= */
+// ============================================================
+// GENERAL HELPERS
+// ============================================================
 
 function showMessage(text) {
+    const el = document.getElementById("message");
 
-    const message =
-        document.getElementById("message");
+    if (!el) return;
 
-    if (!message) return;
-
-    message.textContent = text;
-
-    message.classList.remove("hidden");
+    el.textContent = text;
+    el.classList.remove("hidden");
 }
 
 
 function hideMessage() {
+    const el = document.getElementById("message");
 
-    const message =
-        document.getElementById("message");
-
-    if (!message) return;
-
-    message.classList.add("hidden");
+    if (el) {
+        el.classList.add("hidden");
+    }
 }
 
 
 function escapeHTML(value) {
-
     return String(value ?? "")
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
@@ -114,7 +101,6 @@ function escapeHTML(value) {
 
 
 function formatDate(value) {
-
     if (!value) return "-";
 
     const date = new Date(value);
@@ -134,41 +120,24 @@ function formatDate(value) {
 
 
 function formatNumber(value) {
-
-    return Number(value || 0)
-        .toLocaleString();
+    return Number(value || 0).toLocaleString();
 }
 
 
-/* ============================= */
-/* DISCORD ID */
-/* ============================= */
+// ============================================================
+// DISCORD
+// ============================================================
 
 function getDiscordId(user) {
+    if (!user) return null;
 
-    if (!user) {
-        return null;
-    }
-
-    const discordIdentity =
-        user.identities?.find(
-            identity =>
-                identity.provider === "discord"
-        );
-
-    if (
-        discordIdentity &&
-        discordIdentity.identity_data
-    ) {
-
-        return String(
-            discordIdentity.identity_data.provider_id ||
-            discordIdentity.identity_data.sub ||
-            ""
-        );
-    }
+    const identity = user.identities?.find(
+        i => i.provider === "discord"
+    );
 
     return String(
+        identity?.identity_data?.provider_id ||
+        identity?.identity_data?.sub ||
         user.user_metadata?.provider_id ||
         user.user_metadata?.sub ||
         ""
@@ -176,58 +145,174 @@ function getDiscordId(user) {
 }
 
 
-/* ============================= */
-/* ADMIN CHECK */
-/* ============================= */
-
 function isAdmin() {
-
-    const discordId =
-        getDiscordId(currentUser);
-
     return (
-        currentUser &&
-        discordId === ADMIN_DISCORD_ID
+        !!currentUser &&
+        getDiscordId(currentUser) === ADMIN_DISCORD_ID
     );
 }
 
 
-/* ============================= */
-/* DISCORD LOGIN */
-/* ============================= */
+// ============================================================
+// MILES & MORE HELPERS
+// ============================================================
+
+function getStatusName(status) {
+    return (
+        MILES_AND_MORE_STATUS[status]?.name ||
+        "Member"
+    );
+}
+
+
+function getStatusPoints(status) {
+    return (
+        MILES_AND_MORE_STATUS[status]?.points ||
+        0
+    );
+}
+
+
+function calculateStatus(points) {
+    if (points >= 120) {
+        return "hon_circle_member";
+    }
+
+    if (points >= 60) {
+        return "senator";
+    }
+
+    if (points >= 30) {
+        return "frequent_traveller";
+    }
+
+    return "member";
+}
+
+
+// ============================================================
+// EVENT HELPERS
+// ============================================================
+
+function getDistancePoints(type) {
+    return EVENT_DISTANCE_POINTS[type] || 1;
+}
+
+
+function getDistanceName(type) {
+    return {
+        short: "Short-haul",
+        medium: "Medium-haul",
+        long: "Long-haul"
+    }[type] || "Short-haul";
+}
+
+
+function className(type) {
+    return {
+        economy: "Economy",
+        business: "Business",
+        first: "First"
+    }[type] || "Economy";
+}
+
+
+function canBookClass(type, status) {
+    const points = getStatusPoints(
+        status || "member"
+    );
+
+    if (type === "economy") {
+        return true;
+    }
+
+    if (type === "business") {
+        return points >= 30;
+    }
+
+    if (type === "first") {
+        return points >= 60;
+    }
+
+    return false;
+}
+
+
+function getClassRequirement(type) {
+    if (type === "business") {
+        return "Frequent Traveller";
+    }
+
+    if (type === "first") {
+        return "Senator";
+    }
+
+    return "Member";
+}
+
+
+function eventStatusClass(status) {
+    if (status === "boarding") return "progress";
+    if (status === "departed") return "claimed";
+    if (status === "completed") return "completed";
+    if (status === "cancelled") return "cancelled";
+
+    return "available";
+}
+
+
+function eventStatusText(status) {
+    return {
+        scheduled: "SCHEDULED",
+        boarding: "BOARDING",
+        departed: "DEPARTED",
+        completed: "COMPLETED",
+        cancelled: "CANCELLED"
+    }[status] || "SCHEDULED";
+}
+
+
+// ============================================================
+// ATC24 STATUS
+// ============================================================
+
+function statusClass(status) {
+    if (status === "claimed") return "claimed";
+    if (status === "in_progress") return "progress";
+    if (status === "completed") return "completed";
+
+    return "available";
+}
+
+
+function statusText(status) {
+    if (status === "claimed") return "CLAIMED";
+    if (status === "in_progress") return "IN PROGRESS";
+    if (status === "completed") return "COMPLETED";
+
+    return "AVAILABLE";
+}
+
+
+// ============================================================
+// AUTH
+// ============================================================
 
 async function loginWithDiscord() {
 
     hideMessage();
 
-    console.log(
-        "Discord login started."
-    );
+    const redirectTo =
+        "https://mahanasphere.github.io/austrian-flight-ops-1/";
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient.auth
-            .signInWithOAuth({
+    const { error } =
+        await supabaseClient.auth.signInWithOAuth({
+            provider: "discord",
 
-                provider: "discord",
-
-                options: {
-
-                    redirectTo:
-                        window.location.origin +
-                        window.location.pathname
-
-                }
-
-            });
-
-    console.log(
-        "OAuth response:",
-        data,
-        error
-    );
+            options: {
+                redirectTo
+            }
+        });
 
     if (error) {
 
@@ -244,24 +329,54 @@ async function loginWithDiscord() {
 }
 
 
-/* ============================= */
-/* LOGOUT */
-/* ============================= */
+async function finishOAuthRedirect() {
 
-async function logout() {
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
 
-    const {
-        error
-    } =
-        await supabaseClient.auth
-            .signOut();
+    const code =
+        params.get("code");
+
+    if (!code) {
+        return;
+    }
+
+    const { error } =
+        await supabaseClient.auth.exchangeCodeForSession(
+            code
+        );
 
     if (error) {
 
         console.error(
-            "Logout error:",
+            "OAuth code exchange failed:",
             error
         );
+
+        showMessage(
+            "Discord login failed: " +
+            error.message
+        );
+
+        return;
+    }
+
+    window.history.replaceState(
+        {},
+        document.title,
+        window.location.pathname
+    );
+}
+
+
+async function logout() {
+
+    const { error } =
+        await supabaseClient.auth.signOut();
+
+    if (error) {
 
         showMessage(
             error.message
@@ -280,41 +395,32 @@ async function logout() {
 }
 
 
-/* ============================= */
-/* LOAD USER */
-/* ============================= */
-
 async function loadUser() {
 
+    await finishOAuthRedirect();
+
     const {
-        data: {
-            session
-        }
-    } =
-        await supabaseClient.auth
-            .getSession();
+        data,
+        error
+    } = await supabaseClient.auth.getSession();
+
+    if (error) {
+
+        console.error(
+            "Session error:",
+            error
+        );
+    }
 
     currentUser =
-        session?.user || null;
-
-    console.log(
-        "Current user:",
-        currentUser
-    );
-
-    console.log(
-        "Discord ID:",
-        getDiscordId(currentUser)
-    );
-
-    console.log(
-        "Admin:",
-        isAdmin()
-    );
+        data?.session?.user || null;
 
     if (currentUser) {
+
         await loadCurrentProfile();
+
     } else {
+
         currentProfile = null;
     }
 
@@ -322,29 +428,23 @@ async function loadUser() {
 }
 
 
-/* ============================= */
-/* LOAD PROFILE */
-/* ============================= */
-
 async function loadCurrentProfile() {
 
     if (!currentUser) {
+
         currentProfile = null;
+
         return;
     }
 
     const {
         data,
         error
-    } =
-        await supabaseClient
-            .from("profiles")
-            .select("*")
-            .eq(
-                "id",
-                currentUser.id
-            )
-            .maybeSingle();
+    } = await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", currentUser.id)
+        .maybeSingle();
 
     if (error) {
 
@@ -359,51 +459,34 @@ async function loadCurrentProfile() {
     }
 
     currentProfile = data || null;
-
-    console.log(
-        "Current profile:",
-        currentProfile
-    );
 }
 
 
-/* ============================= */
-/* LOGIN UI */
-/* ============================= */
+// ============================================================
+// LOGIN UI
+// ============================================================
 
 function updateLoginUI() {
 
-    const loginButton =
-        document.getElementById(
-            "loginButton"
-        );
+    const login =
+        document.getElementById("loginButton");
 
     const logoutButton =
-        document.getElementById(
-            "logoutButton"
-        );
+        document.getElementById("logoutButton");
 
     const userName =
-        document.getElementById(
-            "userName"
-        );
+        document.getElementById("userName");
 
-    if (
-        !loginButton ||
-        !logoutButton
-    ) {
+    if (!login || !logoutButton) {
         return;
     }
 
+
     if (!currentUser) {
 
-        loginButton.classList.remove(
-            "hidden"
-        );
+        login.classList.remove("hidden");
 
-        logoutButton.classList.add(
-            "hidden"
-        );
+        logoutButton.classList.add("hidden");
 
         if (userName) {
             userName.textContent = "";
@@ -411,17 +494,12 @@ function updateLoginUI() {
 
     } else {
 
-        loginButton.classList.add(
-            "hidden"
-        );
+        login.classList.add("hidden");
 
-        logoutButton.classList.remove(
-            "hidden"
-        );
+        logoutButton.classList.remove("hidden");
 
         const metadata =
-            currentUser.user_metadata ||
-            {};
+            currentUser.user_metadata || {};
 
         if (userName) {
 
@@ -430,17 +508,148 @@ function updateLoginUI() {
                 metadata.name ||
                 metadata.preferred_username ||
                 "Pilot";
-
         }
     }
 
     updateAdminUI();
+    updateMilesUI();
 }
 
 
-/* ============================= */
-/* ADMIN UI */
-/* ============================= */
+// ============================================================
+// MILES & MORE UI
+// ============================================================
+
+function updateMilesUI() {
+
+    const box =
+        document.getElementById(
+            "milesMorePanel"
+        );
+
+    if (!box) {
+        return;
+    }
+
+
+    if (!currentUser || !currentProfile) {
+
+        box.innerHTML = `
+            <p>
+                Login with Discord to view
+                your Miles & More profile.
+            </p>
+        `;
+
+        return;
+    }
+
+
+    const points =
+        Number(
+            currentProfile.points || 0
+        );
+
+    const miles =
+        Number(
+            currentProfile.miles || 0
+        );
+
+    const status =
+        currentProfile.miles_and_more_status ||
+        calculateStatus(points);
+
+
+    const next =
+        status === "hon_circle_member"
+            ? null
+            : Object.entries(
+                MILES_AND_MORE_STATUS
+            ).find(
+                ([, value]) =>
+                    value.points > points
+            );
+
+
+    box.innerHTML = `
+
+        <div class="miles-grid">
+
+            <div class="miles-stat">
+
+                <strong>
+                    ${formatNumber(miles)}
+                </strong>
+
+                <span>
+                    Miles
+                </span>
+
+            </div>
+
+
+            <div class="miles-stat">
+
+                <strong>
+                    ${formatNumber(points)}
+                </strong>
+
+                <span>
+                    Points
+                </span>
+
+            </div>
+
+
+            <div class="miles-stat">
+
+                <strong>
+                    ${escapeHTML(
+                        getStatusName(status)
+                    )}
+                </strong>
+
+                <span>
+                    Status
+                </span>
+
+            </div>
+
+        </div>
+
+
+        ${
+            next
+                ? `
+                    <p class="muted">
+
+                        Next status:
+                        <strong>
+                            ${escapeHTML(
+                                next[1].name
+                            )}
+                        </strong>
+
+                        at
+                        ${next[1].points}
+                        Points.
+
+                    </p>
+                `
+                : `
+                    <p class="muted">
+                        🏆 Highest status reached.
+                    </p>
+                `
+        }
+
+    `;
+}
+
+
+// ============================================================
+// ADMIN UI
+// ============================================================
 
 function updateAdminUI() {
 
@@ -454,77 +663,52 @@ function updateAdminUI() {
             "eventAdminPanel"
         );
 
+
     if (isAdmin()) {
 
-        console.log(
-            "Admin mode enabled."
+        panel?.classList.remove(
+            "hidden"
         );
 
-        if (panel) {
-
-            panel.classList.remove(
-                "hidden"
-            );
-
-        }
-
-        if (eventPanel) {
-
-            eventPanel.classList.remove(
-                "hidden"
-            );
-
-            ensureEventAdminFields();
-
-        }
+        eventPanel?.classList.remove(
+            "hidden"
+        );
 
         loadAdminFlights();
         loadAdminEventFlights();
 
     } else {
 
-        console.log(
-            "Admin mode disabled."
+        panel?.classList.add(
+            "hidden"
         );
 
-        if (panel) {
-
-            panel.classList.add(
-                "hidden"
-            );
-
-        }
-
-        if (eventPanel) {
-
-            eventPanel.classList.add(
-                "hidden"
-            );
-
-        }
+        eventPanel?.classList.add(
+            "hidden"
+        );
     }
 }
 
 
-/* ============================= */
-/* FLIGHTS — ATC24 */
-/* ============================= */
+// ============================================================
+// ATC24
+// ============================================================
 
 async function loadFlights() {
 
     const {
         data,
         error
-    } =
-        await supabaseClient
-            .from("flights")
-            .select("*")
-            .order(
-                "scheduled_departure",
-                {
-                    ascending: true
-                }
-            );
+    } = await supabaseClient
+        .from("flights")
+        .select("*")
+        .order(
+            "scheduled_departure",
+            {
+                ascending: true
+            }
+        );
+
 
     if (error) {
 
@@ -533,79 +717,32 @@ async function loadFlights() {
             error
         );
 
-        showMessage(
-            "Could not load flights: " +
-            error.message
-        );
+        const board =
+            document.getElementById(
+                "flightBoard"
+            );
+
+        if (board) {
+
+            board.innerHTML = `
+                <p>
+                    Could not load flights:
+                    ${escapeHTML(
+                        error.message
+                    )}
+                </p>
+            `;
+        }
 
         return;
     }
+
 
     renderFlights(
         data || []
     );
 }
 
-
-/* ============================= */
-/* ATC24 STATUS CLASS */
-/* ============================= */
-
-function statusClass(status) {
-
-    if (
-        status === "claimed"
-    ) {
-        return "claimed";
-    }
-
-    if (
-        status === "in_progress"
-    ) {
-        return "progress";
-    }
-
-    if (
-        status === "completed"
-    ) {
-        return "completed";
-    }
-
-    return "available";
-}
-
-
-/* ============================= */
-/* ATC24 STATUS TEXT */
-/* ============================= */
-
-function statusText(status) {
-
-    if (
-        status === "claimed"
-    ) {
-        return "CLAIMED";
-    }
-
-    if (
-        status === "in_progress"
-    ) {
-        return "IN PROGRESS";
-    }
-
-    if (
-        status === "completed"
-    ) {
-        return "COMPLETED";
-    }
-
-    return "AVAILABLE";
-}
-
-
-/* ============================= */
-/* ATC24 FLIGHT BOARD */
-/* ============================= */
 
 function renderFlights(flights) {
 
@@ -614,30 +751,38 @@ function renderFlights(flights) {
             "flightBoard"
         );
 
-    const flightCount =
+    const count =
         document.getElementById(
             "flightCount"
         );
 
-    if (!board) return;
+
+    if (!board) {
+        return;
+    }
+
 
     board.innerHTML = "";
 
-    if (flightCount) {
 
-        flightCount.textContent =
+    if (count) {
+
+        count.textContent =
             `${flights.length} flights`;
-
     }
+
 
     if (!flights.length) {
 
         board.innerHTML = `
-            <p>No flights available.</p>
+            <p>
+                No flights available.
+            </p>
         `;
 
         return;
     }
+
 
     flights.forEach(
         flight => {
@@ -650,135 +795,129 @@ function renderFlights(flights) {
             card.className =
                 "flight";
 
+
             const mine =
                 currentUser &&
                 flight.claimed_by ===
                 currentUser.id;
 
+
             let actions = "";
 
-
-            /* AVAILABLE */
 
             if (
                 flight.status ===
                 "available"
             ) {
 
-                if (currentUser) {
+                actions =
+                    currentUser
 
-                    actions = `
-                        <button
-                            class="primary"
-                            onclick="claimFlight('${flight.id}')">
+                        ? `
+                            <button
+                                class="primary"
+                                onclick="claimFlight('${flight.id}')"
+                            >
+                                CLAIM FLIGHT
+                            </button>
+                        `
 
-                            CLAIM FLIGHT
-
-                        </button>
-                    `;
-
-                } else {
-
-                    actions = `
-                        <button
-                            class="light"
-                            onclick="loginWithDiscord()">
-
-                            🔒 LOGIN WITH DISCORD TO CLAIM
-
-                        </button>
-                    `;
-                }
-            }
+                        : `
+                            <button
+                                class="light"
+                                onclick="loginWithDiscord()"
+                            >
+                                🔒 LOGIN WITH DISCORD TO CLAIM
+                            </button>
+                        `;
 
 
-            /* CLAIMED */
-
-            else if (
+            } else if (
                 flight.status ===
                 "claimed"
             ) {
 
-                if (mine) {
+                actions =
+                    mine
 
-                    actions = `
-                        <button
-                            class="primary"
-                            onclick="startFlight('${flight.id}')">
+                        ? `
+                            <button
+                                class="primary"
+                                onclick="startFlight('${flight.id}')"
+                            >
+                                START FLIGHT
+                            </button>
+                        `
 
-                            START FLIGHT
-
-                        </button>
-                    `;
-
-                } else {
-
-                    actions = `
-                        <span>
-                            Pilot has claimed this flight.
-                        </span>
-                    `;
-                }
-            }
+                        : `
+                            <span>
+                                Pilot has claimed this flight.
+                            </span>
+                        `;
 
 
-            /* IN PROGRESS */
+            } else if (
+                flight.status ===
+                "in_progress" &&
+                mine
+            ) {
 
-            else if (
+                actions = `
+
+                    <button
+                        class="light"
+                        onclick="recordEvent('${flight.id}','pushback')"
+                    >
+                        PUSHBACK
+                    </button>
+
+                    <button
+                        class="light"
+                        onclick="recordEvent('${flight.id}','takeoff')"
+                    >
+                        TAKEOFF
+                    </button>
+
+                    <button
+                        class="light"
+                        onclick="recordEvent('${flight.id}','landing')"
+                    >
+                        LANDING
+                    </button>
+
+                    <button
+                        class="secondary"
+                        onclick="completeFlight('${flight.id}')"
+                    >
+                        END FLIGHT
+                    </button>
+
+                `;
+
+
+            } else if (
                 flight.status ===
                 "in_progress"
             ) {
 
-                if (mine) {
-
-                    actions = `
-
-                        <button
-                            class="light"
-                            onclick="recordEvent('${flight.id}', 'pushback')">
-
-                            PUSHBACK
-
-                        </button>
-
-                        <button
-                            class="light"
-                            onclick="recordEvent('${flight.id}', 'takeoff')">
-
-                            TAKEOFF
-
-                        </button>
-
-                        <button
-                            class="light"
-                            onclick="recordEvent('${flight.id}', 'landing')">
-
-                            LANDING
-
-                        </button>
-
-                        <button
-                            class="secondary"
-                            onclick="completeFlight('${flight.id}')">
-
-                            END FLIGHT
-
-                        </button>
-
-                    `;
-                }
-            }
+                actions = `
+                    <span>
+                        Pilot is currently operating
+                        this flight.
+                    </span>
+                `;
 
 
-            /* COMPLETED */
-
-            else if (
+            } else if (
                 flight.status ===
                 "completed"
             ) {
 
-                actions =
-                    "<strong>✓ Flight completed</strong>";
+                actions = `
+                    <strong>
+                        ✓ Flight completed
+                    </strong>
+                `;
             }
 
 
@@ -787,22 +926,19 @@ function renderFlights(flights) {
                 <div class="flight-header">
 
                     <div class="flight-number">
-
                         ${escapeHTML(
                             flight.flight_number
                         )}
-
                     </div>
 
-                    <div
-                        class="status ${statusClass(
+                    <div class="status ${
+                        statusClass(
                             flight.status
-                        )}">
-
+                        )
+                    }">
                         ${statusText(
                             flight.status
                         )}
-
                     </div>
 
                 </div>
@@ -816,9 +952,7 @@ function renderFlights(flights) {
                         )}
                     </span>
 
-                    <span>
-                        →
-                    </span>
+                    <span>→</span>
 
                     <span>
                         ${escapeHTML(
@@ -834,7 +968,7 @@ function renderFlights(flights) {
                     <div class="info">
 
                         <strong>
-                            Scheduled
+                            Departure
                         </strong>
 
                         ${formatDate(
@@ -887,481 +1021,486 @@ function renderFlights(flights) {
 
                 ${
                     flight.additional_info
-                    ?
-                    `
-                        <div class="additional">
 
-                            <strong>
-                                Additional Information
-                            </strong>
+                        ? `
+                            <div class="additional">
+                                ${escapeHTML(
+                                    flight.additional_info
+                                )}
+                            </div>
+                        `
 
-                            <br>
-
-                            ${escapeHTML(
-                                flight.additional_info
-                            )}
-
-                        </div>
-                    `
-                    :
-                    ""
+                        : ""
                 }
 
 
                 ${
-                    flight.started_at ||
-                    flight.pushback_at ||
-                    flight.takeoff_at ||
-                    flight.landing_at ||
-                    flight.completed_at
-                    ?
-                    `
-                        <div class="event-times">
+                    mine
 
-                            ${
-                                flight.started_at
-                                ?
-                                `
-                                    ▶️ Started:
-                                    ${formatDate(
-                                        flight.started_at
-                                    )}
-                                    <br>
-                                `
-                                :
-                                ""
-                            }
+                        ? `
+                            <div class="event-times">
 
-                            ${
-                                flight.pushback_at
-                                ?
-                                `
-                                    ↪ Pushback:
-                                    ${formatDate(
-                                        flight.pushback_at
-                                    )}
-                                    <br>
-                                `
-                                :
-                                ""
-                            }
+                                ${
+                                    flight.started_at
+                                        ? `
+                                            ▶️ Started:
+                                            ${formatDate(
+                                                flight.started_at
+                                            )}
+                                            <br>
+                                        `
+                                        : ""
+                                }
 
-                            ${
-                                flight.takeoff_at
-                                ?
-                                `
-                                    🛫 Takeoff:
-                                    ${formatDate(
-                                        flight.takeoff_at
-                                    )}
-                                    <br>
-                                `
-                                :
-                                ""
-                            }
+                                ${
+                                    flight.pushback_at
+                                        ? `
+                                            ↪ Pushback:
+                                            ${formatDate(
+                                                flight.pushback_at
+                                            )}
+                                            <br>
+                                        `
+                                        : ""
+                                }
 
-                            ${
-                                flight.landing_at
-                                ?
-                                `
-                                    🛬 Landing:
-                                    ${formatDate(
-                                        flight.landing_at
-                                    )}
-                                    <br>
-                                `
-                                :
-                                ""
-                            }
+                                ${
+                                    flight.takeoff_at
+                                        ? `
+                                            🛫 Takeoff:
+                                            ${formatDate(
+                                                flight.takeoff_at
+                                            )}
+                                            <br>
+                                        `
+                                        : ""
+                                }
 
-                            ${
-                                flight.completed_at
-                                ?
-                                `
-                                    ✓ Completed:
-                                    ${formatDate(
-                                        flight.completed_at
-                                    )}
-                                `
-                                :
-                                ""
-                            }
+                                ${
+                                    flight.landing_at
+                                        ? `
+                                            🛬 Landing:
+                                            ${formatDate(
+                                                flight.landing_at
+                                            )}
+                                            <br>
+                                        `
+                                        : ""
+                                }
 
-                        </div>
-                    `
-                    :
-                    ""
+                                ${
+                                    flight.completed_at
+                                        ? `
+                                            ✓ Completed:
+                                            ${formatDate(
+                                                flight.completed_at
+                                            )}
+                                        `
+                                        : ""
+                                }
+
+                            </div>
+                        `
+
+                        : ""
                 }
 
 
                 <div class="actions">
-
                     ${actions}
-
                 </div>
 
             `;
 
-            board.appendChild(
-                card
-            );
+            board.appendChild(card);
         }
     );
 }
 
 
-/* ============================= */
-/* CLAIM ATC24 FLIGHT */
-/* ============================= */
-
 async function claimFlight(id) {
 
     if (!currentUser) {
 
-        showMessage(
+        return showMessage(
             "You must log in with Discord first."
         );
-
-        return;
     }
+
 
     const {
         error
-    } =
-        await supabaseClient
-            .from("flights")
-            .update({
+    } = await supabaseClient
+        .from("flights")
+        .update({
+            status: "claimed",
+            claimed_by: currentUser.id,
+            claimed_at: new Date().toISOString()
+        })
+        .eq("id", id)
+        .eq("status", "available");
 
-                status:
-                    "claimed",
-
-                claimed_by:
-                    currentUser.id,
-
-                claimed_at:
-                    new Date().toISOString()
-
-            })
-            .eq(
-                "id",
-                id
-            )
-            .eq(
-                "status",
-                "available"
-            );
 
     if (error) {
 
-        showMessage(
+        return showMessage(
             error.message
         );
-
-        return;
     }
+
 
     await loadFlights();
 }
 
-
-/* ============================= */
-/* START ATC24 FLIGHT */
-/* ============================= */
 
 async function startFlight(id) {
 
-    if (!currentUser) return;
+    if (!currentUser) {
+        return;
+    }
+
 
     const {
         error
-    } =
-        await supabaseClient
-            .from("flights")
-            .update({
+    } = await supabaseClient
+        .from("flights")
+        .update({
+            status: "in_progress",
+            started_at:
+                new Date().toISOString()
+        })
+        .eq(
+            "id",
+            id
+        )
+        .eq(
+            "claimed_by",
+            currentUser.id
+        );
 
-                status:
-                    "in_progress",
-
-                started_at:
-                    new Date().toISOString()
-
-            })
-            .eq(
-                "id",
-                id
-            )
-            .eq(
-                "claimed_by",
-                currentUser.id
-            );
 
     if (error) {
 
-        showMessage(
+        return showMessage(
             error.message
         );
-
-        return;
     }
+
 
     await loadFlights();
 }
 
-
-/* ============================= */
-/* ATC24 EVENTS */
-/* ============================= */
 
 async function recordEvent(
     id,
     event
 ) {
 
-    if (!currentUser) return;
+    if (!currentUser) {
+        return;
+    }
 
-    const eventFields = {
 
-        pushback:
-            "pushback_at",
+    const field = {
+        pushback: "pushback_at",
+        takeoff: "takeoff_at",
+        landing: "landing_at"
+    }[event];
 
-        takeoff:
-            "takeoff_at",
 
-        landing:
-            "landing_at"
+    if (!field) {
+        return;
+    }
 
-    };
-
-    const field =
-        eventFields[event];
-
-    if (!field) return;
-
-    const update = {};
-
-    update[field] =
-        new Date().toISOString();
 
     const {
         error
-    } =
-        await supabaseClient
-            .from("flights")
-            .update(update)
-            .eq(
-                "id",
-                id
-            )
-            .eq(
-                "claimed_by",
-                currentUser.id
-            );
+    } = await supabaseClient
+        .from("flights")
+        .update({
+            [field]:
+                new Date().toISOString()
+        })
+        .eq(
+            "id",
+            id
+        )
+        .eq(
+            "claimed_by",
+            currentUser.id
+        );
+
 
     if (error) {
 
-        showMessage(
+        return showMessage(
             error.message
         );
-
-        return;
     }
+
 
     await loadFlights();
 }
 
 
-/* ============================= */
-/* ADMIN — CREATE ATC24 FLIGHT */
-/* ============================= */
+async function completeFlight(id) {
+
+    if (!currentUser) {
+
+        return showMessage(
+            "You must be logged in."
+        );
+    }
+
+
+    const {
+        data,
+        error
+    } = await supabaseClient
+        .from("flights")
+        .update({
+            status: "completed",
+            completed_at:
+                new Date().toISOString()
+        })
+        .eq(
+            "id",
+            id
+        )
+        .eq(
+            "claimed_by",
+            currentUser.id
+        )
+        .select();
+
+
+    if (error) {
+
+        return showMessage(
+            "Could not end flight: " +
+            error.message
+        );
+    }
+
+
+    if (!data?.length) {
+
+        return showMessage(
+            "Flight could not be completed. " +
+            "No matching flight was found."
+        );
+    }
+
+
+    showMessage(
+        "Flight completed successfully."
+    );
+
+
+    await loadFlights();
+}
+
+
+// ============================================================
+// ATC24 ADMIN
+// ============================================================
 
 async function createFlight() {
 
     if (!isAdmin()) {
 
-        showMessage(
+        return showMessage(
             "Admin access required."
         );
-
-        return;
     }
 
-    const scheduledElement =
+
+    const scheduled =
         document.getElementById(
             "scheduled"
-        );
+        )?.value;
 
-    if (!scheduledElement) {
 
-        showMessage(
-            "Scheduled departure field not found."
-        );
+    if (!scheduled) {
 
-        return;
-    }
-
-    const scheduledValue =
-        scheduledElement.value;
-
-    if (!scheduledValue) {
-
-        showMessage(
+        return showMessage(
             "Please select a scheduled departure."
         );
-
-        return;
     }
 
-    const additionalInfoElement =
-        document.getElementById(
-            "additionalInfo"
-        );
-
-    const additionalInfo =
-        additionalInfoElement
-            ? additionalInfoElement.value.trim()
-            : "";
 
     const flight = {
 
         flight_number:
             document.getElementById(
                 "flightNumber"
-            ).value.trim(),
+            )?.value.trim(),
 
         departure_airport:
             document.getElementById(
                 "departure"
-            ).value.trim(),
+            )?.value.trim(),
 
         arrival_airport:
             document.getElementById(
                 "arrival"
-            ).value.trim(),
+            )?.value.trim(),
 
         scheduled_departure:
             new Date(
-                scheduledValue
+                scheduled
             ).toISOString(),
 
         aircraft_model:
             document.getElementById(
                 "aircraft"
-            ).value.trim(),
+            )?.value.trim(),
 
         operator_airline:
             document.getElementById(
                 "operator"
-            ).value.trim(),
+            )?.value.trim(),
 
         livery_airline:
             document.getElementById(
                 "livery"
-            ).value.trim(),
+            )?.value.trim(),
 
         recurrence:
             document.getElementById(
                 "recurrence"
-            ).value,
+            )?.value ||
+            "once",
 
         additional_info:
-            additionalInfo || null,
+            document.getElementById(
+                "additionalInfo"
+            )?.value.trim() ||
+            null,
 
         status:
             "available"
-
     };
+
+
+    if (
+        !flight.flight_number ||
+        !flight.departure_airport ||
+        !flight.arrival_airport ||
+        !flight.aircraft_model
+    ) {
+
+        return showMessage(
+            "Please fill in all required ATC24 fields."
+        );
+    }
+
 
     const {
         error
-    } =
-        await supabaseClient
-            .from("flights")
-            .insert(flight);
+    } = await supabaseClient
+        .from("flights")
+        .insert(
+            flight
+        );
+
 
     if (error) {
 
-        console.error(
-            "Create flight error:",
-            error
-        );
-
-        showMessage(
+        return showMessage(
             "Could not create flight: " +
             error.message
         );
-
-        return;
     }
+
 
     showMessage(
-        "Flight created successfully."
+        "ATC24 flight created successfully."
     );
 
-    const form =
-        document.getElementById(
-            "flightForm"
-        );
 
-    if (form) {
-        form.reset();
-    }
+    [
+        "flightNumber",
+        "departure",
+        "arrival",
+        "scheduled",
+        "aircraft",
+        "operator",
+        "livery",
+        "additionalInfo"
+    ].forEach(
+        id => {
+
+            const element =
+                document.getElementById(id);
+
+            if (element) {
+                element.value = "";
+            }
+        }
+    );
+
 
     await loadFlights();
     await loadAdminFlights();
 }
 
 
-/* ============================= */
-/* ADMIN — ATC24 FLIGHT LIST */
-/* ============================= */
-
 async function loadAdminFlights() {
 
-    if (!isAdmin()) return;
+    if (!isAdmin()) {
+        return;
+    }
+
 
     const {
         data,
         error
-    } =
-        await supabaseClient
-            .from("flights")
-            .select("*")
-            .order(
-                "scheduled_departure",
-                {
-                    ascending: false
-                }
-            );
-
-    if (error) {
-
-        console.error(
-            "Admin flight loading error:",
-            error
+    } = await supabaseClient
+        .from("flights")
+        .select("*")
+        .order(
+            "scheduled_departure",
+            {
+                ascending: false
+            }
         );
 
-        return;
-    }
 
     const container =
         document.getElementById(
             "adminFlights"
         );
 
-    if (!container) return;
 
-    container.innerHTML = "";
+    if (!container) {
+        return;
+    }
 
-    if (!data || !data.length) {
+
+    if (error) {
 
         container.innerHTML = `
-            <p>No flights created yet.</p>
+            <p>
+                Could not load ATC24 flights.
+            </p>
         `;
 
         return;
     }
 
-    data.forEach(
+
+    container.innerHTML =
+        data?.length
+            ? ""
+            : `
+                <p>
+                    No flights created yet.
+                </p>
+            `;
+
+
+    (data || []).forEach(
         flight => {
 
             const div =
@@ -1372,79 +1511,55 @@ async function loadAdminFlights() {
             div.className =
                 "admin-flight";
 
+
             div.innerHTML = `
 
-                <strong>
+                <div>
+
+                    <strong>
+                        ${escapeHTML(
+                            flight.flight_number
+                        )}
+                    </strong>
+
+                    <br>
+
                     ${escapeHTML(
-                        flight.flight_number
+                        flight.departure_airport
                     )}
-                </strong>
-
-                <br>
-
-                ${escapeHTML(
-                    flight.departure_airport
-                )}
-
-                →
-
-                ${escapeHTML(
-                    flight.arrival_airport
-                )}
-
-                <br>
-
-                <small>
-
-                    ${formatDate(
-                        flight.scheduled_departure
+                    →
+                    ${escapeHTML(
+                        flight.arrival_airport
                     )}
 
-                </small>
+                    <br>
 
-                <br>
+                    <small>
 
-                <small>
+                        ${formatDate(
+                            flight.scheduled_departure
+                        )}
 
-                    Status:
-                    ${escapeHTML(
-                        statusText(
+                        ·
+
+                        ${escapeHTML(
                             flight.status
-                        )
-                    )}
+                        )}
 
-                </small>
+                    </small>
 
-                ${
-                    flight.additional_info
-                    ?
-                    `
-                        <br>
+                </div>
 
-                        <small>
-
-                            Info:
-                            ${escapeHTML(
-                                flight.additional_info
-                            )}
-
-                        </small>
-                    `
-                    :
-                    ""
-                }
-
-                <br>
 
                 <button
                     class="danger"
-                    onclick="deleteFlight('${flight.id}')">
-
+                    onclick="deleteFlight('${flight.id}')"
+                >
                     DELETE
-
                 </button>
 
             `;
+
 
             container.appendChild(
                 div
@@ -1454,413 +1569,54 @@ async function loadAdminFlights() {
 }
 
 
-/* ============================= */
-/* ADMIN — DELETE ATC24 FLIGHT */
-/* ============================= */
-
 async function deleteFlight(id) {
 
     if (!isAdmin()) {
 
-        showMessage(
+        return showMessage(
             "Admin access required."
         );
-
-        return;
     }
+
 
     if (
         !confirm(
             "Delete this flight?"
         )
     ) {
+
         return;
     }
+
 
     const {
         error
-    } =
-        await supabaseClient
-            .from("flights")
-            .delete()
-            .eq(
-                "id",
-                id
-            );
+    } = await supabaseClient
+        .from("flights")
+        .delete()
+        .eq(
+            "id",
+            id
+        );
+
 
     if (error) {
 
-        console.error(
-            "Delete flight error:",
-            error
-        );
-
-        showMessage(
+        return showMessage(
             "Could not delete flight: " +
             error.message
         );
-
-        return;
     }
 
-    showMessage(
-        "Flight deleted successfully."
-    );
 
     await loadFlights();
     await loadAdminFlights();
 }
 
 
-/* ============================= */
-/* END ATC24 FLIGHT */
-/* ============================= */
-
-async function completeFlight(id) {
-
-    if (!currentUser) {
-
-        showMessage(
-            "You must be logged in."
-        );
-
-        return;
-    }
-
-    console.log(
-        "Ending flight:",
-        id
-    );
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("flights")
-            .update({
-
-                status:
-                    "completed",
-
-                completed_at:
-                    new Date().toISOString()
-
-            })
-            .eq(
-                "id",
-                id
-            )
-            .eq(
-                "claimed_by",
-                currentUser.id
-            )
-            .select();
-
-    console.log(
-        "Complete flight result:",
-        data,
-        error
-    );
-
-    if (error) {
-
-        showMessage(
-            "Could not end flight: " +
-            error.message
-        );
-
-        return;
-    }
-
-    if (
-        !data ||
-        data.length === 0
-    ) {
-
-        showMessage(
-            "Flight could not be completed. No matching flight was found."
-        );
-
-        return;
-    }
-
-    showMessage(
-        "Flight completed successfully."
-    );
-
-    await loadFlights();
-}
-
-
-/* ========================================================= */
-/* ========================================================= */
-/* EVENT FLIGHTS — V1.1 */
-/* ========================================================= */
-/* ========================================================= */
-
-
-/* ============================= */
-/* DISTANCE HELPERS */
-/* ============================= */
-
-function getDistancePoints(distanceType) {
-
-    return (
-        EVENT_DISTANCE_POINTS[
-            distanceType
-        ] || 0
-    );
-}
-
-
-function getDistanceName(distanceType) {
-
-    if (
-        distanceType === "short"
-    ) {
-        return "Short-haul";
-    }
-
-    if (
-        distanceType === "medium"
-    ) {
-        return "Medium-haul";
-    }
-
-    if (
-        distanceType === "long"
-    ) {
-        return "Long-haul";
-    }
-
-    return "Unknown";
-}
-
-
-/* ============================= */
-/* STATUS HELPERS */
-/* ============================= */
-
-function eventStatusText(status) {
-
-    if (
-        status === "boarding"
-    ) {
-        return "BOARDING";
-    }
-
-    if (
-        status === "departed"
-    ) {
-        return "DEPARTED";
-    }
-
-    if (
-        status === "completed"
-    ) {
-        return "COMPLETED";
-    }
-
-    if (
-        status === "cancelled"
-    ) {
-        return "CANCELLED";
-    }
-
-    return "SCHEDULED";
-}
-
-
-function eventStatusClass(status) {
-
-    if (
-        status === "boarding"
-    ) {
-        return "progress";
-    }
-
-    if (
-        status === "departed"
-    ) {
-        return "claimed";
-    }
-
-    if (
-        status === "completed"
-    ) {
-        return "completed";
-    }
-
-    if (
-        status === "cancelled"
-    ) {
-        return "danger";
-    }
-
-    return "available";
-}
-
-
-/* ============================= */
-/* STATUS REQUIREMENTS */
-/* ============================= */
-
-function canBookClass(
-    travelClass,
-    status
-) {
-
-    if (!currentUser) {
-        return false;
-    }
-
-    const normalized =
-        String(
-            status ||
-            "member"
-        ).toLowerCase();
-
-    if (
-        travelClass ===
-        "economy"
-    ) {
-
-        return true;
-    }
-
-    if (
-        travelClass ===
-        "business"
-    ) {
-
-        return [
-            "frequent_traveller",
-            "senator",
-            "hon_circle_member"
-        ].includes(
-            normalized
-        );
-    }
-
-    if (
-        travelClass ===
-        "first"
-    ) {
-
-        return [
-            "senator",
-            "hon_circle_member"
-        ].includes(
-            normalized
-        );
-    }
-
-    return false;
-}
-
-
-function getClassRequirement(
-    travelClass
-) {
-
-    if (
-        travelClass ===
-        "business"
-    ) {
-        return "Frequent Traveller";
-    }
-
-    if (
-        travelClass ===
-        "first"
-    ) {
-        return "Senator";
-    }
-
-    return "Member";
-}
-
-
-/* ============================= */
-/* CLASS NAME */
-/* ============================= */
-
-function className(
-    travelClass
-) {
-
-    if (
-        travelClass ===
-        "business"
-    ) {
-        return "Business";
-    }
-
-    if (
-        travelClass ===
-        "first"
-    ) {
-        return "First";
-    }
-
-    return "Economy";
-}
-
-
-/* ============================= */
-/* EVENT FLIGHTS LOAD */
-/* ============================= */
-
-async function loadEventFlights() {
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("events")
-            .select("*")
-            .order(
-                "departure_time",
-                {
-                    ascending: true
-                }
-            );
-
-    if (error) {
-
-        console.error(
-            "Event flight loading error:",
-            error
-        );
-
-        const board =
-            document.getElementById(
-                "eventFlightBoard"
-            );
-
-        if (board) {
-
-            board.innerHTML = `
-                <p>
-                    Could not load event flights.
-                </p>
-            `;
-        }
-
-        return;
-    }
-
-    await renderEventFlights(
-        data || []
-    );
-}
-
-
-/* ============================= */
-/* LOAD USER BOOKINGS */
-/* ============================= */
+// ============================================================
+// EVENT FLIGHTS
+// ============================================================
 
 async function getUserEventBooking(
     eventId
@@ -1870,22 +1626,23 @@ async function getUserEventBooking(
         return null;
     }
 
+
     const {
         data,
         error
-    } =
-        await supabaseClient
-            .from("event_bookings")
-            .select("*")
-            .eq(
-                "event_id",
-                eventId
-            )
-            .eq(
-                "user_id",
-                currentUser.id
-            )
-            .maybeSingle();
+    } = await supabaseClient
+        .from("event_bookings")
+        .select("*")
+        .eq(
+            "event_id",
+            eventId
+        )
+        .eq(
+            "user_id",
+            currentUser.id
+        )
+        .maybeSingle();
+
 
     if (error) {
 
@@ -1893,18 +1650,16 @@ async function getUserEventBooking(
             "Booking lookup error:",
             error
         );
-
-        return null;
     }
+
 
     return data || null;
 }
 
 
-/* ============================= */
-/* LOAD EVENT BOOKING COUNTS */
-/* ============================= */
-
+// IMPORTANT:
+// Uses the secure RPC so RLS does not hide
+// other passengers from capacity counts.
 async function getEventBookingCounts(
     eventId
 ) {
@@ -1912,21 +1667,19 @@ async function getEventBookingCounts(
     const {
         data,
         error
-    } =
-        await supabaseClient
-            .from("event_bookings")
-            .select(
-                "travel_class"
-            )
-            .eq(
-                "event_id",
-                eventId
-            );
+    } = await supabaseClient
+        .rpc(
+            "get_event_booking_counts",
+            {
+                p_event_id: eventId
+            }
+        );
+
 
     if (error) {
 
         console.error(
-            "Booking count error:",
+            "Booking count RPC error:",
             error
         );
 
@@ -1937,38 +1690,85 @@ async function getEventBookingCounts(
         };
     }
 
-    const counts = {
 
-        economy: 0,
-        business: 0,
-        first: 0
+    const row =
+        Array.isArray(data)
+            ? data[0]
+            : data;
 
+
+    return {
+
+        economy:
+            Number(
+                row?.economy_count || 0
+            ),
+
+        business:
+            Number(
+                row?.business_count || 0
+            ),
+
+        first:
+            Number(
+                row?.first_count || 0
+            )
     };
-
-    (data || []).forEach(
-        booking => {
-
-            if (
-                counts[
-                    booking.travel_class
-                ] !== undefined
-            ) {
-
-                counts[
-                    booking.travel_class
-                ]++;
-
-            }
-        }
-    );
-
-    return counts;
 }
 
 
-/* ============================= */
-/* EVENT FLIGHT BOARD */
-/* ============================= */
+async function loadEventFlights() {
+
+    const {
+        data,
+        error
+    } = await supabaseClient
+        .from("events")
+        .select("*")
+        .order(
+            "departure_time",
+            {
+                ascending: true
+            }
+        );
+
+
+    const board =
+        document.getElementById(
+            "eventFlightBoard"
+        );
+
+
+    if (!board) {
+        return;
+    }
+
+
+    if (error) {
+
+        console.error(
+            "Event flight loading error:",
+            error
+        );
+
+        board.innerHTML = `
+            <p>
+                Could not load event flights:
+                ${escapeHTML(
+                    error.message
+                )}
+            </p>
+        `;
+
+        return;
+    }
+
+
+    await renderEventFlights(
+        data || []
+    );
+}
+
 
 async function renderEventFlights(
     events
@@ -1979,21 +1779,26 @@ async function renderEventFlights(
             "eventFlightBoard"
         );
 
-    const countElement =
+    const count =
         document.getElementById(
             "eventFlightCount"
         );
 
-    if (!board) return;
+
+    if (!board) {
+        return;
+    }
+
 
     board.innerHTML = "";
 
-    if (countElement) {
 
-        countElement.textContent =
+    if (count) {
+
+        count.textContent =
             `${events.length} event flights`;
-
     }
+
 
     if (!events.length) {
 
@@ -2016,27 +1821,33 @@ async function renderEventFlights(
                 event.id
             );
 
+
         const booking =
             await getUserEventBooking(
                 event.id
             );
 
-        const distanceType =
-            event.distance_type ||
-            "short";
 
         const points =
             Number(
                 event.points ??
                 getDistancePoints(
-                    distanceType
+                    event.distance_type ||
+                    "short"
                 )
             );
+
+
+        const distance =
+            event.distance_type ||
+            "short";
+
 
         const card =
             document.createElement(
                 "div"
             );
+
 
         card.className =
             "flight event-flight";
@@ -2045,6 +1856,10 @@ async function renderEventFlights(
         let bookingHTML = "";
 
 
+        // ----------------------------------------------------
+        // CANCELLED
+        // ----------------------------------------------------
+
         if (
             event.status ===
             "cancelled"
@@ -2052,24 +1867,46 @@ async function renderEventFlights(
 
             bookingHTML = `
                 <strong>
-                    ❌ This event flight has been cancelled.
+                    ❌ This event flight
+                    has been cancelled.
                 </strong>
             `;
 
+
+        // ----------------------------------------------------
+        // COMPLETED BOOKING
+        // ----------------------------------------------------
+
         } else if (
-            event.status ===
-            "completed"
+            event.status === "completed" &&
+            booking?.completed
         ) {
 
             bookingHTML = `
                 <strong>
-                    ✓ Event flight completed
+                    ✓ Completed —
+                    ${formatNumber(event.miles)}
+                    Miles /
+                    ${points}
+                    Point(s) awarded.
                 </strong>
             `;
+
+
+        // ----------------------------------------------------
+        // USER HAS BOOKING
+        // ----------------------------------------------------
 
         } else if (
             booking
         ) {
+
+            const canComplete =
+                event.status === "completed" &&
+                booking.checked_in &&
+                booking.boarded &&
+                !booking.completed;
+
 
             bookingHTML = `
 
@@ -2092,35 +1929,136 @@ async function renderEventFlights(
 
                     ${
                         booking.checked_in
-                        ? "✓ Checked in"
-                        : "• Not checked in"
+                            ? "✓ Checked in"
+                            : "• Not checked in"
                     }
 
                     <br>
 
                     ${
                         booking.boarded
-                        ? "✓ Boarded"
-                        : "• Not boarded"
+                            ? "✓ Boarded"
+                            : "• Not boarded"
+                    }
+
+                    <br>
+
+                    ${
+                        booking.completed
+                            ? "✓ Completed"
+                            : "• Flight not completed"
                     }
 
                 </div>
 
+
+                <div class="actions">
+
+                    ${
+                        !booking.checked_in &&
+                        event.status !== "completed"
+
+                            ? `
+                                <button
+                                    class="primary"
+                                    onclick="checkInEventFlight('${booking.id}')"
+                                >
+                                    CHECK IN
+                                </button>
+                            `
+
+                            : ""
+                    }
+
+
+                    ${
+                        booking.checked_in &&
+                        !booking.boarded &&
+                        event.status !== "completed"
+
+                            ? `
+                                <button
+                                    class="light"
+                                    onclick="boardEventFlight('${booking.id}')"
+                                >
+                                    BOARD
+                                </button>
+                            `
+
+                            : ""
+                    }
+
+
+                    ${
+                        canComplete
+
+                            ? `
+                                <button
+                                    class="primary"
+                                    onclick="completeEventBooking('${booking.id}')"
+                                >
+                                    COMPLETE EVENT FLIGHT
+                                </button>
+                            `
+
+                            : ""
+                    }
+
+
+                    ${
+                        event.status === "completed" &&
+                        !booking.completed
+
+                            ? `
+                                <span class="muted">
+                                    Complete requires
+                                    check-in and boarding.
+                                </span>
+                            `
+
+                            : ""
+                    }
+
+                </div>
             `;
 
-        } else if (!currentUser) {
+
+        // ----------------------------------------------------
+        // NOT LOGGED IN
+        // ----------------------------------------------------
+
+        } else if (
+            !currentUser
+        ) {
 
             bookingHTML = `
-
                 <button
                     class="light"
-                    onclick="loginWithDiscord()">
-
+                    onclick="loginWithDiscord()"
+                >
                     🔒 LOGIN WITH DISCORD TO BOOK
-
                 </button>
-
             `;
+
+
+        // ----------------------------------------------------
+        // EVENT ALREADY COMPLETED
+        // ----------------------------------------------------
+
+        } else if (
+            event.status === "completed"
+        ) {
+
+            bookingHTML = `
+                <span>
+                    This event flight is completed.
+                </span>
+            `;
+
+
+        // ----------------------------------------------------
+        // BOOKING BUTTONS
+        // ----------------------------------------------------
 
         } else {
 
@@ -2128,23 +2066,26 @@ async function renderEventFlights(
 
                 <div class="actions">
 
-                    ${event.economy_capacity > counts.economy
-                    ?
-                    `
-                        <button
-                            class="primary"
-                            onclick="bookEventFlight('${event.id}', 'economy')">
+                    ${
+                        Number(
+                            event.economy_capacity || 0
+                        ) > counts.economy
 
-                            BOOK ECONOMY
+                            ? `
+                                <button
+                                    class="primary"
+                                    onclick="bookEventFlight('${event.id}','economy')"
+                                >
+                                    BOOK ECONOMY
+                                </button>
+                            `
 
-                        </button>
-                    `
-                    :
-                    `
-                        <span>
-                            Economy full
-                        </span>
-                    `}
+                            : `
+                                <span>
+                                    Economy full
+                                </span>
+                            `
+                    }
 
 
                     ${
@@ -2152,34 +2093,36 @@ async function renderEventFlights(
                             "business",
                             currentProfile?.miles_and_more_status
                         )
-                        ?
-                        (
-                            event.business_capacity >
-                            counts.business
+
                             ?
-                            `
-                                <button
-                                    class="light"
-                                    onclick="bookEventFlight('${event.id}', 'business')">
 
-                                    BOOK BUSINESS
+                            (
+                                Number(
+                                    event.business_capacity || 0
+                                ) > counts.business
 
-                                </button>
-                            `
-                            :
-                            `
+                                    ? `
+                                        <button
+                                            class="light"
+                                            onclick="bookEventFlight('${event.id}','business')"
+                                        >
+                                            BOOK BUSINESS
+                                        </button>
+                                    `
+
+                                    : `
+                                        <span>
+                                            Business full
+                                        </span>
+                                    `
+                            )
+
+                            : `
                                 <span>
-                                    Business full
+                                    🔒 Business —
+                                    Frequent Traveller required
                                 </span>
                             `
-                        )
-                        :
-                        `
-                            <span>
-                                🔒 Business —
-                                ${getClassRequirement("business")} required
-                            </span>
-                        `
                     }
 
 
@@ -2188,34 +2131,36 @@ async function renderEventFlights(
                             "first",
                             currentProfile?.miles_and_more_status
                         )
-                        ?
-                        (
-                            event.first_capacity >
-                            counts.first
+
                             ?
-                            `
-                                <button
-                                    class="secondary"
-                                    onclick="bookEventFlight('${event.id}', 'first')">
 
-                                    BOOK FIRST
+                            (
+                                Number(
+                                    event.first_capacity || 0
+                                ) > counts.first
 
-                                </button>
-                            `
-                            :
-                            `
+                                    ? `
+                                        <button
+                                            class="secondary"
+                                            onclick="bookEventFlight('${event.id}','first')"
+                                        >
+                                            BOOK FIRST
+                                        </button>
+                                    `
+
+                                    : `
+                                        <span>
+                                            First full
+                                        </span>
+                                    `
+                            )
+
+                            : `
                                 <span>
-                                    First full
+                                    🔒 First —
+                                    Senator required
                                 </span>
                             `
-                        )
-                        :
-                        `
-                            <span>
-                                🔒 First —
-                                ${getClassRequirement("first")} required
-                            </span>
-                        `
                     }
 
                 </div>
@@ -2236,10 +2181,12 @@ async function renderEventFlights(
 
                 </div>
 
-                <div
-                    class="status ${eventStatusClass(
+
+                <div class="status ${
+                    eventStatusClass(
                         event.status
-                    )}">
+                    )
+                }">
 
                     ${eventStatusText(
                         event.status
@@ -2253,11 +2200,9 @@ async function renderEventFlights(
             <div class="route">
 
                 <span>
-
                     ${escapeHTML(
                         event.departure
                     )}
-
                 </span>
 
                 <span>
@@ -2265,11 +2210,9 @@ async function renderEventFlights(
                 </span>
 
                 <span>
-
                     ${escapeHTML(
                         event.arrival
                     )}
-
                 </span>
 
             </div>
@@ -2306,12 +2249,12 @@ async function renderEventFlights(
                 <div class="info">
 
                     <strong>
-                        Route
+                        Distance
                     </strong>
 
                     ${escapeHTML(
                         getDistanceName(
-                            distanceType
+                            distance
                         )
                     )}
 
@@ -2324,65 +2267,89 @@ async function renderEventFlights(
                         Miles & More
                     </strong>
 
-                    ${points} Points
+                    ${points}
+                    Point(s)
                     ·
                     ${formatNumber(
                         event.miles
-                    )} Miles
+                    )}
+                    Miles
 
                 </div>
 
             </div>
 
 
-            <div class="additional">
+            <div class="capacity">
 
-                <strong>
-                    🎫 Capacity
-                </strong>
+                <div class="capacity-row">
 
-                <br>
+                    <span class="class-name economy">
+                        Economy
+                    </span>
 
-                Economy:
-                ${counts.economy}/${Number(
-                    event.economy_capacity || 0
-                )}
+                    <span>
+                        ${counts.economy}/
+                        ${Number(
+                            event.economy_capacity || 0
+                        )}
+                    </span>
 
-                <br>
+                </div>
 
-                Business:
-                ${counts.business}/${Number(
-                    event.business_capacity || 0
-                )}
 
-                <br>
+                <div class="capacity-row">
 
-                First:
-                ${counts.first}/${Number(
-                    event.first_capacity || 0
-                )}
+                    <span class="class-name business">
+                        Business
+                    </span>
+
+                    <span>
+                        ${counts.business}/
+                        ${Number(
+                            event.business_capacity || 0
+                        )}
+                    </span>
+
+                </div>
+
+
+                <div class="capacity-row">
+
+                    <span class="class-name first">
+                        First
+                    </span>
+
+                    <span>
+                        ${counts.first}/
+                        ${Number(
+                            event.first_capacity || 0
+                        )}
+                    </span>
+
+                </div>
 
             </div>
 
 
             ${
                 event.pilot_id
-                ?
-                `
-                    <div class="additional">
 
-                        <strong>
-                            👨‍✈️ Event Pilot
-                        </strong>
+                    ? `
+                        <div class="additional">
 
-                        <br>
+                            <strong>
+                                👨‍✈️ Event Pilot
+                            </strong>
 
-                        Assigned pilot
+                            <br>
 
-                    </div>
-                `
-                :
-                ""
+                            Assigned pilot
+
+                        </div>
+                    `
+
+                    : ""
             }
 
 
@@ -2394,6 +2361,7 @@ async function renderEventFlights(
 
         `;
 
+
         board.appendChild(
             card
         );
@@ -2401,9 +2369,9 @@ async function renderEventFlights(
 }
 
 
-/* ============================= */
-/* BOOK EVENT FLIGHT */
-/* ============================= */
+// ============================================================
+// BOOK EVENT FLIGHT
+// ============================================================
 
 async function bookEventFlight(
     eventId,
@@ -2412,25 +2380,9 @@ async function bookEventFlight(
 
     if (!currentUser) {
 
-        showMessage(
+        return showMessage(
             "You must log in with Discord first."
         );
-
-        return;
-    }
-
-
-    if (
-        ![
-            "economy",
-            "business",
-            "first"
-        ].includes(
-            travelClass
-        )
-    ) {
-
-        return;
     }
 
 
@@ -2441,15 +2393,15 @@ async function bookEventFlight(
         )
     ) {
 
-        showMessage(
+        return showMessage(
             `${className(
                 travelClass
-            )} requires ${getClassRequirement(
-                travelClass
-            )} status.`
+            )} requires ${
+                getClassRequirement(
+                    travelClass
+                )
+            } status.`
         );
-
-        return;
     }
 
 
@@ -2458,64 +2410,49 @@ async function bookEventFlight(
             eventId
         );
 
+
     if (existing) {
 
-        showMessage(
+        return showMessage(
             "You are already booked on this event flight."
         );
-
-        return;
     }
 
 
     const {
         data: event,
         error: eventError
-    } =
-        await supabaseClient
-            .from("events")
-            .select("*")
-            .eq(
-                "id",
-                eventId
-            )
-            .single();
+    } = await supabaseClient
+        .from("events")
+        .select("*")
+        .eq(
+            "id",
+            eventId
+        )
+        .single();
 
 
     if (eventError) {
 
-        showMessage(
+        return showMessage(
             "Could not load event flight: " +
             eventError.message
         );
-
-        return;
     }
 
 
     if (
-        event.status ===
-        "cancelled"
+        [
+            "cancelled",
+            "completed"
+        ].includes(
+            event.status
+        )
     ) {
 
-        showMessage(
-            "This event flight has been cancelled."
+        return showMessage(
+            "This event flight is no longer bookable."
         );
-
-        return;
-    }
-
-
-    if (
-        event.status ===
-        "completed"
-    ) {
-
-        showMessage(
-            "This event flight has already been completed."
-        );
-
-        return;
     }
 
 
@@ -2538,64 +2475,55 @@ async function bookEventFlight(
         capacity
     ) {
 
-        showMessage(
+        return showMessage(
             `${className(
                 travelClass
             )} is fully booked.`
         );
-
-        return;
     }
 
 
     const {
         error
-    } =
-        await supabaseClient
-            .from("event_bookings")
-            .insert({
+    } = await supabaseClient
+        .from("event_bookings")
+        .insert({
 
-                event_id:
-                    eventId,
+            event_id:
+                eventId,
 
-                user_id:
-                    currentUser.id,
+            user_id:
+                currentUser.id,
 
-                travel_class:
-                    travelClass,
+            travel_class:
+                travelClass,
 
-                checked_in:
-                    false,
+            checked_in:
+                false,
 
-                boarded:
-                    false,
+            boarded:
+                false,
 
-                completed:
-                    false
-
-            });
+            completed:
+                false
+        });
 
 
     if (error) {
 
-        console.error(
-            "Event booking error:",
-            error
-        );
-
-        showMessage(
+        return showMessage(
             "Could not book flight: " +
             error.message
         );
-
-        return;
     }
 
 
     showMessage(
-        `Successfully booked in ${className(
-            travelClass
-        )}.`
+        `Successfully booked in ${
+            className(
+                travelClass
+            )
+        }. No Miles or Points have been awarded yet.`
     );
 
 
@@ -2603,158 +2531,333 @@ async function bookEventFlight(
 }
 
 
-/* ========================================================= */
-/* EVENT ADMIN */
-/* ========================================================= */
+// ============================================================
+// CHECK-IN
+// ============================================================
+
+async function checkInEventFlight(
+    bookingId
+) {
+
+    if (!currentUser) {
+
+        return showMessage(
+            "You must be logged in."
+        );
+    }
 
 
-/* ============================= */
-/* CREATE MISSING ADMIN FIELDS */
-/* ============================= */
-
-function ensureEventAdminFields() {
-
-    const panel =
-        document.getElementById(
-            "eventAdminPanel"
+    const eventId =
+        await getBookingEventId(
+            bookingId
         );
 
-    if (!panel) return;
 
+    if (!eventId) {
 
-    /*
-     * Your current HTML did not yet contain
-     * the distance and miles fields.
-     *
-     * We create them automatically so you
-     * don't have to change index.html just
-     * for these two fields.
-     */
-
-    if (
-        !document.getElementById(
-            "eventDistance"
-        )
-    ) {
-
-        const wrapper =
-            document.createElement(
-                "div"
-            );
-
-        wrapper.innerHTML = `
-
-            <label for="eventDistance">
-                Route Distance
-            </label>
-
-            <select
-                id="eventDistance">
-
-                <option value="short">
-                    Short-haul — 1 Point
-                </option>
-
-                <option value="medium">
-                    Medium-haul — 2 Points
-                </option>
-
-                <option value="long">
-                    Long-haul — 3 Points
-                </option>
-
-            </select>
-
-        `;
-
-        const button =
-            panel.querySelector(
-                "button"
-            );
-
-        if (button) {
-
-            panel.insertBefore(
-                wrapper,
-                button
-            );
-
-        } else {
-
-            panel.appendChild(
-                wrapper
-            );
-
-        }
+        return showMessage(
+            "Could not find the event for this booking."
+        );
     }
 
 
-    if (
-        !document.getElementById(
-            "eventMiles"
+    const now =
+        new Date().toISOString();
+
+
+    const {
+        error
+    } = await supabaseClient
+        .from("event_bookings")
+        .update({
+            checked_in: true
+        })
+        .eq(
+            "id",
+            bookingId
         )
-    ) {
+        .eq(
+            "user_id",
+            currentUser.id
+        );
 
-        const wrapper =
-            document.createElement(
-                "div"
-            );
 
-        wrapper.innerHTML = `
+    if (error) {
 
-            <label for="eventMiles">
-                Miles
-            </label>
-
-            <input
-                type="number"
-                id="eventMiles"
-                min="0"
-                step="1"
-                placeholder="e.g. 750">
-
-        `;
-
-        const button =
-            panel.querySelector(
-                "button"
-            );
-
-        if (button) {
-
-            panel.insertBefore(
-                wrapper,
-                button
-            );
-
-        } else {
-
-            panel.appendChild(
-                wrapper
-            );
-
-        }
+        return showMessage(
+            "Could not check in: " +
+            error.message
+        );
     }
+
+
+    const {
+        error: participantError
+    } = await supabaseClient
+        .from("flight_participants")
+        .upsert(
+            {
+                event_id:
+                    eventId,
+
+                user_id:
+                    currentUser.id,
+
+                check_in_at:
+                    now
+            },
+            {
+                onConflict:
+                    "event_id,user_id"
+            }
+        );
+
+
+    if (participantError) {
+
+        console.error(
+            "Participant check-in error:",
+            participantError
+        );
+
+        return showMessage(
+            "Check-in saved, but participant tracking failed: " +
+            participantError.message
+        );
+    }
+
+
+    await loadEventFlights();
 }
 
 
-/* ============================= */
-/* CREATE EVENT FLIGHT */
-/* ============================= */
+// ============================================================
+// GET EVENT ID FROM BOOKING
+// ============================================================
+
+async function getBookingEventId(
+    bookingId
+) {
+
+    if (!currentUser) {
+        return null;
+    }
+
+
+    const {
+        data,
+        error
+    } = await supabaseClient
+        .from("event_bookings")
+        .select("event_id")
+        .eq(
+            "id",
+            bookingId
+        )
+        .eq(
+            "user_id",
+            currentUser.id
+        )
+        .maybeSingle();
+
+
+    if (error) {
+
+        console.error(
+            "Booking event lookup error:",
+            error
+        );
+    }
+
+
+    return data?.event_id || null;
+}
+
+
+// ============================================================
+// BOARDING
+// ============================================================
+
+async function boardEventFlight(
+    bookingId
+) {
+
+    if (!currentUser) {
+
+        return showMessage(
+            "You must be logged in."
+        );
+    }
+
+
+    const eventId =
+        await getBookingEventId(
+            bookingId
+        );
+
+
+    if (!eventId) {
+
+        return showMessage(
+            "Could not find the event for this booking."
+        );
+    }
+
+
+    const now =
+        new Date().toISOString();
+
+
+    const {
+        error
+    } = await supabaseClient
+        .from("event_bookings")
+        .update({
+            boarded: true
+        })
+        .eq(
+            "id",
+            bookingId
+        )
+        .eq(
+            "user_id",
+            currentUser.id
+        );
+
+
+    if (error) {
+
+        return showMessage(
+            "Could not board: " +
+            error.message
+        );
+    }
+
+
+    const {
+        error: participantError
+    } = await supabaseClient
+        .from("flight_participants")
+        .upsert(
+            {
+                event_id:
+                    eventId,
+
+                user_id:
+                    currentUser.id,
+
+                boarding_at:
+                    now
+            },
+            {
+                onConflict:
+                    "event_id,user_id"
+            }
+        );
+
+
+    if (participantError) {
+
+        console.error(
+            "Participant boarding error:",
+            participantError
+        );
+
+        return showMessage(
+            "Boarding saved, but participant tracking failed: " +
+            participantError.message
+        );
+    }
+
+
+    await loadEventFlights();
+}
+
+
+// ============================================================
+// COMPLETE EVENT FLIGHT
+// ============================================================
+
+async function completeEventBooking(
+    bookingId
+) {
+
+    if (!currentUser) {
+
+        return showMessage(
+            "You must be logged in."
+        );
+    }
+
+
+    const {
+        data,
+        error
+    } = await supabaseClient
+        .rpc(
+            "complete_event_flight",
+            {
+                p_booking_id:
+                    bookingId
+            }
+        );
+
+
+    if (error) {
+
+        console.error(
+            "Completion RPC error:",
+            error
+        );
+
+        return showMessage(
+            "Could not complete event flight: " +
+            error.message
+        );
+    }
+
+
+    const result =
+        Array.isArray(data)
+            ? data[0]
+            : data;
+
+
+    showMessage(
+        `Event flight completed! ` +
+        `+${formatNumber(
+            result?.miles_awarded || 0
+        )} Miles / ` +
+        `+${result?.points_awarded || 0} Point(s). ` +
+        `New status: ${
+            getStatusName(
+                result?.new_status ||
+                "member"
+            )
+        }.`
+    );
+
+
+    await loadCurrentProfile();
+
+    updateMilesUI();
+
+    await loadEventFlights();
+}
+
+
+// ============================================================
+// EVENT ADMIN
+// ============================================================
 
 async function createEventFlight() {
 
     if (!isAdmin()) {
 
-        showMessage(
+        return showMessage(
             "Admin access required."
         );
-
-        return;
     }
-
-
-    ensureEventAdminFields();
 
 
     const flightNumber =
@@ -2787,41 +2890,10 @@ async function createEventFlight() {
         )?.value.trim();
 
 
-    const pilotValue =
+    const pilotDiscordId =
         document.getElementById(
             "eventPilot"
         )?.value.trim();
-
-
-    const economyCapacity =
-        Number(
-            document.getElementById(
-                "economyCapacity"
-            )?.value || 0
-        );
-
-
-    const businessCapacity =
-        Number(
-            document.getElementById(
-                "businessCapacity"
-            )?.value || 0
-        );
-
-
-    const firstCapacity =
-        Number(
-            document.getElementById(
-                "firstCapacity"
-            )?.value || 0
-        );
-
-
-    const status =
-        document.getElementById(
-            "eventStatus"
-        )?.value ||
-        "scheduled";
 
 
     const distanceType =
@@ -2835,132 +2907,121 @@ async function createEventFlight() {
         Number(
             document.getElementById(
                 "eventMiles"
-            )?.value || 0
+            )?.value ||
+            0
         );
 
 
-    if (!flightNumber) {
-
-        showMessage(
-            "Please enter a flight number."
+    const economy =
+        Number(
+            document.getElementById(
+                "economyCapacity"
+            )?.value ||
+            0
         );
 
-        return;
-    }
 
-
-    if (!departure) {
-
-        showMessage(
-            "Please enter a departure airport."
+    const business =
+        Number(
+            document.getElementById(
+                "businessCapacity"
+            )?.value ||
+            0
         );
 
-        return;
-    }
 
-
-    if (!arrival) {
-
-        showMessage(
-            "Please enter an arrival airport."
+    const first =
+        Number(
+            document.getElementById(
+                "firstCapacity"
+            )?.value ||
+            0
         );
 
-        return;
-    }
+
+    const status =
+        document.getElementById(
+            "eventStatus"
+        )?.value ||
+        "scheduled";
 
 
-    if (!departureTime) {
+    if (
+        !flightNumber ||
+        !departure ||
+        !arrival ||
+        !departureTime ||
+        !aircraft
+    ) {
 
-        showMessage(
-            "Please select a departure time."
+        return showMessage(
+            "Please fill in all required Event Flight fields."
         );
-
-        return;
-    }
-
-
-    if (!aircraft) {
-
-        showMessage(
-            "Please enter an aircraft."
-        );
-
-        return;
     }
 
 
     if (
-        ![
-            "short",
-            "medium",
-            "long"
-        ].includes(
+        !Object.hasOwn(
+            EVENT_DISTANCE_POINTS,
             distanceType
         )
     ) {
 
-        showMessage(
-            "Please select a valid route distance."
+        return showMessage(
+            "Please select a valid distance category."
         );
-
-        return;
     }
 
 
     if (
-        !Number.isFinite(
-            miles
-        ) ||
+        !Number.isInteger(miles) ||
         miles < 0
     ) {
 
-        showMessage(
-            "Please enter valid Miles."
+        return showMessage(
+            "Miles must be a whole number of 0 or more."
         );
-
-        return;
     }
 
 
-    const points =
-        getDistancePoints(
-            distanceType
-        );
+    let pilotId = null;
 
 
-    /*
-     * pilot_id is a UUID in the events table.
-     *
-     * If the field is empty, no pilot is assigned.
-     *
-     * If something is entered, it must be
-     * a valid UUID.
-     */
+    if (pilotDiscordId) {
 
-    let pilotId =
-        null;
-
-
-    if (pilotValue) {
-
-        const uuidRegex =
-            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-        if (
-            !uuidRegex.test(
-                pilotValue
+        const {
+            data: pilot,
+            error: pilotError
+        } = await supabaseClient
+            .from("profiles")
+            .select("id")
+            .eq(
+                "discord_id",
+                pilotDiscordId
             )
-        ) {
+            .maybeSingle();
 
-            showMessage(
-                "Pilot ID must be a valid Supabase User UUID."
+
+        if (pilotError) {
+
+            return showMessage(
+                "Could not find pilot: " +
+                pilotError.message
             );
-
-            return;
         }
 
+
+        if (!pilot) {
+
+            return showMessage(
+                "No profile found for that Pilot Discord ID. " +
+                "The pilot must log in to the website first."
+            );
+        }
+
+
         pilotId =
-            pilotValue;
+            pilot.id;
     }
 
 
@@ -2992,109 +3053,86 @@ async function createEventFlight() {
         economy_capacity:
             Math.max(
                 0,
-                economyCapacity
+                Math.floor(
+                    economy
+                )
             ),
 
         business_capacity:
             Math.max(
                 0,
-                businessCapacity
+                Math.floor(
+                    business
+                )
             ),
 
         first_capacity:
             Math.max(
                 0,
-                firstCapacity
+                Math.floor(
+                    first
+                )
             ),
 
         distance_type:
             distanceType,
 
         points:
-            points,
+            getDistancePoints(
+                distanceType
+            ),
 
         miles:
             miles
-
     };
-
-
-    console.log(
-        "Creating Event Flight:",
-        event
-    );
 
 
     const {
         error
-    } =
-        await supabaseClient
-            .from("events")
-            .insert(event);
+    } = await supabaseClient
+        .from("events")
+        .insert(
+            event
+        );
 
 
     if (error) {
 
-        console.error(
-            "Create event flight error:",
-            error
-        );
-
-        showMessage(
+        return showMessage(
             "Could not create event flight: " +
             error.message
         );
-
-        return;
     }
 
 
     showMessage(
-        `Event flight created successfully — ${points} Points / ${formatNumber(
-            miles
-        )} Miles.`
+        `Event flight created successfully — ` +
+        `${event.points} Point(s) / ` +
+        `${formatNumber(miles)} Miles.`
     );
 
 
-    const form =
-        document.getElementById(
-            "eventFlightForm"
-        );
+    [
+        "eventFlightNumber",
+        "eventDeparture",
+        "eventArrival",
+        "eventDepartureTime",
+        "eventAircraft",
+        "eventPilot",
+        "eventMiles"
+    ].forEach(
+        id => {
 
-    if (form) {
+            const element =
+                document.getElementById(
+                    id
+                );
 
-        form.reset();
-
-    } else {
-
-        [
-            "eventFlightNumber",
-            "eventDeparture",
-            "eventArrival",
-            "eventDepartureTime",
-            "eventAircraft",
-            "eventPilot",
-            "economyCapacity",
-            "businessCapacity",
-            "firstCapacity",
-            "eventMiles"
-        ].forEach(
-            id => {
-
-                const element =
-                    document.getElementById(
-                        id
-                    );
-
-                if (element) {
-
-                    element.value = "";
-
-                }
+            if (element) {
+                element.value = "";
             }
-        );
-
-    }
+        }
+    );
 
 
     await loadEventFlights();
@@ -3102,13 +3140,15 @@ async function createEventFlight() {
 }
 
 
-/* ============================= */
-/* ADMIN EVENT LIST */
-/* ============================= */
+// ============================================================
+// ADMIN EVENT LIST
+// ============================================================
 
 async function loadAdminEventFlights() {
 
-    if (!isAdmin()) return;
+    if (!isAdmin()) {
+        return;
+    }
 
 
     const container =
@@ -3116,34 +3156,34 @@ async function loadAdminEventFlights() {
             "adminEventFlights"
         );
 
-    if (!container) return;
+
+    if (!container) {
+        return;
+    }
 
 
     const {
         data,
         error
-    } =
-        await supabaseClient
-            .from("events")
-            .select("*")
-            .order(
-                "departure_time",
-                {
-                    ascending: false
-                }
-            );
+    } = await supabaseClient
+        .from("events")
+        .select("*")
+        .order(
+            "departure_time",
+            {
+                ascending: false
+            }
+        );
 
 
     if (error) {
 
-        console.error(
-            "Admin event loading error:",
-            error
-        );
-
         container.innerHTML = `
             <p>
-                Could not load event flights.
+                Could not load event flights:
+                ${escapeHTML(
+                    error.message
+                )}
             </p>
         `;
 
@@ -3151,25 +3191,17 @@ async function loadAdminEventFlights() {
     }
 
 
-    container.innerHTML = "";
+    container.innerHTML =
+        data?.length
+            ? ""
+            : `
+                <p>
+                    No event flights created yet.
+                </p>
+            `;
 
 
-    if (
-        !data ||
-        !data.length
-    ) {
-
-        container.innerHTML = `
-            <p>
-                No event flights created yet.
-            </p>
-        `;
-
-        return;
-    }
-
-
-    data.forEach(
+    (data || []).forEach(
         event => {
 
             const div =
@@ -3177,101 +3209,80 @@ async function loadAdminEventFlights() {
                     "div"
                 );
 
+
             div.className =
                 "admin-flight";
 
 
-            const distanceType =
-                event.distance_type ||
-                "short";
-
-
-            const points =
-                Number(
-                    event.points ??
-                    getDistancePoints(
-                        distanceType
-                    )
-                );
-
-
             div.innerHTML = `
 
-                <strong>
+                <div>
+
+                    <strong>
+                        ${escapeHTML(
+                            event.flight_number
+                        )}
+                    </strong>
+
+                    <br>
 
                     ${escapeHTML(
-                        event.flight_number
+                        event.departure
                     )}
-
-                </strong>
-
-                <br>
-
-                ${escapeHTML(
-                    event.departure
-                )}
-
-                →
-
-                ${escapeHTML(
-                    event.arrival
-                )}
-
-                <br>
-
-                <small>
-
-                    ${formatDate(
-                        event.departure_time
-                    )}
-
-                </small>
-
-                <br>
-
-                <small>
-
+                    →
                     ${escapeHTML(
-                        getDistanceName(
-                            distanceType
-                        )
+                        event.arrival
                     )}
 
-                    ·
+                    <br>
 
-                    ${points}
-                    Points
+                    <small>
 
-                    ·
+                        ${formatDate(
+                            event.departure_time
+                        )}
 
-                    ${formatNumber(
-                        event.miles
-                    )}
-                    Miles
+                        ·
 
-                </small>
+                        ${escapeHTML(
+                            getDistanceName(
+                                event.distance_type ||
+                                "short"
+                            )
+                        )}
 
-                <br>
+                        ·
 
-                <small>
+                        ${Number(
+                            event.points || 0
+                        )}
+                        Point(s)
 
-                    Status:
-                    ${escapeHTML(
-                        eventStatusText(
-                            event.status
-                        )
-                    )}
+                        ·
 
-                </small>
+                        ${formatNumber(
+                            event.miles
+                        )}
+                        Miles
 
-                <br>
+                        ·
+
+                        ${escapeHTML(
+                            eventStatusText(
+                                event.status
+                            )
+                        )}
+
+                    </small>
+
+                </div>
+
 
                 <button
                     class="danger"
-                    onclick="deleteEventFlight('${event.id}')">
-
+                    onclick="deleteEventFlight('${event.id}')"
+                >
                     DELETE
-
                 </button>
 
             `;
@@ -3285,9 +3296,9 @@ async function loadAdminEventFlights() {
 }
 
 
-/* ============================= */
-/* DELETE EVENT FLIGHT */
-/* ============================= */
+// ============================================================
+// DELETE EVENT
+// ============================================================
 
 async function deleteEventFlight(
     id
@@ -3295,17 +3306,16 @@ async function deleteEventFlight(
 
     if (!isAdmin()) {
 
-        showMessage(
+        return showMessage(
             "Admin access required."
         );
-
-        return;
     }
 
 
     if (
         !confirm(
-            "Delete this event flight?"
+            "Delete this event flight? " +
+            "Existing bookings will also be deleted."
         )
     ) {
 
@@ -3315,29 +3325,21 @@ async function deleteEventFlight(
 
     const {
         error
-    } =
-        await supabaseClient
-            .from("events")
-            .delete()
-            .eq(
-                "id",
-                id
-            );
+    } = await supabaseClient
+        .from("events")
+        .delete()
+        .eq(
+            "id",
+            id
+        );
 
 
     if (error) {
 
-        console.error(
-            "Delete event flight error:",
-            error
-        );
-
-        showMessage(
+        return showMessage(
             "Could not delete event flight: " +
             error.message
         );
-
-        return;
     }
 
 
@@ -3351,238 +3353,36 @@ async function deleteEventFlight(
 }
 
 
-/* ========================================================= */
-/* EVENT PARTICIPATION — PREPARATION FOR V1.1 */
-/* ========================================================= */
-
-
-/*
- * These functions are the foundation for the
- * later complete event-flight experience.
- *
- * Booking does NOT award Miles or Points.
- *
- * Rewards are only awarded once the passenger
- * has completed the entire event flight.
- */
-
-
-/* ============================= */
-/* CHECK IN */
-/* ============================= */
-
-async function checkInEventFlight(
-    bookingId
-) {
-
-    if (!currentUser) {
-
-        showMessage(
-            "You must be logged in."
-        );
-
-        return;
-    }
-
-
-    const {
-        error
-    } =
-        await supabaseClient
-            .from("event_bookings")
-            .update({
-
-                checked_in:
-                    true
-
-            })
-            .eq(
-                "id",
-                bookingId
-            )
-            .eq(
-                "user_id",
-                currentUser.id
-            );
-
-
-    if (error) {
-
-        showMessage(
-            "Could not check in: " +
-            error.message
-        );
-
-        return;
-    }
-
-
-    await loadEventFlights();
-}
-
-
-/* ============================= */
-/* BOARD EVENT FLIGHT */
-/* ============================= */
-
-async function boardEventFlight(
-    bookingId
-) {
-
-    if (!currentUser) {
-
-        showMessage(
-            "You must be logged in."
-        );
-
-        return;
-    }
-
-
-    const {
-        error
-    } =
-        await supabaseClient
-            .from("event_bookings")
-            .update({
-
-                boarded:
-                    true
-
-            })
-            .eq(
-                "id",
-                bookingId
-            )
-            .eq(
-                "user_id",
-                currentUser.id
-            );
-
-
-    if (error) {
-
-        showMessage(
-            "Could not board: " +
-            error.message
-        );
-
-        return;
-    }
-
-
-    await loadEventFlights();
-}
-
-
-/* ============================= */
-/* COMPLETE EVENT BOOKING */
-/* ============================= */
-
-async function completeEventBooking(
-    bookingId
-) {
-
-    if (!currentUser) {
-
-        showMessage(
-            "You must be logged in."
-        );
-
-        return;
-    }
-
-
-    /*
-     * Completing the booking alone does NOT
-     * award Miles or Points yet.
-     *
-     * The final V1.1 operational flow will
-     * verify the complete event flight first.
-     */
-
-    const {
-        error
-    } =
-        await supabaseClient
-            .from("event_bookings")
-            .update({
-
-                completed:
-                    true
-
-            })
-            .eq(
-                "id",
-                bookingId
-            )
-            .eq(
-                "user_id",
-                currentUser.id
-            );
-
-
-    if (error) {
-
-        showMessage(
-            "Could not complete booking: " +
-            error.message
-        );
-
-        return;
-    }
-
-
-    showMessage(
-        "Event flight marked as completed."
-    );
-
-
-    await loadEventFlights();
-}
-
-
-/* ========================================================= */
-/* BUTTONS */
-/* ========================================================= */
+// ============================================================
+// BUTTONS
+// ============================================================
 
 function setupButtons() {
 
-    const loginButton =
-        document.getElementById(
+    document
+        .getElementById(
             "loginButton"
-        );
-
-    const logoutButton =
-        document.getElementById(
-            "logoutButton"
-        );
-
-
-    if (loginButton) {
-
-        loginButton.addEventListener(
+        )
+        ?.addEventListener(
             "click",
             loginWithDiscord
         );
 
-    }
 
-
-    if (logoutButton) {
-
-        logoutButton.addEventListener(
+    document
+        .getElementById(
+            "logoutButton"
+        )
+        ?.addEventListener(
             "click",
             logout
         );
-
-    }
 }
 
 
-/* ========================================================= */
-/* AUTH STATE */
-/* ========================================================= */
+// ============================================================
+// AUTH STATE
+// ============================================================
 
 supabaseClient.auth.onAuthStateChange(
     async (
@@ -3601,43 +3401,37 @@ supabaseClient.auth.onAuthStateChange(
         } else {
 
             currentProfile = null;
-
         }
 
 
         updateLoginUI();
 
-
         await loadFlights();
-        await loadEventFlights();
 
+        await loadEventFlights();
     }
 );
 
 
-/* ========================================================= */
-/* START APPLICATION */
-/* ========================================================= */
+// ============================================================
+// START
+// ============================================================
 
 document.addEventListener(
     "DOMContentLoaded",
     async () => {
 
         console.log(
-            "Austrian Airlines Flight Operations loaded."
+            "Austrian Airlines Flight Operations V1.1 loaded."
         );
 
 
         setupButtons();
 
-
         await loadUser();
-
 
         await loadFlights();
 
-
         await loadEventFlights();
-
     }
 );
