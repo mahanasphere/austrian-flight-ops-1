@@ -694,7 +694,58 @@ function updateAdminUI() {
 // ATC24
 // ============================================================
 
+function viennaWeekday() {
+    return new Intl.DateTimeFormat("en-US", {
+        timeZone: "Europe/Vienna",
+        weekday: "short"
+    }).format(new Date());
+}
+
+function isFlightVisibleToday(flight) {
+    const recurrence = flight.recurrence || "once";
+
+    if (recurrence === "once" || recurrence === "daily") {
+        return true;
+    }
+
+    const day = viennaWeekday();
+
+    if (recurrence === "weekdays") {
+        return ["Mon", "Tue", "Wed", "Thu", "Fri"].includes(day);
+    }
+
+    if (recurrence === "weekends") {
+        return ["Sat", "Sun"].includes(day);
+    }
+
+    return true;
+}
+
 async function loadFlights() {
+    const { data, error } = await supabaseClient
+        .from("flights")
+        .select("*")
+        .order("scheduled_departure", {
+            ascending: true
+        });
+
+    if (error) {
+        console.error("Flight loading error:", error);
+
+        const board = document.getElementById("flightBoard");
+
+        if (board) {
+            board.innerHTML =
+                `<p>Could not load flights: ${escapeHTML(error.message)}</p>`;
+        }
+
+        return;
+    }
+
+    const visibleFlights = (data || []).filter(isFlightVisibleToday);
+
+    renderFlights(visibleFlights);
+}
 
     const {
         data,
@@ -1816,46 +1867,56 @@ async function renderEventFlights(
         const event of events
     ) {
 
-        const counts =
-            await getEventBookingCounts(
-                event.id
-            );
+       async function getEventBookingCounts(eventId) {
+    const { data, error } = await supabaseClient.rpc(
+        "get_event_booking_counts",
+        {
+            p_event_id: String(eventId)
+        }
+    );
 
+    if (error) {
+        console.error("Booking count error:", error);
+        return {
+            economy: 0,
+            business: 0,
+            first: 0
+        };
+    }
 
-        const booking =
-            await getUserEventBooking(
-                event.id
-            );
+    const row = Array.isArray(data) ? data[0] : data;
 
+    return {
+        economy: Number(row?.economy || 0),
+        business: Number(row?.business || 0),
+        first: Number(row?.first_class || 0)
+    };
+}
+async function getEventBookingCounts(eventId) {
+    const { data, error } = await supabaseClient.rpc(
+        "get_event_booking_counts",
+        {
+            p_event_id: String(eventId)
+        }
+    );
 
-        const points =
-            Number(
-                event.points ??
-                getDistancePoints(
-                    event.distance_type ||
-                    "short"
-                )
-            );
+    if (error) {
+        console.error("Booking count error:", error);
+        return {
+            economy: 0,
+            business: 0,
+            first: 0
+        };
+    }
 
+    const row = Array.isArray(data) ? data[0] : data;
 
-        const distance =
-            event.distance_type ||
-            "short";
-
-
-        const card =
-            document.createElement(
-                "div"
-            );
-
-
-        card.className =
-            "flight event-flight";
-
-
-        let bookingHTML = "";
-
-
+    return {
+        economy: Number(row?.economy || 0),
+        business: Number(row?.business || 0),
+        first: Number(row?.first_class || 0)
+    };
+}
         // ----------------------------------------------------
         // CANCELLED
         // ----------------------------------------------------
@@ -2851,13 +2912,140 @@ async function completeEventBooking(
 // ============================================================
 
 async function createEventFlight() {
-
     if (!isAdmin()) {
+        return showMessage("Admin access required.");
+    }
 
+    const flightNumber =
+        document.getElementById("eventFlightNumber")?.value.trim();
+
+    const departure =
+        document.getElementById("eventDeparture")?.value.trim();
+
+    const arrival =
+        document.getElementById("eventArrival")?.value.trim();
+
+    const departureTime =
+        document.getElementById("eventDepartureTime")?.value;
+
+    const aircraft =
+        document.getElementById("eventAircraft")?.value.trim();
+
+    const pilotDiscordId =
+        document.getElementById("eventPilot")?.value.trim();
+
+    const distanceType =
+        document.getElementById("eventDistance")?.value || "short";
+
+    const miles =
+        Number(document.getElementById("eventMiles")?.value || 0);
+
+    const economy =
+        Number(document.getElementById("economyCapacity")?.value || 0);
+
+    const business =
+        Number(document.getElementById("businessCapacity")?.value || 0);
+
+    const first =
+        Number(document.getElementById("firstCapacity")?.value || 0);
+
+    const status =
+        document.getElementById("eventStatus")?.value || "scheduled";
+
+
+    if (
+        !flightNumber ||
+        !departure ||
+        !arrival ||
+        !departureTime ||
+        !aircraft
+    ) {
         return showMessage(
-            "Admin access required."
+            "Please fill in all required Event Flight fields."
         );
     }
+
+
+    if (!Object.hasOwn(EVENT_DISTANCE_POINTS, distanceType)) {
+        return showMessage(
+            "Please select a valid distance category."
+        );
+    }
+
+
+    if (!Number.isInteger(miles) || miles < 0) {
+        return showMessage(
+            "Miles must be a whole number of 0 or more."
+        );
+    }
+
+
+    const { data, error } = await supabaseClient.rpc(
+        "create_event_flight_admin",
+        {
+            p_flight_number: flightNumber,
+            p_departure: departure,
+            p_arrival: arrival,
+            p_departure_time: new Date(
+                departureTime
+            ).toISOString(),
+            p_aircraft_model: aircraft,
+            p_pilot_discord_id:
+                pilotDiscordId || null,
+            p_distance_type: distanceType,
+            p_miles: miles,
+            p_economy_capacity:
+                Math.max(0, Math.floor(economy)),
+            p_business_capacity:
+                Math.max(0, Math.floor(business)),
+            p_first_capacity:
+                Math.max(0, Math.floor(first)),
+            p_status: status
+        }
+    );
+
+
+    if (error) {
+        console.error(
+            "Event creation RPC error:",
+            error
+        );
+
+        return showMessage(
+            "Could not create event flight: " +
+            error.message
+        );
+    }
+
+
+    showMessage(
+        `Event flight created successfully — ` +
+        `${getDistancePoints(distanceType)} Point(s) / ` +
+        `${formatNumber(miles)} Miles.`
+    );
+
+
+    [
+        "eventFlightNumber",
+        "eventDeparture",
+        "eventArrival",
+        "eventDepartureTime",
+        "eventAircraft",
+        "eventPilot",
+        "eventMiles"
+    ].forEach(id => {
+        const element =
+            document.getElementById(id);
+
+        if (element) {
+            element.value = "";
+        }
+    });
+
+
+    await loadEventFlights();
+    await loadAdminEventFlights();
+}
 
 
     const flightNumber =
