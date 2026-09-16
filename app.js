@@ -927,6 +927,11 @@ async function claimFlight(id){
         return loginWithDiscord();
     }
 
+    if (!currentProfile?.pilot_approved) {
+    return showMessage(
+        "Pilot Approved is required to claim ATC24 flights."
+    );
+}
     const{
         error
     }=
