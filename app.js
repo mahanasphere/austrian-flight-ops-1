@@ -110,22 +110,25 @@ function admin(){
 }
 
 function statusName(s){
-    return STATUSES[s]?.name||"Member";
+
+    return MILES_AND_MORE_STATUS[s]?.name||"Member";
 }
 
 function statusPoints(s){
-    return STATUSES[s]?.points||0;
+
+    return MILES_AND_MORE_STATUS[s]?.points||0;
 }
 
 function canClass(c){
+
     const p=statusPoints(
         currentProfile?.miles_and_more_status
     );
 
     return(
         c==="economy"||
-        c==="business"&&p>=30||
-        c==="first"&&p>=60
+        c==="business"&&p>=100||
+        c==="first"&&p>=350
     );
 }
 
@@ -930,30 +933,50 @@ async function claimFlight(id){
         return loginWithDiscord();
     }
 
-    if (!currentProfile?.pilot_approved) {
-    return showMessage(
-        "Pilot Approved is required to claim ATC24 flights."
-    );
-}
-    const{
-        error
-    }=
-        await supabaseClient
-            .from("flights")
-            .update({
-                status:"claimed",
-                claimed_by:currentUser.id,
-                claimed_at:new Date().toISOString()
-            })
-            .eq("id",id)
-            .eq("status","available");
+    if(!currentProfile?.pilot_approved){
 
-    if(error){
-        msg(
-            error.message,
+        return msg(
+            "Pilot Approved is required to claim ATC24 flights.",
             "error"
         );
     }
+
+    const{
+        data,
+        error
+    }=
+        await supabaseClient.rpc(
+            "claim_atc24_flight",
+            {
+                p_flight_id:id
+            }
+        );
+
+    if(error){
+
+        console.error(
+            "Claim flight error:",
+            error
+        );
+
+        return msg(
+            `Could not claim flight: ${error.message}`,
+            "error"
+        );
+    }
+
+    if(!data?.success){
+
+        return msg(
+            "Flight could not be claimed.",
+            "error"
+        );
+    }
+
+    msg(
+        "Flight successfully claimed.",
+        "success"
+    );
 
     await loadFlights();
 }
@@ -1389,8 +1412,20 @@ async function loadEvents(){
         return;
     }
 
+        const uniqueEvents =
+        Array.from(
+            new Map(
+                (data||[]).map(
+                    event=>[
+                        String(event.id),
+                        event
+                    ]
+                )
+            ).values()
+        );
+
     await renderEvents(
-        data||[]
+        uniqueEvents
     );
 }
 
@@ -1638,9 +1673,9 @@ async function renderEvents(events){
                                     class="btn btn-secondary"
                                     onclick="bookEventFlight('${e.id}','business')"
                                 >
-                                    BOOK BUSINESS
-                                </button>
-                            `
+                                BOOK BUSINESS — 20,000 MILES
+                            </button>
+                        `
 
                             :`
                                 <span class="action-note">
@@ -1652,7 +1687,7 @@ async function renderEvents(events){
                         :`
                             <span class="action-note">
                                 🔒 Business —
-                                Frequent Traveller required
+                                Frequent Traveller required + 20,000 Miles required
                             </span>
                         `
                     }
@@ -1668,7 +1703,7 @@ async function renderEvents(events){
                                     class="btn btn-dark"
                                     onclick="bookEventFlight('${e.id}','first')"
                                 >
-                                    BOOK FIRST
+                                    BOOK FIRST — 100,000 MILES
                                 </button>
                             `
 
@@ -1682,7 +1717,7 @@ async function renderEvents(events){
                         :`
                             <span class="action-note">
                                 🔒 First —
-                                Senator required
+                                Senator required + 100,000 Miles required
                             </span>
                         `
                     }
@@ -1858,37 +1893,69 @@ async function bookEventFlight(id,c){
         );
     }
 
+    const cost =
+        c==="business"
+        ?20000
+        :c==="first"
+        ?100000
+        :0;
+
+    const miles =
+        Number(
+            currentProfile?.miles||0
+        );
+
+    if(miles<cost){
+
+        return msg(
+            `You need ${num(cost)} Miles for ${className(c)}.`,
+            "error"
+        );
+    }
+
     const{
         data,
         error
     }=
         await supabaseClient.rpc(
-            "book_event_flight",
+            "book_event_flight_with_miles",
             {
-                p_event_id:String(id),
+                p_event_id:Number(id),
                 p_travel_class:c
             }
         );
 
     if(error){
 
-        msg(
+        console.error(
+            "Event booking error:",
+            error
+        );
+
+        return msg(
             `Could not book flight: ${error.message}`,
             "error"
         );
-
-        return;
     }
 
-    const r=
-        Array.isArray(data)
-        ?data[0]
-        :data;
+    if(!data?.success){
+
+        return msg(
+            "Could not complete booking.",
+            "error"
+        );
+    }
+
+    await ensureProfile();
+
+    updateMiles();
 
     msg(
-        `Booked ${className(c)} successfully. No Miles or Points have been awarded yet. Seats remaining: ${
-            r?.remaining_seats??"—"
-        }.`,
+        `Booked ${className(c)} successfully. ${
+            cost>0
+            ?`${num(cost)} Miles deducted.`
+            :"No Miles deducted."
+        }`,
         "success"
     );
 
