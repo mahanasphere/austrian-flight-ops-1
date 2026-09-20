@@ -15,22 +15,25 @@ const supabaseClient=supabase.createClient(
 
 const ADMIN_DISCORD_ID="1214124494340493312";
 
-const STATUSES={
-    member:{
-        name:"Member",
-        points:0
+const MILES_AND_MORE_STATUS = {
+    member: {
+        name: "Member",
+        points: 0
     },
-    frequent_traveller:{
-        name:"Frequent Traveller",
-        points:30
+
+    frequent_traveller: {
+        name: "Frequent Traveller",
+        points: 100
     },
-    senator:{
-        name:"Senator",
-        points:60
+
+    senator: {
+        name: "Senator",
+        points: 350
     },
-    hon_circle_member:{
-        name:"HON Circle Member",
-        points:120
+
+    hon_circle_member: {
+        name: "HON Circle Member",
+        points: 1000
     }
 };
 
