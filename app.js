@@ -457,7 +457,7 @@ function updateMiles(){
         "member";
 
     const next=
-        Object.entries(STATUSES).find(
+        Object.entries(MILES_AND_MORE_STATUS).find(
             ([,v])=>v.points>pts
         );
 
