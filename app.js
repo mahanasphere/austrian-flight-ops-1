@@ -1,262 +1,229 @@
-const SUPABASE_URL="https://qdtpwggllgnyzazmshyf.supabase.co";
-const SUPABASE_KEY="sb_publishable_zgfXsfelbYVAGcvKk1wRhA_ok9n8jjl";
 
-const supabaseClient=supabase.createClient(
+const SUPABASE_URL = "https://qdtpwggllgnyzazmshyf.supabase.co";
+const SUPABASE_KEY = "sb_publishable_zgfXsfelbYVAGcvKk1wRhA_ok9n8jjl";
+
+const supabaseClient = supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY,
     {
-        auth:{
-            persistSession:true,
-            autoRefreshToken:true,
-            detectSessionInUrl:true
+        auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true
         }
     }
 );
 
-const ADMIN_DISCORD_ID="1214124494340493312";
+const ADMIN_DISCORD_ID = "1214124494340493312";
 
 const MILES_AND_MORE_STATUS = {
-    member: {
-        name: "Member",
-        points: 0
-    },
-
+    member: { name: "Member", points: 0 },
     frequent_traveller: {
         name: "Frequent Traveller",
         points: 100
     },
-
-    senator: {
-        name: "Senator",
-        points: 350
-    },
-
+    senator: { name: "Senator", points: 350 },
     hon_circle_member: {
         name: "HON Circle Member",
         points: 1000
     }
 };
 
-const DISTANCE_POINTS={
-    short:1,
-    medium:2,
-    long:3
+const DISTANCE_POINTS = {
+    short: 1,
+    medium: 2,
+    long: 3
 };
 
-let currentUser=null;
-let currentProfile=null;
-let authBusy=false;
+let currentUser = null;
+let currentProfile = null;
+let authBusy = false;
 
-const $=id=>document.getElementById(id);
+const $ = id => document.getElementById(id);
 
-const esc=v=>String(v??"")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+const esc = value => String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 
-const num=v=>Number(v||0).toLocaleString("en-US");
+const num = value =>
+    Number(value || 0).toLocaleString("en-US");
 
-function msg(text,type="info"){
-    const e=$("message");
+function msg(message, type = "info") {
+    const element = $("message");
+    if (!element) return;
 
-    if(!e)return;
+    element.textContent = message;
+    element.className = `message ${type}`;
+    element.classList.remove("hidden");
 
-    e.textContent=text;
-    e.className=`message ${type}`;
-    e.classList.remove("hidden");
+    clearTimeout(msg.timeout);
 
-    clearTimeout(msg.t);
-
-    msg.t=setTimeout(()=>{
-        e.classList.add("hidden");
-    },6000);
+    msg.timeout = setTimeout(() => {
+        element.classList.add("hidden");
+    }, 6000);
 }
 
-function date(v){
-    if(!v)return"—";
+function date(value) {
+    if (!value) return "—";
 
-    const d=new Date(v);
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return "—";
 
-    if(Number.isNaN(d.getTime()))return"—";
-
-    return new Intl.DateTimeFormat(
-        "en-GB",
-        {
-            timeZone:"Europe/Vienna",
-            dateStyle:"medium",
-            timeStyle:"short"
-        }
-    ).format(d);
+    return new Intl.DateTimeFormat("en-GB", {
+        timeZone: "Europe/Vienna",
+        dateStyle: "medium",
+        timeStyle: "short"
+    }).format(parsed);
 }
 
-function discordId(u=currentUser){
-    const i=u?.identities?.find(
-        x=>x.provider==="discord"
+function discordId(user = currentUser) {
+    const identity = user?.identities?.find(
+        item => item.provider === "discord"
     );
 
     return String(
-        i?.identity_data?.provider_id||
-        i?.identity_data?.sub||
-        u?.user_metadata?.provider_id||
-        u?.user_metadata?.sub||
+        identity?.identity_data?.provider_id ||
+        identity?.identity_data?.sub ||
+        user?.user_metadata?.provider_id ||
+        user?.user_metadata?.sub ||
         ""
     );
 }
 
-function admin(){
-    return discordId()===ADMIN_DISCORD_ID;
+function admin() {
+    return discordId() === ADMIN_DISCORD_ID;
 }
 
-function statusName(s){
-
-    return MILES_AND_MORE_STATUS[s]?.name||"Member";
+function statusName(status) {
+    return MILES_AND_MORE_STATUS[status]?.name || "Member";
 }
 
-function statusPoints(s){
-
-    return MILES_AND_MORE_STATUS[s]?.points||0;
+function statusPoints(status) {
+    return MILES_AND_MORE_STATUS[status]?.points || 0;
 }
 
-function canClass(c){
-
-    const p=statusPoints(
+function canClass(travelClass) {
+    const points = statusPoints(
         currentProfile?.miles_and_more_status
     );
 
-    return(
-        c==="economy"||
-        c==="business"&&p>=100||
-        c==="first"&&p>=350
+    return (
+        travelClass === "economy" ||
+        (travelClass === "business" && points >= 100) ||
+        (travelClass === "first" && points >= 350)
     );
 }
 
-function distanceName(d){
-    return({
-        short:"Short-haul",
-        medium:"Medium-haul",
-        long:"Long-haul"
-    })[d]||"Short-haul";
+function distanceName(distance) {
+    return {
+        short: "Short-haul",
+        medium: "Medium-haul",
+        long: "Long-haul"
+    }[distance] || "Short-haul";
 }
 
-function className(c){
-    return({
-        economy:"Economy",
-        business:"Business",
-        first:"First"
-    })[c]||"Economy";
+function className(travelClass) {
+    return {
+        economy: "Economy",
+        business: "Business",
+        first: "First"
+    }[travelClass] || "Economy";
 }
 
-function eventStatusClass(s){
-    if(s==="boarding")return"progress";
-    if(s==="departed")return"claimed";
-    if(s==="completed")return"completed";
-    if(s==="cancelled")return"cancelled";
-    return"available";
+function eventStatusClass(status) {
+    return {
+        boarding: "progress",
+        departed: "claimed",
+        completed: "completed",
+        cancelled: "cancelled"
+    }[status] || "available";
 }
 
-function eventStatusText(s){
-    return({
-        scheduled:"SCHEDULED",
-        boarding:"BOARDING",
-        departed:"DEPARTED",
-        completed:"COMPLETED",
-        cancelled:"CANCELLED"
-    })[s]||"SCHEDULED";
+function eventStatusText(status) {
+    return {
+        scheduled: "SCHEDULED",
+        boarding: "BOARDING",
+        departed: "DEPARTED",
+        completed: "COMPLETED",
+        cancelled: "CANCELLED"
+    }[status] || "SCHEDULED";
 }
 
-function flightStatusClass(s){
-    if(s==="claimed")return"claimed";
-    if(s==="in_progress")return"progress";
-    if(s==="completed")return"completed";
-    return"available";
+function flightStatusClass(status) {
+    return {
+        claimed: "claimed",
+        in_progress: "progress",
+        completed: "completed"
+    }[status] || "available";
 }
 
-function flightStatusText(s){
-    if(s==="claimed")return"CLAIMED";
-    if(s==="in_progress")return"IN PROGRESS";
-    if(s==="completed")return"COMPLETED";
-    return"AVAILABLE";
+function flightStatusText(status) {
+    return {
+        claimed: "CLAIMED",
+        in_progress: "IN PROGRESS",
+        completed: "COMPLETED"
+    }[status] || "AVAILABLE";
 }
 
-
-/* =========================
+/* =========================================
    DISCORD LOGIN
-   ========================= */
+========================================= */
 
-async function loginWithDiscord(){
+async function loginWithDiscord() {
+    if (authBusy) return;
+    authBusy = true;
 
-    if(authBusy)return;
-
-    authBusy=true;
-
-    try{
-
-        const redirectTo=
-            window.location.origin+
+    try {
+        const redirectTo =
+            window.location.origin +
             window.location.pathname;
 
-        const{error}=
+        const { error } =
             await supabaseClient.auth.signInWithOAuth({
-                provider:"discord",
-                options:{
+                provider: "discord",
+                options: {
                     redirectTo,
-                    scopes:"identify"
+                    scopes: "identify"
                 }
             });
 
-        if(error){
+        if (error) {
             console.error(error);
             msg(
                 `Discord login failed: ${error.message}`,
                 "error"
             );
         }
-
-    }catch(e){
-
-        console.error(e);
-
-        msg(
-            `Discord login failed: ${e.message}`,
-            "error"
-        );
-
-    }finally{
-
-        authBusy=false;
-
-    }
-}
-
-async function finishOAuth(){
-
-    const p=new URLSearchParams(
-        window.location.search
-    );
-
-    const code=p.get("code");
-
-    if(!code)return;
-
-    const{error}=
-        await supabaseClient.auth.exchangeCodeForSession(
-            code
-        );
-
-    if(error){
-
-        console.error(
-            "OAuth code exchange failed:",
-            error
-        );
-
+    } catch (error) {
+        console.error(error);
         msg(
             `Discord login failed: ${error.message}`,
             "error"
         );
+    } finally {
+        authBusy = false;
+    }
+}
 
+async function finishOAuth() {
+    const params = new URLSearchParams(
+        window.location.search
+    );
+
+    const code = params.get("code");
+    if (!code) return;
+
+    const { error } =
+        await supabaseClient.auth.exchangeCodeForSession(
+            code
+        );
+
+    if (error) {
+        console.error("OAuth exchange failed:", error);
+        msg(`Discord login failed: ${error.message}`, "error");
         return;
     }
 
@@ -267,148 +234,104 @@ async function finishOAuth(){
     );
 }
 
-
-/* =========================
+/* =========================================
    PROFILE
-   ========================= */
+========================================= */
 
-async function ensureProfile(){
+async function ensureProfile() {
+    if (!currentUser) return;
 
-    if(!currentUser)return;
-
-    const{error}=await supabaseClient.rpc(
+    const { error } = await supabaseClient.rpc(
         "ensure_my_profile"
     );
 
-    if(error){
-        console.warn(
-            "Profile setup:",
-            error.message
-        );
+    if (error) {
+        console.warn("Profile setup:", error.message);
     }
 
-    const{
-        data,
-        error:profileError
-    }=
+    const { data, error: profileError } =
         await supabaseClient
             .from("profiles")
             .select("*")
-            .eq("id",currentUser.id)
+            .eq("id", currentUser.id)
             .maybeSingle();
 
-    if(profileError){
+    if (profileError) {
         console.error(profileError);
     }
 
-    currentProfile=data||null;
+    currentProfile = data || null;
 }
 
-async function loadUser(){
-
-    try{
-
+async function loadUser() {
+    try {
         await finishOAuth();
-
-    }catch(e){
-
-        console.error(e);
-
-        msg(
-            e.message,
-            "error"
-        );
+    } catch (error) {
+        console.error(error);
+        msg(error.message, "error");
     }
 
-    const{
-        data,
-        error
-    }=
+    const { data, error } =
         await supabaseClient.auth.getSession();
 
-    if(error){
-
-        msg(
-            `Session error: ${error.message}`,
-            "error"
-        );
-
+    if (error) {
+        msg(`Session error: ${error.message}`, "error");
         return;
     }
 
-    currentUser=
-        data.session?.user||
-        null;
+    currentUser = data.session?.user || null;
 
-    if(currentUser){
-
+    if (currentUser) {
         await ensureProfile();
-
-    }else{
-
-        currentProfile=null;
-
+    } else {
+        currentProfile = null;
     }
 
     updateUI();
 }
 
-async function logout(){
-
-    const{error}=
+async function logout() {
+    const { error } =
         await supabaseClient.auth.signOut();
 
-    if(error){
-
-        msg(
-            error.message,
-            "error"
-        );
-
+    if (error) {
+        msg(error.message, "error");
         return;
     }
 
-    currentUser=null;
-    currentProfile=null;
+    currentUser = null;
+    currentProfile = null;
 
     updateUI();
-
     await refresh();
 }
 
-function updateUI(){
-
-    const login=$("loginButton");
-    const logout=$("logoutButton");
-    const pill=$("userPill");
-    const name=$("userName");
-
-    login?.classList.toggle(
+function updateUI() {
+    $("loginButton")?.classList.toggle(
         "hidden",
         !!currentUser
     );
 
-    logout?.classList.toggle(
+    $("logoutButton")?.classList.toggle(
         "hidden",
         !currentUser
     );
 
-    pill?.classList.toggle(
+    $("userPill")?.classList.toggle(
         "hidden",
         !currentUser
     );
 
-    if(name){
+    const userName = $("userName");
 
-        const m=
-            currentUser?.user_metadata||
-            {};
+    if (userName) {
+        const metadata = currentUser?.user_metadata || {};
 
-        name.textContent=
-            m.global_name||
-            m.full_name||
-            m.name||
-            m.preferred_username||
+        userName.textContent =
+            metadata.global_name ||
+            metadata.full_name ||
+            metadata.name ||
+            metadata.preferred_username ||
             "Pilot";
     }
 
@@ -416,20 +339,16 @@ function updateUI(){
     updateAdminUI();
 }
 
-
-/* =========================
+/* =========================================
    MILES & MORE
-   ========================= */
+========================================= */
 
-function updateMiles(){
+function updateMiles() {
+    const panel = $("milesMorePanel");
+    if (!panel) return;
 
-    const b=$("milesMorePanel");
-
-    if(!b)return;
-
-    if(!currentUser||!currentProfile){
-
-        b.innerHTML=`
+    if (!currentUser || !currentProfile) {
+        panel.innerHTML = `
             <div class="empty-state compact">
                 <span class="empty-icon">💳</span>
                 <div>
@@ -442,522 +361,343 @@ function updateMiles(){
                 </div>
             </div>
         `;
-
         return;
     }
 
-    const pts=
-        Number(currentProfile.points||0);
+    const points = Number(currentProfile.points || 0);
+    const miles = Number(currentProfile.miles || 0);
 
-    const miles=
-        Number(currentProfile.miles||0);
+    const status =
+        currentProfile.miles_and_more_status || "member";
 
-    const status=
-        currentProfile.miles_and_more_status||
-        "member";
+    const next = Object.entries(
+        MILES_AND_MORE_STATUS
+    ).find(([, value]) => value.points > points);
 
-    const next=
-        Object.entries(MILES_AND_MORE_STATUS).find(
-            ([,v])=>v.points>pts
-        );
-
-    b.innerHTML=`
+    panel.innerHTML = `
         <div class="miles-grid">
-
             <div class="miles-stat accent-stat">
-                <span class="stat-label">
-                    Miles
-                </span>
-
-                <strong>
-                    ${num(miles)}
-                </strong>
-
-                <small>
-                    Lifetime Miles
-                </small>
+                <span class="stat-label">Miles</span>
+                <strong>${num(miles)}</strong>
+                <small>Lifetime Miles</small>
             </div>
 
             <div class="miles-stat">
-                <span class="stat-label">
-                    Points
-                </span>
-
-                <strong>
-                    ${num(pts)}
-                </strong>
-
-                <small>
-                    Miles &amp; More Points
-                </small>
+                <span class="stat-label">Points</span>
+                <strong>${num(points)}</strong>
+                <small>Miles &amp; More Points</small>
             </div>
 
             <div class="miles-stat">
-                <span class="stat-label">
-                    Status
-                </span>
-
-                <strong>
-                    ${esc(statusName(status))}
-                </strong>
-
+                <span class="stat-label">Status</span>
+                <strong>${esc(statusName(status))}</strong>
                 <small>
                     ${
                         next
-                        ? `${next[1].points-pts} point(s) to ${esc(next[1].name)}`
+                        ? `${next[1].points - points} point(s) to ${esc(next[1].name)}`
                         : "Highest status reached"
                     }
                 </small>
             </div>
-
         </div>
     `;
 }
 
+/* =========================================
+   ATC24 FLIGHTS
+========================================= */
 
-/* =========================
-   ATC24
-   ========================= */
-
-function viennaDay(){
-
-    return new Intl.DateTimeFormat(
-        "en-US",
-        {
-            timeZone:"Europe/Vienna",
-            weekday:"short"
-        }
-    ).format(new Date());
+function viennaDay() {
+    return new Intl.DateTimeFormat("en-US", {
+        timeZone: "Europe/Vienna",
+        weekday: "short"
+    }).format(new Date());
 }
 
-function visibleToday(f){
+function visibleToday(flight) {
+    const recurrence = flight.recurrence || "once";
 
-    const r=f.recurrence||"once";
-
-    if(
-        r==="once"||
-        r==="daily"
-    ){
+    if (["once", "daily"].includes(recurrence)) {
         return true;
     }
 
-    const d=viennaDay();
+    const today = viennaDay();
 
-    if(r==="weekdays"){
-
-        return[
-            "Mon",
-            "Tue",
-            "Wed",
-            "Thu",
-            "Fri"
-        ].includes(d);
+    if (recurrence === "weekdays") {
+        return ["Mon", "Tue", "Wed", "Thu", "Fri"]
+            .includes(today);
     }
 
-    if(r==="weekends"){
-
-        return[
-            "Sat",
-            "Sun"
-        ].includes(d);
+    if (recurrence === "weekends") {
+        return ["Sat", "Sun"].includes(today);
     }
 
     return true;
 }
 
-async function loadFlights(){
+async function loadFlights() {
+    const board = $("flightBoard");
+    if (!board) return;
 
-    const b=$("flightBoard");
-
-    if(!b)return;
-
-    const{
-        data,
-        error
-    }=
+    const { data, error } =
         await supabaseClient
             .from("flights")
             .select("*")
-            .order(
-                "scheduled_departure",
-                {
-                    ascending:true
-                }
-            );
+            .order("scheduled_departure", {
+                ascending: true
+            });
 
-    if(error){
-
-        b.innerHTML=`
+    if (error) {
+        board.innerHTML = `
             <div class="error-state">
                 Could not load flights:
                 ${esc(error.message)}
             </div>
         `;
-
         return;
     }
 
-    renderFlights(
-        (data||[]).filter(visibleToday)
-    );
+    renderFlights((data || []).filter(visibleToday));
 }
 
-function renderFlights(fs){
+function renderFlights(flights) {
+    const board = $("flightBoard");
+    const counter = $("flightCount");
 
-    const b=$("flightBoard");
-    const c=$("flightCount");
+    if (!board) return;
 
-    if(!b)return;
+    board.innerHTML = "";
 
-    b.innerHTML="";
-
-    if(c){
-
-        c.textContent=
-            `${fs.length} ${
-                fs.length===1
-                ?"flight"
-                :"flights"
+    if (counter) {
+        counter.textContent =
+            `${flights.length} ${
+                flights.length === 1 ? "flight" : "flights"
             }`;
     }
 
-    if(!fs.length){
-
-        b.innerHTML=`
+    if (!flights.length) {
+        board.innerHTML = `
             <div class="empty-state">
-
-                <span class="empty-icon">
-                    ✈️
-                </span>
-
+                <span class="empty-icon">✈️</span>
                 <div>
-
                     <strong>
                         No ATC24 flights available today.
                     </strong>
-
                     <p>
                         Check back later for the next scheduled operation.
                     </p>
-
                 </div>
-
             </div>
         `;
-
         return;
     }
 
-    for(const f of fs){
+    for (const flight of flights) {
+        const mine =
+            !!currentUser &&
+            flight.claimed_by === currentUser.id;
 
-        const mine=
-            currentUser&&
-            f.claimed_by===currentUser.id;
+        let actions = "";
 
-        let actions="";
-
-        if(f.status==="available"){
-
-            actions=
-                currentUser
-
-                ?`
-                    <button
-                        class="btn btn-primary"
-                        onclick="claimFlight('${f.id}')"
-                    >
+        if (flight.status === "available") {
+            actions = currentUser
+                ? `
+                    <button class="btn btn-primary"
+                        onclick="claimFlight('${flight.id}')">
                         CLAIM FLIGHT
                     </button>
                 `
-
-                :`
-                    <button
-                        class="btn btn-secondary"
-                        onclick="loginWithDiscord()"
-                    >
+                : `
+                    <button class="btn btn-secondary"
+                        onclick="loginWithDiscord()">
                         LOGIN WITH DISCORD TO CLAIM
                     </button>
                 `;
-
-        }else if(f.status==="claimed"){
-
-            actions=
-                mine
-
-                ?`
-                    <button
-                        class="btn btn-primary"
-                        onclick="startFlight('${f.id}')"
-                    >
+        } else if (flight.status === "claimed") {
+            actions = mine
+                ? `
+                    <button class="btn btn-primary"
+                        onclick="startFlight('${flight.id}')">
                         START FLIGHT
                     </button>
                 `
-
-                :`
+                : `
                     <span class="action-note">
                         Pilot has claimed this flight.
                     </span>
                 `;
-
-        }else if(
-            f.status==="in_progress"&&
-            mine
-        ){
-
-            actions=`
-
-                <button
-                    class="btn btn-secondary"
-                    onclick="recordEvent('${f.id}','pushback')"
-                >
+        } else if (
+            flight.status === "in_progress" && mine
+        ) {
+            actions = `
+                <button class="btn btn-secondary"
+                    onclick="recordEvent('${flight.id}','pushback')">
                     PUSHBACK
                 </button>
 
-                <button
-                    class="btn btn-secondary"
-                    onclick="recordEvent('${f.id}','takeoff')"
-                >
+                <button class="btn btn-secondary"
+                    onclick="recordEvent('${flight.id}','takeoff')">
                     TAKEOFF
                 </button>
 
-                <button
-                    class="btn btn-secondary"
-                    onclick="recordEvent('${f.id}','landing')"
-                >
+                <button class="btn btn-secondary"
+                    onclick="recordEvent('${flight.id}','landing')">
                     LANDING
                 </button>
 
-                <button
-                    class="btn btn-dark"
-                    onclick="completeFlight('${f.id}')"
-                >
+                <button class="btn btn-dark"
+                    onclick="completeFlight('${flight.id}')">
                     END FLIGHT
                 </button>
-
             `;
-
-        }else if(
-            f.status==="in_progress"
-        ){
-
-            actions=`
+        } else if (flight.status === "in_progress") {
+            actions = `
                 <span class="action-note">
                     Pilot is currently operating this flight.
                 </span>
             `;
-
-        }else if(
-            f.status==="completed"
-        ){
-
-            actions=`
+        } else if (flight.status === "completed") {
+            actions = `
                 <span class="action-note success-text">
                     ✓ Flight completed
                 </span>
             `;
         }
 
-        const card=
-            document.createElement("article");
+        const timeline = mine
+            ? `
+                <div class="timeline-box">
+                    ${
+                        flight.started_at
+                        ? `▶ Started: ${date(flight.started_at)}<br>`
+                        : ""
+                    }
+                    ${
+                        flight.pushback_at
+                        ? `↪ Pushback: ${date(flight.pushback_at)}<br>`
+                        : ""
+                    }
+                    ${
+                        flight.takeoff_at
+                        ? `🛫 Takeoff: ${date(flight.takeoff_at)}<br>`
+                        : ""
+                    }
+                    ${
+                        flight.landing_at
+                        ? `🛬 Landing: ${date(flight.landing_at)}<br>`
+                        : ""
+                    }
+                    ${
+                        flight.completed_at
+                        ? `✓ Completed: ${date(flight.completed_at)}`
+                        : ""
+                    }
+                </div>
+            `
+            : "";
 
-        card.className=
-            "flight-card";
+        const card = document.createElement("article");
+        card.className = "flight-card";
 
-        card.innerHTML=`
-
+        card.innerHTML = `
             <div class="card-topline">
-
                 <div>
-
-                    <span class="eyebrow">
-                        ATC24
-                    </span>
-
-                    <h3>
-                        ${esc(f.flight_number)}
-                    </h3>
-
+                    <span class="eyebrow">ATC24</span>
+                    <h3>${esc(flight.flight_number)}</h3>
                 </div>
 
-                <span
-                    class="status ${flightStatusClass(f.status)}"
-                >
-                    ${flightStatusText(f.status)}
+                <span class="status ${flightStatusClass(flight.status)}">
+                    ${flightStatusText(flight.status)}
                 </span>
-
             </div>
 
             <div class="route-line">
-
-                <span>
-                    ${esc(f.departure_airport)}
-                </span>
-
-                <span class="route-arrow">
-                    →
-                </span>
-
-                <span>
-                    ${esc(f.arrival_airport)}
-                </span>
-
+                <span>${esc(flight.departure_airport)}</span>
+                <span class="route-arrow">→</span>
+                <span>${esc(flight.arrival_airport)}</span>
             </div>
 
             <div class="info-grid">
-
                 <div class="info-box">
-                    <span>
-                        Departure
-                    </span>
-
-                    <strong>
-                        ${date(f.scheduled_departure)}
-                    </strong>
+                    <span>Departure</span>
+                    <strong>${date(flight.scheduled_departure)}</strong>
                 </div>
 
                 <div class="info-box">
-                    <span>
-                        Aircraft
-                    </span>
-
-                    <strong>
-                        ${esc(f.aircraft_model)}
-                    </strong>
+                    <span>Aircraft</span>
+                    <strong>${esc(flight.aircraft_model)}</strong>
                 </div>
 
                 <div class="info-box">
-                    <span>
-                        Operator
-                    </span>
-
-                    <strong>
-                        ${esc(f.operator_airline)}
-                    </strong>
+                    <span>Operator</span>
+                    <strong>${esc(flight.operator_airline)}</strong>
                 </div>
 
                 <div class="info-box">
-                    <span>
-                        Livery
-                    </span>
-
-                    <strong>
-                        ${esc(f.livery_airline)}
-                    </strong>
+                    <span>Livery</span>
+                    <strong>${esc(flight.livery_airline)}</strong>
                 </div>
-
             </div>
 
             ${
-                f.recurrence&&
-                f.recurrence!=="once"
-
-                ?`
+                flight.recurrence &&
+                flight.recurrence !== "once"
+                ? `
                     <div class="tag-row">
                         <span class="tag">
-                            ${esc(f.recurrence)}
+                            ${esc(flight.recurrence)}
                         </span>
                     </div>
                 `
-
-                :""
+                : ""
             }
 
             ${
-                f.additional_info
-
-                ?`
+                flight.additional_info
+                ? `
                     <div class="additional">
-                        ${esc(f.additional_info)}
+                        ${esc(flight.additional_info)}
                     </div>
                 `
-
-                :""
+                : ""
             }
 
-            ${
-                mine
+            ${timeline}
 
-                ?`
-                    <div class="timeline-box">
-
-                        ${
-                            f.started_at
-                            ?`▶ Started: ${date(f.started_at)}<br>`
-                            :""
-                        }
-
-                        ${
-                            f.pushback_at
-                            ?`↪ Pushback: ${date(f.pushback_at)}<br>`
-                            :""
-                        }
-
-                        ${
-                            f.takeoff_at
-                            ?`🛫 Takeoff: ${date(f.takeoff_at)}<br>`
-                            :""
-                        }
-
-                        ${
-                            f.landing_at
-                            ?`🛬 Landing: ${date(f.landing_at)}<br>`
-                            :""
-                        }
-
-                        ${
-                            f.completed_at
-                            ?`✓ Completed: ${date(f.completed_at)}`
-                            :""
-                        }
-
-                    </div>
-                `
-
-                :""
-            }
-
-            <div class="actions">
-                ${actions}
-            </div>
-
+            <div class="actions">${actions}</div>
         `;
 
-        b.appendChild(card);
+        board.appendChild(card);
     }
 }
 
-async function claimFlight(id){
+/* =========================================
+   ATC24 CLAIM
+========================================= */
 
-    if(!currentUser){
-
+async function claimFlight(id) {
+    if (!currentUser) {
         return loginWithDiscord();
     }
 
-    if(!currentProfile?.pilot_approved){
+    await ensureProfile();
 
+    if (!currentProfile?.pilot_approved) {
         return msg(
             "Pilot Approved is required to claim ATC24 flights.",
             "error"
         );
     }
 
-    const{
-        data,
-        error
-    }=
-        await supabaseClient.rpc(
-            "claim_atc24_flight",
-            {
-                p_flight_id:id
-            }
-        );
+    const { data, error } = await supabaseClient.rpc(
+        "claim_atc24_flight",
+        {
+            p_flight_id: id
+        }
+    );
 
-    if(error){
-
-        console.error(
-            "Claim flight error:",
-            error
-        );
+    if (error) {
+        console.error("Claim flight error:", error);
 
         return msg(
             `Could not claim flight: ${error.message}`,
@@ -965,142 +705,91 @@ async function claimFlight(id){
         );
     }
 
-    if(!data?.success){
-
+    if (!data?.success) {
         return msg(
             "Flight could not be claimed.",
             "error"
         );
     }
 
-    msg(
-        "Flight successfully claimed.",
-        "success"
+    msg("Flight successfully claimed.", "success");
+    await loadFlights();
+}
+
+/* =========================================
+   SECURED ATC24 OPERATIONS
+========================================= */
+
+async function runAtc24Action(id, action) {
+    if (!currentUser) {
+        return loginWithDiscord();
+    }
+
+    const { data, error } = await supabaseClient.rpc(
+        "update_atc24_flight",
+        {
+            p_flight_id: id,
+            p_action: action
+        }
     );
 
-    await loadFlights();
-}
-
-async function startFlight(id){
-
-    if(!currentUser)return;
-
-    const{
-        error
-    }=
-        await supabaseClient
-            .from("flights")
-            .update({
-                status:"in_progress",
-                started_at:new Date().toISOString()
-            })
-            .eq("id",id)
-            .eq("claimed_by",currentUser.id);
-
-    if(error){
-        msg(
-            error.message,
-            "error"
-        );
-    }
-
-    await loadFlights();
-}
-
-async function recordEvent(id,event){
-
-    if(!currentUser)return;
-
-    const field={
-        pushback:"pushback_at",
-        takeoff:"takeoff_at",
-        landing:"landing_at"
-    }[event];
-
-    if(!field)return;
-
-    const{
-        error
-    }=
-        await supabaseClient
-            .from("flights")
-            .update({
-                [field]:new Date().toISOString()
-            })
-            .eq("id",id)
-            .eq("claimed_by",currentUser.id);
-
-    if(error){
-        msg(
-            error.message,
-            "error"
-        );
-    }
-
-    await loadFlights();
-}
-
-async function completeFlight(id){
-
-    if(!currentUser)return;
-
-    const{
-        data,
-        error
-    }=
-        await supabaseClient
-            .from("flights")
-            .update({
-                status:"completed",
-                completed_at:new Date().toISOString()
-            })
-            .eq("id",id)
-            .eq("claimed_by",currentUser.id)
-            .select();
-
-    if(error){
+    if (error) {
+        console.error("ATC24 action error:", error);
 
         msg(
-            `Could not end flight: ${error.message}`,
-            "error"
-        );
-
-    }else if(!data?.length){
-
-        msg(
-            "Flight could not be completed.",
-            "error"
-        );
-
-    }else{
-
-        msg(
-            "Flight completed successfully.",
-            "success"
-        );
-    }
-
-    await loadFlights();
-}
-
-
-/* =========================
-   ATC24 ADMIN
-   ========================= */
-
-async function createFlight(){
-
-    if(!admin()){
-
-        msg(
-            "Admin access required.",
+            `Could not ${action} flight: ${error.message}`,
             "error"
         );
 
         return;
     }
 
-    const ids=[
+    if (!data?.success) {
+        msg(
+            `Could not ${action} flight.`,
+            "error"
+        );
+        return;
+    }
+
+    const message = action === "complete"
+        ? "Flight completed successfully."
+        : `${
+            action.charAt(0).toUpperCase() +
+            action.slice(1)
+        } recorded successfully.`;
+
+    msg(message, "success");
+    await loadFlights();
+}
+
+async function startFlight(id) {
+    return runAtc24Action(id, "start");
+}
+
+async function recordEvent(id, event) {
+    if (!["pushback", "takeoff", "landing"].includes(event)) {
+        return;
+    }
+
+    return runAtc24Action(id, event);
+}
+
+async function completeFlight(id) {
+    return runAtc24Action(id, "complete");
+}
+
+/* =========================================
+   ATC24 ADMIN
+========================================= */
+
+async function createFlight() {
+    if (!admin()) {
+        msg("Admin access required.", "error");
+        return;
+    }
+
+    const ids = [
         "flightNumber",
         "departure",
         "arrival",
@@ -1110,57 +799,40 @@ async function createFlight(){
         "livery"
     ];
 
-    const v=
-        Object.fromEntries(
-            ids.map(id=>[
-                id,
-                $(id)?.value.trim()
-            ])
-        );
+    const values = Object.fromEntries(
+        ids.map(id => [id, $(id)?.value.trim()])
+    );
 
-    if(
-        Object.values(v).some(
-            x=>!x
-        )
-    ){
-
+    if (Object.values(values).some(value => !value)) {
         msg(
             "Please fill in all required ATC24 fields.",
             "error"
         );
-
         return;
     }
 
-    const{
-        error
-    }=
-        await supabaseClient
-            .from("flights")
-            .insert({
-                flight_number:v.flightNumber,
-                departure_airport:v.departure,
-                arrival_airport:v.arrival,
-                scheduled_departure:
-                    new Date(v.scheduled).toISOString(),
-                aircraft_model:v.aircraft,
-                operator_airline:v.operator,
-                livery_airline:v.livery,
-                recurrence:
-                    $("recurrence").value||"once",
-                additional_info:
-                    $("additionalInfo").value.trim()||
-                    null,
-                status:"available"
-            });
+    const { error } = await supabaseClient
+        .from("flights")
+        .insert({
+            flight_number: values.flightNumber,
+            departure_airport: values.departure,
+            arrival_airport: values.arrival,
+            scheduled_departure:
+                new Date(values.scheduled).toISOString(),
+            aircraft_model: values.aircraft,
+            operator_airline: values.operator,
+            livery_airline: values.livery,
+            recurrence: $("recurrence").value || "once",
+            additional_info:
+                $("additionalInfo").value.trim() || null,
+            status: "available"
+        });
 
-    if(error){
-
+    if (error) {
         msg(
             `Could not create flight: ${error.message}`,
             "error"
         );
-
         return;
     }
 
@@ -1169,60 +841,42 @@ async function createFlight(){
         "success"
     );
 
-    [
-        ...ids,
-        "additionalInfo"
-    ].forEach(id=>{
-        $(id).value="";
+    [...ids, "additionalInfo"].forEach(id => {
+        $(id).value = "";
     });
 
     await loadFlights();
     await loadAdminFlights();
 }
 
-async function loadAdminFlights(){
+async function loadAdminFlights() {
+    if (!admin()) return;
 
-    if(!admin())return;
+    const board = $("adminFlights");
+    if (!board) return;
 
-    const b=$("adminFlights");
+    const { data, error } = await supabaseClient
+        .from("flights")
+        .select("*")
+        .order("scheduled_departure", {
+            ascending: false
+        });
 
-    if(!b)return;
-
-    const{
-        data,
-        error
-    }=
-        await supabaseClient
-            .from("flights")
-            .select("*")
-            .order(
-                "scheduled_departure",
-                {
-                    ascending:false
-                }
-            );
-
-    if(error){
-
-        b.innerHTML=`
+    if (error) {
+        board.innerHTML = `
             <div class="error-state">
                 Could not load ATC24 flights:
                 ${esc(error.message)}
             </div>
         `;
-
         return;
     }
 
-    b.innerHTML=
-        data?.length
-        ?""
-        :`
+    board.innerHTML = data?.length
+        ? ""
+        : `
             <div class="empty-state compact">
-                <span class="empty-icon">
-                    📭
-                </span>
-
+                <span class="empty-icon">📭</span>
                 <div>
                     <strong>
                         No ATC24 flights created yet.
@@ -1231,85 +885,57 @@ async function loadAdminFlights(){
             </div>
         `;
 
-    for(const f of data||[]){
+    for (const flight of data || []) {
+        const row = document.createElement("div");
+        row.className = "admin-row";
 
-        const d=
-            document.createElement("div");
-
-        d.className="admin-row";
-
-        d.innerHTML=`
-
+        row.innerHTML = `
             <div>
-
-                <strong>
-                    ${esc(f.flight_number)}
-                </strong>
+                <strong>${esc(flight.flight_number)}</strong>
 
                 <span>
-                    ${esc(f.departure_airport)}
+                    ${esc(flight.departure_airport)}
                     →
-                    ${esc(f.arrival_airport)}
+                    ${esc(flight.arrival_airport)}
                 </span>
 
                 <small>
-                    ${date(f.scheduled_departure)}
-                    ·
-                    ${esc(f.recurrence||"once")}
-                    ·
-                    ${esc(f.status)}
+                    ${date(flight.scheduled_departure)}
+                    · ${esc(flight.recurrence || "once")}
+                    · ${esc(flight.status)}
                 </small>
-
             </div>
 
-            <button
-                class="btn btn-danger"
-                onclick="deleteFlight('${f.id}')"
-            >
+            <button class="btn btn-danger"
+                onclick="deleteFlight('${flight.id}')">
                 DELETE
             </button>
-
         `;
 
-        b.appendChild(d);
+        board.appendChild(row);
     }
 }
 
-async function deleteFlight(id){
-
-    if(!admin()){
-
-        msg(
-            "Admin access required.",
-            "error"
-        );
-
+async function deleteFlight(id) {
+    if (!admin()) {
+        msg("Admin access required.", "error");
         return;
     }
 
-    if(
-        !confirm(
-            "Delete this flight?"
-        )
-    ){
+    if (!confirm("Delete this flight?")) {
         return;
     }
 
-    const{
-        error
-    }=
-        await supabaseClient
-            .from("flights")
-            .delete()
-            .eq("id",id);
+    const { error } = await supabaseClient
+        .from("flights")
+        .delete()
+        .eq("id", id);
 
-    if(error){
-
+    if (error) {
         msg(
             `Could not delete flight: ${error.message}`,
             "error"
         );
-
         return;
     }
 
@@ -1322,340 +948,248 @@ async function deleteFlight(id){
     await loadAdminFlights();
 }
 
-
-/* =========================
+/* =========================================
    EVENT FLIGHTS
-   ========================= */
+========================================= */
 
-async function booking(eventId){
+async function booking(eventId) {
+    if (!currentUser) return null;
 
-    if(!currentUser)return null;
+    const { data } = await supabaseClient
+        .from("event_bookings")
+        .select("*")
+        .eq("event_id", eventId)
+        .eq("user_id", currentUser.id)
+        .maybeSingle();
 
-    const{
-        data
-    }=
-        await supabaseClient
-            .from("event_bookings")
-            .select("*")
-            .eq("event_id",eventId)
-            .eq("user_id",currentUser.id)
-            .maybeSingle();
-
-    return data||null;
+    return data || null;
 }
 
-async function counts(eventId){
+async function counts(eventId) {
+    const { data, error } = await supabaseClient.rpc(
+        "get_event_booking_counts",
+        {
+            p_event_id: String(eventId)
+        }
+    );
 
-    const{
-        data,
-        error
-    }=
-        await supabaseClient.rpc(
-            "get_event_booking_counts",
-            {
-                p_event_id:String(eventId)
-            }
-        );
-
-    if(error){
-
+    if (error) {
         console.error(error);
-
-        return{
-            economy:0,
-            business:0,
-            first:0
+        return {
+            economy: 0,
+            business: 0,
+            first: 0
         };
     }
 
-    const r=
-        Array.isArray(data)
-        ?data[0]
-        :data;
+    const result = Array.isArray(data)
+        ? data[0]
+        : data;
 
-    return{
-        economy:Number(r?.economy||0),
-        business:Number(r?.business||0),
-        first:Number(r?.first_class||0)
+    return {
+        economy: Number(result?.economy || 0),
+        business: Number(result?.business || 0),
+        first: Number(result?.first_class || 0)
     };
 }
 
-async function loadEvents(){
+async function loadEvents() {
+    const board = $("eventFlightBoard");
+    if (!board) return;
 
-    const b=$("eventFlightBoard");
+    const { data, error } = await supabaseClient
+        .from("events")
+        .select("*")
+        .order("departure_time", {
+            ascending: true
+        });
 
-    if(!b)return;
-
-    const{
-        data,
-        error
-    }=
-        await supabaseClient
-            .from("events")
-            .select("*")
-            .order(
-                "departure_time",
-                {
-                    ascending:true
-                }
-            );
-
-    if(error){
-
-        b.innerHTML=`
+    if (error) {
+        board.innerHTML = `
             <div class="error-state">
                 Could not load event flights:
                 ${esc(error.message)}
             </div>
         `;
-
         return;
     }
 
-        const uniqueEvents =
-        Array.from(
-            new Map(
-                (data||[]).map(
-                    event=>[
-                        String(event.id),
-                        event
-                    ]
-                )
-            ).values()
-        );
-
-    await renderEvents(
-        uniqueEvents
+    const uniqueEvents = Array.from(
+        new Map(
+            (data || []).map(event => [
+                String(event.id),
+                event
+            ])
+        ).values()
     );
+
+    await renderEvents(uniqueEvents);
 }
 
-async function renderEvents(events){
+async function renderEvents(events) {
+    const board = $("eventFlightBoard");
+    const counter = $("eventFlightCount");
 
-    const b=$("eventFlightBoard");
-    const c=$("eventFlightCount");
+    if (!board) return;
 
-    if(!b)return;
+    board.innerHTML = "";
 
-    b.innerHTML="";
-
-    if(c){
-
-        c.textContent=
+    if (counter) {
+        counter.textContent =
             `${events.length} ${
-                events.length===1
-                ?"event"
-                :"events"
+                events.length === 1 ? "event" : "events"
             }`;
     }
 
-    if(!events.length){
-
-        b.innerHTML=`
+    if (!events.length) {
+        board.innerHTML = `
             <div class="empty-state">
-
-                <span class="empty-icon">
-                    🌍
-                </span>
-
+                <span class="empty-icon">🌍</span>
                 <div>
-
                     <strong>
                         No Event Flights are scheduled.
                     </strong>
-
                     <p>
                         New special operations will appear here.
                     </p>
-
                 </div>
-
             </div>
         `;
-
         return;
     }
 
-    for(const e of events){
+    for (const event of events) {
+        const currentBooking = await booking(event.id);
+        const capacity = await counts(event.id);
 
-        const bk=
-            await booking(e.id);
+        const distance = event.distance_type || "short";
 
-        const co=
-            await counts(e.id);
+        const points = Number(
+            event.points || DISTANCE_POINTS[distance]
+        );
 
-        const d=
-            e.distance_type||
-            "short";
+        let actions = "";
 
-        const pts=
-            Number(
-                e.points||
-                DISTANCE_POINTS[d]
-            );
-
-        let a="";
-
-        if(e.status==="cancelled"){
-
-            a=`
+        if (event.status === "cancelled") {
+            actions = `
                 <span class="action-note error-text">
                     ❌ This event flight has been cancelled.
                 </span>
             `;
-
-        }else if(bk?.completed){
-
-            a=`
+        } else if (currentBooking?.completed) {
+            actions = `
                 <span class="action-note success-text">
                     ✓ Completed —
-                    ${num(e.miles)} Miles /
-                    ${pts} Point(s) awarded.
+                    ${num(event.miles)} Miles /
+                    ${points} Point(s) awarded.
                 </span>
             `;
+        } else if (currentBooking) {
+            const canComplete =
+                event.status === "completed" &&
+                currentBooking.checked_in &&
+                currentBooking.boarded &&
+                !currentBooking.completed;
 
-        }else if(bk){
-
-            const done=
-                e.status==="completed"&&
-                bk.checked_in&&
-                bk.boarded&&
-                !bk.completed;
-
-            a=`
-
+            actions = `
                 <div class="booking-status">
-
                     <strong>
                         🎫 Your booking ·
-                        ${esc(
-                            className(
-                                bk.travel_class
-                            )
-                        )}
+                        ${esc(className(currentBooking.travel_class))}
                     </strong>
 
                     <span>
                         ${
-                            bk.checked_in
-                            ?"✓ Checked in"
-                            :"• Not checked in"
+                            currentBooking.checked_in
+                            ? "✓ Checked in"
+                            : "• Not checked in"
                         }
                     </span>
 
                     <span>
                         ${
-                            bk.boarded
-                            ?"✓ Boarded"
-                            :"• Not boarded"
+                            currentBooking.boarded
+                            ? "✓ Boarded"
+                            : "• Not boarded"
                         }
                     </span>
-
                 </div>
 
                 <div class="actions">
-
                     ${
-                        !bk.checked_in&&
-                        e.status!=="completed"
-
-                        ?`
-                            <button
-                                class="btn btn-primary"
-                                onclick="checkInEventFlight('${bk.id}')"
-                            >
+                        !currentBooking.checked_in &&
+                        event.status !== "completed"
+                        ? `
+                            <button class="btn btn-primary"
+                                onclick="checkInEventFlight('${currentBooking.id}')">
                                 CHECK IN
                             </button>
                         `
-
-                        :""
+                        : ""
                     }
 
                     ${
-                        bk.checked_in&&
-                        !bk.boarded&&
-                        e.status!=="completed"
-
-                        ?`
-                            <button
-                                class="btn btn-secondary"
-                                onclick="boardEventFlight('${bk.id}')"
-                            >
+                        currentBooking.checked_in &&
+                        !currentBooking.boarded &&
+                        event.status !== "completed"
+                        ? `
+                            <button class="btn btn-secondary"
+                                onclick="boardEventFlight('${currentBooking.id}')">
                                 BOARD
                             </button>
                         `
-
-                        :""
+                        : ""
                     }
 
                     ${
-                        done
-
-                        ?`
-                            <button
-                                class="btn btn-primary"
-                                onclick="completeEventBooking('${bk.id}')"
-                            >
+                        canComplete
+                        ? `
+                            <button class="btn btn-primary"
+                                onclick="completeEventBooking('${currentBooking.id}')">
                                 COMPLETE EVENT FLIGHT
                             </button>
                         `
-
-                        :""
+                        : ""
                     }
-
                 </div>
-
             `;
-
-        }else if(!currentUser){
-
-            a=`
-                <button
-                    class="btn btn-secondary"
-                    onclick="loginWithDiscord()"
-                >
+        } else if (!currentUser) {
+            actions = `
+                <button class="btn btn-secondary"
+                    onclick="loginWithDiscord()">
                     LOGIN WITH DISCORD TO BOOK
                 </button>
             `;
-
-        }else if(e.status==="completed"){
-
-            a=`
+        } else if (event.status === "completed") {
+            actions = `
                 <span class="action-note">
                     This event flight is completed.
                 </span>
             `;
+        } else {
+            const economyAvailable =
+                Number(event.economy_capacity || 0) >
+                capacity.economy;
 
-        }else{
+            const businessAvailable =
+                Number(event.business_capacity || 0) >
+                capacity.business;
 
-            const eco=
-                Number(e.economy_capacity||0)>
-                co.economy;
+            const firstAvailable =
+                Number(event.first_capacity || 0) >
+                capacity.first;
 
-            const bus=
-                Number(e.business_capacity||0)>
-                co.business;
-
-            const first=
-                Number(e.first_capacity||0)>
-                co.first;
-
-            a=`
-
+            actions = `
                 <div class="actions">
-
                     ${
-                        eco
-
-                        ?`
-                            <button
-                                class="btn btn-primary"
-                                onclick="bookEventFlight('${e.id}','economy')"
-                            >
+                        economyAvailable
+                        ? `
+                            <button class="btn btn-primary"
+                                onclick="bookEventFlight('${event.id}','economy')">
                                 BOOK ECONOMY
                             </button>
                         `
-
-                        :`
+                        : `
                             <span class="action-note">
                                 Economy full
                             </span>
@@ -1664,273 +1198,183 @@ async function renderEvents(events){
 
                     ${
                         canClass("business")
-
-                        ?(
-                            bus
-
-                            ?`
-                                <button
-                                    class="btn btn-secondary"
-                                    onclick="bookEventFlight('${e.id}','business')"
-                                >
-                                BOOK BUSINESS — 20,000 MILES
-                            </button>
-                        `
-
-                            :`
+                        ? (
+                            businessAvailable
+                            ? `
+                                <button class="btn btn-secondary"
+                                    onclick="bookEventFlight('${event.id}','business')">
+                                    BOOK BUSINESS — 20,000 MILES
+                                </button>
+                            `
+                            : `
                                 <span class="action-note">
                                     Business full
                                 </span>
                             `
                         )
-
-                        :`
+                        : `
                             <span class="action-note">
                                 🔒 Business —
-                                Frequent Traveller required + 20,000 Miles required
+                                Frequent Traveller required +
+                                20,000 Miles required
                             </span>
                         `
                     }
 
                     ${
                         canClass("first")
-
-                        ?(
-                            first
-
-                            ?`
-                                <button
-                                    class="btn btn-dark"
-                                    onclick="bookEventFlight('${e.id}','first')"
-                                >
+                        ? (
+                            firstAvailable
+                            ? `
+                                <button class="btn btn-dark"
+                                    onclick="bookEventFlight('${event.id}','first')">
                                     BOOK FIRST — 100,000 MILES
                                 </button>
                             `
-
-                            :`
+                            : `
                                 <span class="action-note">
                                     First full
                                 </span>
                             `
                         )
-
-                        :`
+                        : `
                             <span class="action-note">
                                 🔒 First —
-                                Senator required + 100,000 Miles required
+                                Senator required +
+                                100,000 Miles required
                             </span>
                         `
                     }
-
                 </div>
-
             `;
         }
 
-        const card=
-            document.createElement("article");
+        const card = document.createElement("article");
+        card.className = "flight-card";
 
-        card.className=
-            "flight-card";
-
-        card.innerHTML=`
-
+        card.innerHTML = `
             <div class="card-topline">
-
                 <div>
-
-                    <span class="eyebrow">
-                        EVENT FLIGHT
-                    </span>
-
-                    <h3>
-                        ${esc(e.flight_number)}
-                    </h3>
-
+                    <span class="eyebrow">EVENT FLIGHT</span>
+                    <h3>${esc(event.flight_number)}</h3>
                 </div>
 
-                <span
-                    class="status ${eventStatusClass(e.status)}"
-                >
-                    ${eventStatusText(e.status)}
+                <span class="status ${eventStatusClass(event.status)}">
+                    ${eventStatusText(event.status)}
                 </span>
-
             </div>
 
             <div class="route-line">
-
-                <span>
-                    ${esc(e.departure)}
-                </span>
-
-                <span class="route-arrow">
-                    →
-                </span>
-
-                <span>
-                    ${esc(e.arrival)}
-                </span>
-
+                <span>${esc(event.departure)}</span>
+                <span class="route-arrow">→</span>
+                <span>${esc(event.arrival)}</span>
             </div>
 
             <div class="info-grid">
-
                 <div class="info-box">
-
-                    <span>
-                        Departure
-                    </span>
-
-                    <strong>
-                        ${date(e.departure_time)}
-                    </strong>
-
+                    <span>Departure</span>
+                    <strong>${date(event.departure_time)}</strong>
                 </div>
 
                 <div class="info-box">
-
-                    <span>
-                        Aircraft
-                    </span>
-
-                    <strong>
-                        ${esc(e.aircraft_model)}
-                    </strong>
-
+                    <span>Aircraft</span>
+                    <strong>${esc(event.aircraft_model)}</strong>
                 </div>
 
                 <div class="info-box">
-
-                    <span>
-                        Distance
-                    </span>
-
-                    <strong>
-                        ${esc(distanceName(d))}
-                    </strong>
-
+                    <span>Distance</span>
+                    <strong>${esc(distanceName(distance))}</strong>
                 </div>
 
                 <div class="info-box">
-
-                    <span>
-                        Miles &amp; More
-                    </span>
-
+                    <span>Miles &amp; More</span>
                     <strong>
-                        ${pts} Point(s)
-                        ·
-                        ${num(e.miles)} Miles
+                        ${points} Point(s) ·
+                        ${num(event.miles)} Miles
                     </strong>
-
                 </div>
-
             </div>
 
             <div class="capacity-grid">
-
                 <div>
-                    <span>
-                        Economy
-                    </span>
-
+                    <span>Economy</span>
                     <strong>
-                        ${co.economy}/
-                        ${Number(e.economy_capacity||0)}
+                        ${capacity.economy}/
+                        ${Number(event.economy_capacity || 0)}
                     </strong>
                 </div>
 
                 <div>
-                    <span>
-                        Business
-                    </span>
-
+                    <span>Business</span>
                     <strong>
-                        ${co.business}/
-                        ${Number(e.business_capacity||0)}
+                        ${capacity.business}/
+                        ${Number(event.business_capacity || 0)}
                     </strong>
                 </div>
 
                 <div>
-                    <span>
-                        First
-                    </span>
-
+                    <span>First</span>
                     <strong>
-                        ${co.first}/
-                        ${Number(e.first_capacity||0)}
+                        ${capacity.first}/
+                        ${Number(event.first_capacity || 0)}
                     </strong>
                 </div>
-
             </div>
 
             <div class="actions booking-actions">
-                ${a}
+                ${actions}
             </div>
-
         `;
 
-        b.appendChild(card);
+        board.appendChild(card);
     }
 }
 
-async function bookEventFlight(id,c){
+/* =========================================
+   EVENT BOOKINGS
+========================================= */
 
-    if(!currentUser){
-
+async function bookEventFlight(id, travelClass) {
+    if (!currentUser) {
         return loginWithDiscord();
     }
 
-    if(!canClass(c)){
+    if (!canClass(travelClass)) {
+        const required = travelClass === "business"
+            ? "Frequent Traveller"
+            : "Senator";
 
         return msg(
-            `${className(c)} requires ${
-                c==="business"
-                ?"Frequent Traveller"
-                :"Senator"
-            } status.`,
+            `${className(travelClass)} requires ${required} status.`,
             "error"
         );
     }
 
-    const cost =
-        c==="business"
-        ?20000
-        :c==="first"
-        ?100000
-        :0;
+    const cost = travelClass === "business"
+        ? 20000
+        : travelClass === "first"
+            ? 100000
+            : 0;
 
-    const miles =
-        Number(
-            currentProfile?.miles||0
-        );
+    const miles = Number(currentProfile?.miles || 0);
 
-    if(miles<cost){
-
+    if (miles < cost) {
         return msg(
-            `You need ${num(cost)} Miles for ${className(c)}.`,
+            `You need ${num(cost)} Miles for ${className(travelClass)}.`,
             "error"
         );
     }
 
-    const{
-        data,
-        error
-    }=
-        await supabaseClient.rpc(
-            "book_event_flight_with_miles",
-            {
-                p_event_id:Number(id),
-                p_travel_class:c
-            }
-        );
+    const { data, error } = await supabaseClient.rpc(
+        "book_event_flight_with_miles",
+        {
+            p_event_id: Number(id),
+            p_travel_class: travelClass
+        }
+    );
 
-    if(error){
-
-        console.error(
-            "Event booking error:",
-            error
-        );
+    if (error) {
+        console.error("Event booking error:", error);
 
         return msg(
             `Could not book flight: ${error.message}`,
@@ -1938,8 +1382,7 @@ async function bookEventFlight(id,c){
         );
     }
 
-    if(!data?.success){
-
+    if (!data?.success) {
         return msg(
             "Could not complete booking.",
             "error"
@@ -1947,14 +1390,13 @@ async function bookEventFlight(id,c){
     }
 
     await ensureProfile();
-
     updateMiles();
 
     msg(
-        `Booked ${className(c)} successfully. ${
-            cost>0
-            ?`${num(cost)} Miles deducted.`
-            :"No Miles deducted."
+        `Booked ${className(travelClass)} successfully. ${
+            cost > 0
+            ? `${num(cost)} Miles deducted.`
+            : "No Miles deducted."
         }`,
         "success"
     );
@@ -1962,276 +1404,179 @@ async function bookEventFlight(id,c){
     await loadEvents();
 }
 
-async function checkInEventFlight(id){
+async function checkInEventFlight(id) {
+    const { error } = await supabaseClient.rpc(
+        "check_in_event_flight",
+        {
+            p_booking_id: id
+        }
+    );
 
-    const{
-        error
-    }=
-        await supabaseClient.rpc(
-            "check_in_event_flight",
-            {
-                p_booking_id:id
-            }
-        );
-
-    if(error){
-
+    if (error) {
         msg(
             `Could not check in: ${error.message}`,
             "error"
         );
-
         return;
     }
 
-    msg(
-        "Check-in completed.",
-        "success"
-    );
-
+    msg("Check-in completed.", "success");
     await loadEvents();
 }
 
-async function boardEventFlight(id){
+async function boardEventFlight(id) {
+    const { error } = await supabaseClient.rpc(
+        "board_event_flight",
+        {
+            p_booking_id: id
+        }
+    );
 
-    const{
-        error
-    }=
-        await supabaseClient.rpc(
-            "board_event_flight",
-            {
-                p_booking_id:id
-            }
-        );
-
-    if(error){
-
+    if (error) {
         msg(
             `Could not board: ${error.message}`,
             "error"
         );
-
         return;
     }
 
-    msg(
-        "Boarding completed.",
-        "success"
-    );
-
+    msg("Boarding completed.", "success");
     await loadEvents();
 }
 
-async function completeEventBooking(id){
+async function completeEventBooking(id) {
+    const { data, error } = await supabaseClient.rpc(
+        "complete_event_flight",
+        {
+            p_booking_id: id
+        }
+    );
 
-    const{
-        data,
-        error
-    }=
-        await supabaseClient.rpc(
-            "complete_event_flight",
-            {
-                p_booking_id:id
-            }
-        );
-
-    if(error){
-
+    if (error) {
         msg(
             `Could not complete event flight: ${error.message}`,
             "error"
         );
-
         return;
     }
 
-    const r=
-        Array.isArray(data)
-        ?data[0]
-        :data;
+    const result = Array.isArray(data)
+        ? data[0]
+        : data;
 
     await ensureProfile();
-
     updateMiles();
-
     await loadEvents();
 
     msg(
         `Event flight completed! +${
-            num(r?.miles_awarded||0)
+            num(result?.miles_awarded || 0)
         } Miles / +${
-            r?.points_awarded||0
+            result?.points_awarded || 0
         } Point(s). New status: ${
-            statusName(
-                r?.new_status
-            )
+            statusName(result?.new_status)
         }.`,
         "success"
     );
 }
 
+/* =========================================
+   EVENT FLIGHT ADMIN
+========================================= */
 
-/* =========================
-   EVENT ADMIN
-   ========================= */
-
-async function createEventFlight(){
-
-    if(!admin()){
-
-        return msg(
-            "Admin access required.",
-            "error"
-        );
+async function createEventFlight() {
+    if (!admin()) {
+        return msg("Admin access required.", "error");
     }
 
-    const g=id=>
-        $(id)?.value.trim();
+    const get = id => $(id)?.value.trim();
 
-    const flightNumber=
-        g("eventFlightNumber");
+    const flightNumber = get("eventFlightNumber");
+    const departure = get("eventDeparture");
+    const arrival = get("eventArrival");
+    const time = $("eventDepartureTime")?.value;
+    const aircraft = get("eventAircraft");
+    const pilot = get("eventPilot");
 
-    const departure=
-        g("eventDeparture");
+    const distance =
+        $("eventDistance")?.value || "short";
 
-    const arrival=
-        g("eventArrival");
+    const miles = Number(
+        $("eventMiles")?.value || 0
+    );
 
-    const time=
-        $("eventDepartureTime")?.value;
+    const economyCapacity = Number(
+        $("economyCapacity")?.value || 0
+    );
 
-    const aircraft=
-        g("eventAircraft");
+    const businessCapacity = Number(
+        $("businessCapacity")?.value || 0
+    );
 
-    const pilot=
-        g("eventPilot");
+    const firstCapacity = Number(
+        $("firstCapacity")?.value || 0
+    );
 
-    const distance=
-        $("eventDistance")?.value||
-        "short";
+    const status =
+        $("eventStatus")?.value || "scheduled";
 
-    const miles=
-        Number(
-            $("eventMiles")?.value||0
-        );
-
-    const eco=
-        Number(
-            $("economyCapacity")?.value||0
-        );
-
-    const bus=
-        Number(
-            $("businessCapacity")?.value||0
-        );
-
-    const first=
-        Number(
-            $("firstCapacity")?.value||0
-        );
-
-    const status=
-        $("eventStatus")?.value||
-        "scheduled";
-
-    if(
-        !flightNumber||
-        !departure||
-        !arrival||
-        !time||
+    if (
+        !flightNumber ||
+        !departure ||
+        !arrival ||
+        !time ||
         !aircraft
-    ){
-
+    ) {
         return msg(
             "Please fill in all required Event Flight fields.",
             "error"
         );
     }
 
-    if(
-        !Object.hasOwn(
-            DISTANCE_POINTS,
-            distance
-        )
-    ){
-
+    if (!Object.hasOwn(DISTANCE_POINTS, distance)) {
         return msg(
             "Invalid distance category.",
             "error"
         );
     }
 
-    if(
-        ![
-            miles,
-            eco,
-            bus,
-            first
-        ].every(
-            Number.isInteger
-        )||
-        [
-            miles,
-            eco,
-            bus,
-            first
-        ].some(
-            v=>v<0
-        )
-    ){
+    const values = [
+        miles,
+        economyCapacity,
+        businessCapacity,
+        firstCapacity
+    ];
 
+    if (
+        !values.every(Number.isInteger) ||
+        values.some(value => value < 0)
+    ) {
         return msg(
             "Invalid Miles or capacity values.",
             "error"
         );
     }
 
-    const{
-        error
-    }=
-        await supabaseClient.rpc(
-            "create_event_flight_admin",
-            {
-                p_flight_number:
-                    flightNumber,
+    const { error } = await supabaseClient.rpc(
+        "create_event_flight_admin",
+        {
+            p_flight_number: flightNumber,
+            p_departure: departure,
+            p_arrival: arrival,
+            p_departure_time:
+                new Date(time).toISOString(),
+            p_aircraft_model: aircraft,
+            p_pilot_discord_id: pilot || null,
+            p_distance_type: distance,
+            p_miles: miles,
+            p_economy_capacity: economyCapacity,
+            p_business_capacity: businessCapacity,
+            p_first_capacity: firstCapacity,
+            p_status: status
+        }
+    );
 
-                p_departure:
-                    departure,
-
-                p_arrival:
-                    arrival,
-
-                p_departure_time:
-                    new Date(time).toISOString(),
-
-                p_aircraft_model:
-                    aircraft,
-
-                p_pilot_discord_id:
-                    pilot||null,
-
-                p_distance_type:
-                    distance,
-
-                p_miles:
-                    miles,
-
-                p_economy_capacity:
-                    eco,
-
-                p_business_capacity:
-                    bus,
-
-                p_first_capacity:
-                    first,
-
-                p_status:
-                    status
-            }
-        );
-
-    if(error){
-
+    if (error) {
         console.error(
             "Event creation RPC error:",
             error
@@ -2246,9 +1591,7 @@ async function createEventFlight(){
     msg(
         `Event flight created successfully — ${
             DISTANCE_POINTS[distance]
-        } Point(s) / ${
-            num(miles)
-        } Miles.`,
+        } Point(s) / ${num(miles)} Miles.`,
         "success"
     );
 
@@ -2260,219 +1603,156 @@ async function createEventFlight(){
         "eventAircraft",
         "eventPilot",
         "eventMiles"
-    ].forEach(id=>{
-        $(id).value="";
+    ].forEach(id => {
+        $(id).value = "";
     });
 
     await loadEvents();
     await loadAdminEvents();
 }
 
-async function loadAdminEvents(){
+async function loadAdminEvents() {
+    if (!admin()) return;
 
-    if(!admin())return;
+    const board = $("adminEventFlights");
+    if (!board) return;
 
-    const b=$("adminEventFlights");
+    const { data, error } = await supabaseClient
+        .from("events")
+        .select("*")
+        .order("departure_time", {
+            ascending: false
+        });
 
-    if(!b)return;
-
-    const{
-        data,
-        error
-    }=
-        await supabaseClient
-            .from("events")
-            .select("*")
-            .order(
-                "departure_time",
-                {
-                    ascending:false
-                }
-            );
-
-    if(error){
-
-        b.innerHTML=`
+    if (error) {
+        board.innerHTML = `
             <div class="error-state">
                 Could not load event flights:
                 ${esc(error.message)}
             </div>
         `;
-
         return;
     }
 
-    b.innerHTML=
-        data?.length
-        ?""
-        :`
+    board.innerHTML = data?.length
+        ? ""
+        : `
             <div class="empty-state compact">
-
-                <span class="empty-icon">
-                    📭
-                </span>
-
+                <span class="empty-icon">📭</span>
                 <div>
                     <strong>
                         No Event Flights created yet.
                     </strong>
                 </div>
-
             </div>
         `;
 
-    for(const e of data||[]){
+    for (const event of data || []) {
+        const row = document.createElement("div");
+        row.className = "admin-row";
 
-        const d=
-            document.createElement("div");
+        const statusOptions = [
+            "scheduled",
+            "boarding",
+            "departed",
+            "completed",
+            "cancelled"
+        ].map(status => `
+            <option
+                value="${status}"
+                ${
+                    event.status === status
+                    ? "selected"
+                    : ""
+                }
+            >
+                ${eventStatusText(status)}
+            </option>
+        `).join("");
 
-        d.className=
-            "admin-row";
-
-        d.innerHTML=`
-
+        row.innerHTML = `
             <div>
-
-                <strong>
-                    ${esc(e.flight_number)}
-                </strong>
+                <strong>${esc(event.flight_number)}</strong>
 
                 <span>
-                    ${esc(e.departure)}
+                    ${esc(event.departure)}
                     →
-                    ${esc(e.arrival)}
+                    ${esc(event.arrival)}
                 </span>
 
                 <small>
-                    ${date(e.departure_time)}
-                    ·
-                    ${esc(
-                        distanceName(
-                            e.distance_type
-                        )
-                    )}
-                    ·
-                    ${e.points}
-                    Point(s)
-                    ·
-                    ${num(e.miles)}
-                    Miles
+                    ${date(event.departure_time)}
+                    · ${esc(distanceName(event.distance_type))}
+                    · ${event.points} Point(s)
+                    · ${num(event.miles)} Miles
                 </small>
-
             </div>
 
             <div class="admin-actions">
-
                 <select
                     class="admin-status-select"
-                    onchange="updateEventStatus('${e.id}',this.value)"
+                    onchange="updateEventStatus('${event.id}',this.value)"
                 >
-
-                    ${
-                        [
-                            "scheduled",
-                            "boarding",
-                            "departed",
-                            "completed",
-                            "cancelled"
-                        ]
-                        .map(s=>`
-                            <option
-                                value="${s}"
-                                ${
-                                    e.status===s
-                                    ?"selected"
-                                    :""
-                                }
-                            >
-                                ${eventStatusText(s)}
-                            </option>
-                        `)
-                        .join("")
-                    }
-
+                    ${statusOptions}
                 </select>
 
-                <button
-                    class="btn btn-danger"
-                    onclick="deleteEventFlight('${e.id}')"
-                >
+                <button class="btn btn-danger"
+                    onclick="deleteEventFlight('${event.id}')">
                     DELETE
                 </button>
-
             </div>
-
         `;
 
-        b.appendChild(d);
+        board.appendChild(row);
     }
 }
 
-async function updateEventStatus(
-    id,
-    status
-){
+async function updateEventStatus(id, status) {
+    if (!admin()) return;
 
-    if(!admin())return;
+    const { error } = await supabaseClient.rpc(
+        "update_event_status_admin",
+        {
+            p_event_id: String(id),
+            p_status: status
+        }
+    );
 
-    const{
-        error
-    }=
-        await supabaseClient.rpc(
-            "update_event_status_admin",
-            {
-                p_event_id:String(id),
-                p_status:status
-            }
-        );
-
-    if(error){
-
+    if (error) {
         return msg(
             `Could not update event status: ${error.message}`,
             "error"
         );
     }
 
-    msg(
-        "Event status updated.",
-        "success"
-    );
+    msg("Event status updated.", "success");
 
     await loadEvents();
     await loadAdminEvents();
 }
 
-async function deleteEventFlight(id){
-
-    if(!admin()){
-
+async function deleteEventFlight(id) {
+    if (!admin()) {
         return msg(
             "Admin access required.",
             "error"
         );
     }
 
-    if(
-        !confirm(
-            "Delete this event flight? Existing bookings and participant records will also be deleted."
-        )
-    ){
+    if (!confirm(
+        "Delete this event flight? Existing bookings and participant records will also be deleted."
+    )) {
         return;
     }
 
-    const{
-        error
-    }=
-        await supabaseClient.rpc(
-            "delete_event_flight_admin",
-            {
-                p_event_id:String(id)
-            }
-        );
+    const { error } = await supabaseClient.rpc(
+        "delete_event_flight_admin",
+        {
+            p_event_id: String(id)
+        }
+    );
 
-    if(error){
-
+    if (error) {
         return msg(
             `Could not delete event flight: ${error.message}`,
             "error"
@@ -2488,43 +1768,36 @@ async function deleteEventFlight(id){
     await loadAdminEvents();
 }
 
-
-/* =========================
+/* =========================================
    ADMIN / REFRESH
-   ========================= */
+========================================= */
 
-function updateAdminUI(){
+function updateAdminUI() {
+    const isAdmin = admin();
 
-    const a=admin();
+    $("adminPanel")?.classList.toggle(
+        "hidden",
+        !isAdmin
+    );
 
-    $("adminPanel")
-        ?.classList.toggle(
-            "hidden",
-            !a
-        );
+    $("eventAdminPanel")?.classList.toggle(
+        "hidden",
+        !isAdmin
+    );
 
-    $("eventAdminPanel")
-        ?.classList.toggle(
-            "hidden",
-            !a
-        );
-
-    if(a){
-
+    if (isAdmin) {
         loadAdminFlights();
         loadAdminEvents();
     }
 }
 
-async function refresh(){
-
+async function refresh() {
     await Promise.all([
         loadFlights(),
         loadEvents()
     ]);
 
-    if(admin()){
-
+    if (admin()) {
         await Promise.all([
             loadAdminFlights(),
             loadAdminEvents()
@@ -2532,64 +1805,45 @@ async function refresh(){
     }
 }
 
-
-/* =========================
+/* =========================================
    AUTH STATE
-   ========================= */
+========================================= */
 
 supabaseClient.auth.onAuthStateChange(
-    (_event,session)=>{
+    (_event, session) => {
+        setTimeout(async () => {
+            currentUser = session?.user || null;
 
-        setTimeout(
-            async()=>{
+            if (currentUser) {
+                await ensureProfile();
+            } else {
+                currentProfile = null;
+            }
 
-                currentUser=
-                    session?.user||
-                    null;
-
-                if(currentUser){
-
-                    await ensureProfile();
-
-                }else{
-
-                    currentProfile=null;
-                }
-
-                updateUI();
-
-                await refresh();
-
-            },
-            0
-        );
+            updateUI();
+            await refresh();
+        }, 0);
     }
 );
 
-
-/* =========================
+/* =========================================
    START
-   ========================= */
+========================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
-    async()=>{
+    async () => {
+        $("loginButton")?.addEventListener(
+            "click",
+            loginWithDiscord
+        );
 
-        $("loginButton")
-            ?.addEventListener(
-                "click",
-                loginWithDiscord
-            );
-
-        $("logoutButton")
-            ?.addEventListener(
-                "click",
-                logout
-            );
+        $("logoutButton")?.addEventListener(
+            "click",
+            logout
+        );
 
         await loadUser();
-
         await refresh();
-
     }
 );
