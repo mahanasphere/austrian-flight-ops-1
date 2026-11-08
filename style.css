@@ -1,0 +1,1623 @@
+
+/* =====================================================
+   AUSTRIAN AIRLINES FLIGHT OPERATIONS
+   V1.3.0 – WEBSITE DESIGN
+   ===================================================== */
+
+
+/* =====================================================
+   1. THEME VARIABLES
+   ===================================================== */
+
+:root {
+  color-scheme: light;
+
+  --red: #c70022;
+  --red-hover: #a9001b;
+  --red-soft: #fff0f2;
+  --red-text: #b8001c;
+
+  --ink: #172334;
+  --muted: #677589;
+
+  --bg: #f5f7fa;
+  --surface: #ffffff;
+  --surface-alt: #f0f3f7;
+  --line: #e1e7ee;
+
+  --shadow:
+    0 12px 38px rgba(15, 33, 58, 0.055);
+
+  --shadow-hover:
+    0 18px 46px rgba(15, 33, 58, 0.12);
+
+  --radius: 20px;
+  --radius-large: 30px;
+
+  --transition: 180ms ease;
+}
+
+
+/* =====================================================
+   2. DARK MODE
+   ===================================================== */
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  --red: #c70022;
+  --red-hover: #e00028;
+  --red-soft: #3d2331;
+  --red-text: #ff8b9b;
+
+  --ink: #f0f4fa;
+  --muted: #a6b3c6;
+
+  --bg: #0e1623;
+  --surface: #182537;
+  --surface-alt: #233349;
+  --line: #35445a;
+
+  --shadow:
+    0 12px 40px rgba(0, 0, 0, 0.16);
+
+  --shadow-hover:
+    0 18px 48px rgba(0, 0, 0, 0.28);
+}
+
+
+/* =====================================================
+   3. FONT SIZES
+   Normal is close to the original website size.
+   ===================================================== */
+
+html {
+  font-size: 15px;
+}
+
+html[data-font-size="small"] {
+  font-size: 13px;
+}
+
+html[data-font-size="normal"] {
+  font-size: 15px;
+}
+
+html[data-font-size="large"] {
+  font-size: 18px;
+}
+
+html[data-font-size="small"] body,
+html[data-font-size="normal"] body,
+html[data-font-size="large"] body {
+  font-size: 1rem;
+}
+
+
+/* =====================================================
+   4. GLOBAL STYLES
+   ===================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+
+  font-family:
+    Inter,
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+
+  font-size: 1rem;
+  line-height: 1.55;
+
+  background: var(--bg);
+  color: var(--ink);
+
+  transition:
+    background-color var(--transition),
+    color var(--transition);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+a {
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+h2 {
+  font-size: 1.85rem;
+}
+
+h3 {
+  font-size: 1.22rem;
+}
+
+p {
+  line-height: 1.65;
+}
+
+.hidden,
+[hidden] {
+  display: none !important;
+}
+
+.muted,
+.form-help {
+  color: var(--muted);
+}
+
+.form-help {
+  font-size: 0.83rem;
+}
+
+:focus-visible {
+  outline: 3px solid #e93857;
+  outline-offset: 3px;
+}
+
+::selection {
+  background: #eab1bc;
+  color: #30111c;
+}
+
+
+/* =====================================================
+   5. WEBSITE HEADER
+   ===================================================== */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+
+  box-shadow: 0 2px 18px rgba(0, 0, 0, 0.025);
+}
+
+.header-inner {
+  width: 100%;
+  max-width: 1320px;
+
+  margin: 0 auto;
+  padding: 13px 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+
+  min-width: 0;
+  text-decoration: none;
+}
+
+.brand-logo {
+  width: 54px;
+  height: 48px;
+
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.brand-title {
+  font-size: 1.18rem;
+  font-weight: 850;
+  line-height: 1.25;
+  letter-spacing: -0.035em;
+}
+
+.brand-subtitle {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.79rem;
+}
+
+.header-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.user-pill {
+  border: 1px solid var(--line);
+  border-radius: 100px;
+
+  background: var(--surface-alt);
+  color: var(--ink);
+
+  padding: 9px 14px;
+
+  font-size: 0.83rem;
+  font-weight: 750;
+}
+
+.icon-button {
+  min-width: 42px;
+  min-height: 42px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--line);
+  border-radius: 12px;
+
+  background: var(--surface-alt);
+  color: var(--ink);
+
+  font-size: 1.3rem;
+
+  transition:
+    background var(--transition),
+    transform var(--transition);
+}
+
+.icon-button:hover {
+  background: var(--red-soft);
+  transform: translateY(-1px);
+}
+
+
+/* =====================================================
+   6. PAGE CONTAINER
+   ===================================================== */
+
+.main {
+  width: 100%;
+  max-width: 1320px;
+
+  margin: 0 auto;
+  padding: 30px 24px 75px;
+
+  min-height: 70vh;
+}
+
+.view {
+  display: none;
+  animation: viewAppear 230ms ease;
+}
+
+.view.is-active {
+  display: block;
+}
+
+@keyframes viewAppear {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* =====================================================
+   7. HOME HERO – AUSTRIAN 787
+   ===================================================== */
+
+.hero {
+  position: relative;
+  isolation: isolate;
+
+  display: flex;
+  align-items: center;
+
+  min-height: 430px;
+  overflow: hidden;
+
+  border-radius: 32px;
+
+  background-color: #123b63;
+
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(6, 19, 35, 0.93) 0%,
+      rgba(9, 26, 44, 0.83) 31%,
+      rgba(10, 32, 56, 0.48) 58%,
+      rgba(8, 30, 53, 0.08) 100%
+    ),
+    url("assets/austrian-787.png");
+
+  background-size: cover;
+  background-position: center;
+
+  box-shadow: 0 22px 56px rgba(17, 42, 76, 0.13);
+
+  color: #ffffff;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+
+  width: 100%;
+  max-width: 780px;
+
+  padding: 55px 58px;
+}
+
+.hero-kicker {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 8px 14px;
+
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 100px;
+
+  background: rgba(255, 255, 255, 0.12);
+
+  color: #ffffff;
+
+  font-size: 0.74rem;
+  font-weight: 850;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  margin: 22px 0 15px;
+
+  font-size: clamp(3rem, 6vw, 5.2rem);
+  font-weight: 850;
+
+  line-height: 1.05;
+  letter-spacing: -0.055em;
+
+  color: #ffffff;
+}
+
+.hero p {
+  max-width: 560px;
+
+  margin: 0;
+
+  color: #f2f5fa;
+
+  font-size: 1.16rem;
+  line-height: 1.65;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  margin-top: 28px;
+}
+
+
+/* =====================================================
+   8. MAIN NAVIGATION
+   ===================================================== */
+
+.nav-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 9px;
+  margin: 25px 0 28px;
+
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+
+  box-shadow: var(--shadow);
+}
+
+.nav-strip a {
+  position: relative;
+
+  display: inline-flex;
+  align-items: center;
+
+  padding: 12px 17px;
+
+  border-radius: 12px;
+
+  color: var(--ink);
+  background: transparent;
+
+  text-decoration: none;
+
+  font-size: 0.9rem;
+  font-weight: 780;
+
+  white-space: nowrap;
+
+  transition:
+    background var(--transition),
+    color var(--transition);
+}
+
+.nav-strip a:hover {
+  background: var(--surface-alt);
+  color: var(--red-text);
+}
+
+.nav-strip a[aria-current="page"] {
+  background: var(--red-soft);
+  color: var(--red-text);
+}
+
+html[data-theme="dark"]
+.nav-strip a[aria-current="page"] {
+  background: var(--red-soft);
+  color: var(--red-text);
+}
+
+
+/* =====================================================
+   9. MAIN SECTIONS
+   ===================================================== */
+
+.section {
+  margin: 0 0 25px;
+  padding: 30px;
+
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-large);
+
+  box-shadow: var(--shadow);
+}
+
+.section-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  margin-bottom: 25px;
+}
+
+.section-title h2 {
+  margin: 0 0 7px;
+
+  font-size: 1.9rem;
+  font-weight: 840;
+}
+
+.section-title p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.count {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 7px 12px;
+
+  background: var(--surface-alt);
+  border-radius: 100px;
+
+  color: var(--muted);
+  font-size: 0.83rem;
+  font-weight: 750;
+}
+
+
+/* =====================================================
+   10. BUTTONS
+   ===================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  min-height: 42px;
+
+  padding: 11px 16px;
+
+  border: 1px solid transparent;
+  border-radius: 12px;
+
+  text-decoration: none;
+  text-align: center;
+
+  font-size: 0.88rem;
+  font-weight: 800;
+  line-height: 1.35;
+
+  transition:
+    background-color var(--transition),
+    border-color var(--transition),
+    box-shadow var(--transition),
+    transform var(--transition);
+}
+
+.btn:not(:disabled):hover {
+  transform: translateY(-2px);
+}
+
+.btn-primary {
+  background: var(--red);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: var(--red-hover);
+  box-shadow: 0 6px 18px rgba(190, 0, 32, 0.2);
+}
+
+.btn-secondary {
+  background: #edf0f4;
+  color: #172334;
+}
+
+.btn-secondary:hover {
+  background: #dfe5ed;
+}
+
+.btn-dark {
+  background: #223249;
+  color: #ffffff;
+}
+
+.btn-dark:hover {
+  background: #31465f;
+}
+
+.btn-danger {
+  background: #b10021;
+  color: #ffffff;
+}
+
+.btn-danger:hover {
+  background: #910019;
+}
+
+html[data-theme="dark"] .btn-secondary {
+  background: #34465d;
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .btn-secondary:hover {
+  background: #425a75;
+}
+
+
+/* =====================================================
+   11. FLIGHT CARDS
+   ===================================================== */
+
+.flight-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fit, minmax(min(100%, 325px), 1fr));
+
+  align-items: start;
+  gap: 18px;
+}
+
+.flight-card {
+  min-width: 0;
+
+  padding: 23px;
+
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+
+  box-shadow: 0 4px 16px rgba(15, 35, 65, 0.03);
+
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition),
+    transform var(--transition);
+}
+
+.flight-card:hover {
+  border-color: #c8d0dc;
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+html[data-theme="dark"] .flight-card:hover {
+  border-color: #53647d;
+}
+
+.card-topline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.card-topline h3 {
+  margin: 4px 0 0;
+
+  font-size: 1.55rem;
+  font-weight: 850;
+
+  letter-spacing: -0.035em;
+}
+
+.eyebrow {
+  color: var(--red-text);
+
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+}
+
+.route-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 13px;
+
+  margin: 24px 0;
+
+  font-size: 1.65rem;
+  font-weight: 850;
+  letter-spacing: -0.04em;
+}
+
+.route-line span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.route-arrow {
+  color: var(--red-text);
+  font-size: 1.4rem;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.info-box {
+  padding: 14px;
+
+  background: var(--surface-alt);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+
+  min-width: 0;
+}
+
+.info-box span {
+  display: block;
+  margin-bottom: 5px;
+
+  color: var(--muted);
+
+  font-size: 0.76rem;
+}
+
+.info-box strong {
+  display: block;
+
+  font-size: 0.94rem;
+  font-weight: 780;
+
+  overflow-wrap: anywhere;
+}
+
+.additional,
+.timeline-box,
+.booking-status {
+  margin-top: 14px;
+  padding: 14px;
+
+  background: var(--surface-alt);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+
+  overflow-wrap: anywhere;
+}
+
+.timeline-box {
+  font-size: 0.85rem;
+  line-height: 1.9;
+}
+
+.booking-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  font-size: 0.85rem;
+}
+
+.actions,
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+
+  margin-top: 17px;
+}
+
+.action-note {
+  display: inline-flex;
+  align-items: center;
+
+  color: var(--muted);
+
+  font-size: 0.86rem;
+}
+
+.success-text {
+  color: #138148;
+}
+
+.error-text {
+  color: #dc2844;
+}
+
+
+/* =====================================================
+   12. FLIGHT STATUS LABELS
+   ===================================================== */
+
+.status,
+.tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 6px 11px;
+
+  border-radius: 100px;
+
+  background: var(--surface-alt);
+  color: var(--ink);
+
+  font-size: 0.72rem;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.status.available,
+.status.completed {
+  background: #e4f6e9;
+  color: #126835;
+}
+
+.status.claimed {
+  background: #fff1d6;
+  color: #825000;
+}
+
+.status.progress {
+  background: #e1eeff;
+  color: #22578e;
+}
+
+.status.cancelled {
+  background: #ffe4e9;
+  color: #a90028;
+}
+
+
+/* =====================================================
+   13. EVENT CAPACITY
+   ===================================================== */
+
+.capacity-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  gap: 9px;
+  margin-top: 15px;
+}
+
+.capacity-grid > div {
+  min-width: 0;
+
+  padding: 12px 10px;
+
+  background: var(--surface-alt);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+
+  text-align: center;
+}
+
+.capacity-grid span {
+  display: block;
+
+  color: var(--muted);
+
+  font-size: 0.72rem;
+}
+
+.capacity-grid strong {
+  display: block;
+  margin-top: 4px;
+
+  font-size: 1rem;
+  font-weight: 850;
+}
+
+
+/* =====================================================
+   14. MILES & MORE
+   ===================================================== */
+
+.miles-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.miles-stat {
+  min-width: 0;
+  min-height: 150px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  padding: 23px;
+
+  border-radius: 18px;
+  border: 1px solid var(--line);
+
+  background: var(--surface-alt);
+}
+
+.miles-stat.accent-stat {
+  background:
+    linear-gradient(135deg, #be0025, #e61b36);
+
+  border-color: transparent;
+  color: #ffffff;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.miles-stat strong {
+  display: block;
+
+  margin: 6px 0;
+
+  font-size: clamp(1.5rem, 2.4vw, 2.3rem);
+  line-height: 1.2;
+  font-weight: 850;
+
+  overflow-wrap: anywhere;
+}
+
+.miles-stat small {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.miles-stat.accent-stat .stat-label,
+.miles-stat.accent-stat small {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+
+/* =====================================================
+   15. ADMIN DASHBOARD
+   ===================================================== */
+
+.admin-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+
+  margin-bottom: 24px;
+}
+
+.admin-tab {
+  padding: 11px 16px;
+
+  border: 1px solid var(--line);
+  border-radius: 12px;
+
+  background: var(--surface-alt);
+  color: var(--ink);
+
+  font-size: 0.88rem;
+  font-weight: 780;
+
+  transition:
+    background var(--transition),
+    color var(--transition);
+}
+
+.admin-tab:hover {
+  background: var(--red-soft);
+  color: var(--red-text);
+}
+
+.admin-tab[aria-selected="true"] {
+  background: var(--red);
+  color: #ffffff;
+  border-color: var(--red);
+}
+
+.admin-tab-panel {
+  display: none;
+}
+
+.admin-tab-panel.is-active {
+  display: block;
+}
+
+.admin-tab-panel > h3 {
+  margin: 12px 0;
+  font-size: 1.35rem;
+}
+
+.admin-note {
+  padding: 15px;
+  margin: 17px 0;
+
+  border-left: 4px solid var(--red);
+  border-radius: 10px;
+
+  background: var(--surface-alt);
+
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.admin-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 16px;
+  margin: 22px 0 32px;
+}
+
+.admin-form .field {
+  min-width: 0;
+}
+
+.admin-form label {
+  display: block;
+  margin-bottom: 6px;
+
+  font-size: 0.87rem;
+  font-weight: 760;
+}
+
+.admin-form input,
+.admin-form select,
+.admin-form textarea,
+.admin-status-select,
+.settings-select {
+  width: 100%;
+  min-height: 44px;
+
+  padding: 11px 13px;
+
+  border: 1px solid var(--line);
+  border-radius: 12px;
+
+  background: var(--surface);
+  color: var(--ink);
+
+  font-size: 0.92rem;
+
+  transition: border-color var(--transition);
+}
+
+.admin-form input:focus,
+.admin-form select:focus,
+.admin-form textarea:focus,
+.admin-status-select:focus,
+.settings-select:focus {
+  outline: 2px solid rgba(198, 0, 35, 0.2);
+  border-color: var(--red);
+}
+
+.admin-form textarea {
+  min-height: 105px;
+  resize: vertical;
+}
+
+.admin-form input::placeholder,
+.admin-form textarea::placeholder {
+  color: var(--muted);
+  opacity: 0.82;
+}
+
+.admin-form .full {
+  grid-column: 1 / -1;
+}
+
+.admin-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  margin: 11px 0;
+  padding: 17px;
+
+  border: 1px solid var(--line);
+  border-radius: 15px;
+
+  background: var(--surface-alt);
+}
+
+.admin-row > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  min-width: 0;
+}
+
+.admin-row strong {
+  font-size: 1.06rem;
+}
+
+.admin-row span,
+.admin-row small {
+  color: var(--muted);
+}
+
+.admin-row small {
+  font-size: 0.78rem;
+}
+
+.admin-status-select {
+  width: auto;
+  min-width: 145px;
+}
+
+
+/* =====================================================
+   16. ACADEMY
+   ===================================================== */
+
+.academy-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 17px;
+}
+
+.academy-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  min-width: 0;
+  min-height: 210px;
+
+  padding: 25px;
+
+  border: 1px solid var(--line);
+  border-radius: 19px;
+
+  background: var(--surface-alt);
+
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition);
+}
+
+.academy-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+}
+
+.academy-card h3 {
+  margin: 0 0 10px;
+  font-size: 1.3rem;
+}
+
+.academy-card p {
+  margin: 0 0 20px;
+
+  color: var(--muted);
+  font-size: 0.93rem;
+}
+
+.academy-card .status {
+  margin-top: auto;
+}
+
+
+/* =====================================================
+   17. EMPTY AND ERROR STATES
+   ===================================================== */
+
+.empty-state,
+.error-state {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  padding: 24px;
+
+  border: 1px dashed var(--line);
+  border-radius: 16px;
+
+  background: var(--surface-alt);
+}
+
+.empty-state strong {
+  font-size: 1rem;
+}
+
+.empty-state p {
+  margin: 5px 0 0;
+  color: var(--muted);
+}
+
+.empty-icon {
+  flex-shrink: 0;
+  font-size: 2rem;
+}
+
+.error-state {
+  color: #b00025;
+  background: #ffedf0;
+}
+
+html[data-theme="dark"] .error-state {
+  background: #44212e;
+  color: #ffbdc6;
+}
+
+
+/* =====================================================
+   18. MESSAGES
+   ===================================================== */
+
+.message {
+  position: sticky;
+  top: 86px;
+  z-index: 50;
+
+  margin-bottom: 18px;
+  padding: 15px 19px;
+
+  border: 1px solid #f0dfac;
+  border-radius: 14px;
+
+  background: #fff5d8;
+  color: #614800;
+
+  box-shadow: var(--shadow);
+
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.message.success {
+  border-color: #b6e2c2;
+  background: #e7f7eb;
+  color: #165f34;
+}
+
+.message.error {
+  border-color: #f1b9c3;
+  background: #ffedf0;
+  color: #a50025;
+}
+
+
+/* =====================================================
+   19. SETTINGS DIALOG
+   ===================================================== */
+
+.settings-dialog {
+  position: fixed;
+
+  width: min(460px, calc(100% - 30px));
+  max-height: min(85vh, 720px);
+
+  padding: 28px;
+
+  border: 1px solid var(--line);
+  border-radius: 23px;
+
+  background: var(--surface);
+  color: var(--ink);
+
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.3);
+
+  overflow-y: auto;
+}
+
+.settings-dialog::backdrop {
+  background: rgba(5, 14, 28, 0.68);
+  backdrop-filter: blur(5px);
+}
+
+.settings-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  margin-bottom: 22px;
+}
+
+.settings-head h2 {
+  margin: 0;
+  font-size: 1.65rem;
+}
+
+.settings-field {
+  margin: 18px 0;
+}
+
+.settings-label {
+  display: block;
+
+  margin-bottom: 9px;
+
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.settings-select {
+  background: var(--surface-alt);
+  cursor: pointer;
+}
+
+
+/* =====================================================
+   20. FOOTER
+   ===================================================== */
+
+.footer {
+  width: 100%;
+
+  padding: 26px 18px 48px;
+
+  border-top: 1px solid var(--line);
+
+  background: var(--surface);
+  color: var(--muted);
+
+  text-align: center;
+  font-size: 0.8rem;
+}
+
+.footer strong {
+  color: var(--ink);
+}
+
+.footer p {
+  max-width: 640px;
+  margin: 8px auto 0;
+}
+
+
+/* =====================================================
+   21. TABLETS
+   ===================================================== */
+
+@media (max-width: 1000px) {
+
+  .main {
+    padding: 25px 18px 60px;
+  }
+
+  .hero {
+    min-height: 390px;
+  }
+
+  .hero-content {
+    padding: 42px;
+  }
+
+  .academy-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .miles-grid {
+    gap: 10px;
+  }
+
+  .miles-stat {
+    padding: 17px;
+  }
+
+}
+
+
+/* =====================================================
+   22. MOBILE
+   ===================================================== */
+
+@media (max-width: 720px) {
+
+  .header-inner {
+    padding: 11px 13px;
+    gap: 12px;
+  }
+
+  .brand {
+    gap: 8px;
+  }
+
+  .brand-logo {
+    width: 38px;
+    height: 38px;
+  }
+
+  .brand-title {
+    font-size: 0.96rem;
+  }
+
+  .brand-subtitle {
+    font-size: 0.7rem;
+  }
+
+  .header-right {
+    gap: 6px;
+  }
+
+  .user-pill {
+    display: none;
+  }
+
+  .header-right .btn {
+    padding: 9px 11px;
+  }
+
+  .main {
+    padding: 15px 12px 45px;
+  }
+
+  .hero {
+    min-height: 370px;
+    border-radius: 23px;
+
+    background-position:
+      center,
+      58% center;
+  }
+
+  .hero-content {
+    padding: 28px 24px;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.8rem, 9vw, 4rem);
+  }
+
+  .hero p {
+    font-size: 1rem;
+  }
+
+  .hero-kicker {
+    font-size: 0.68rem;
+  }
+
+  .hero-actions {
+    gap: 9px;
+  }
+
+  .nav-strip {
+    flex-wrap: nowrap;
+
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+
+    scrollbar-width: thin;
+
+    margin: 19px 0;
+    padding: 7px;
+  }
+
+  .nav-strip a {
+    flex-shrink: 0;
+    padding: 10px 13px;
+  }
+
+  .section {
+    padding: 19px;
+    border-radius: 20px;
+  }
+
+  .section-title h2 {
+    font-size: 1.55rem;
+  }
+
+  .flight-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .flight-card {
+    padding: 18px;
+  }
+
+  .route-line {
+    font-size: 1.5rem;
+  }
+
+  .miles-grid {
+    grid-template-columns: 1fr;
+    gap: 11px;
+  }
+
+  .miles-stat {
+    min-height: 115px;
+  }
+
+  .academy-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .academy-card {
+    min-height: 185px;
+  }
+
+  .admin-form {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .admin-form .full {
+    grid-column: auto;
+  }
+
+  .admin-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+
+    padding-bottom: 5px;
+    scrollbar-width: thin;
+  }
+
+  .admin-tab {
+    flex-shrink: 0;
+  }
+
+  .admin-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-actions {
+    width: 100%;
+  }
+
+  .admin-status-select {
+    flex: 1;
+  }
+
+  .settings-dialog {
+    padding: 22px;
+  }
+
+}
+
+
+/* =====================================================
+   23. SMALL PHONES
+   ===================================================== */
+
+@media (max-width: 390px) {
+
+  .brand-title {
+    font-size: 0.86rem;
+  }
+
+  .header-right .btn {
+    padding: 8px;
+    font-size: 0.77rem;
+  }
+
+  .icon-button {
+    min-width: 38px;
+    min-height: 38px;
+  }
+
+  .hero {
+    min-height: 350px;
+  }
+
+  .hero-content {
+    padding: 25px 19px;
+  }
+
+  .hero h1 {
+    font-size: 2.65rem;
+  }
+
+  .info-grid {
+    gap: 7px;
+  }
+
+  .info-box {
+    padding: 10px;
+  }
+
+  .capacity-grid {
+    gap: 6px;
+  }
+
+}
+
+
+/* =====================================================
+   24. ACCESSIBILITY
+   ===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+}
