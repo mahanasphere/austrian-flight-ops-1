@@ -2832,3 +2832,388 @@
   );
 
 })();
+
+/* ==========================================================
+   AUSTRIAN ACADEMY – APPLICATION MANAGEMENT V1.3.0
+   Withdraw, revoke and permanently delete applications.
+   Add AFTER all existing academy.js code.
+   ========================================================== */
+
+(() => {
+    "use strict";
+
+    const $ = id => document.getElementById(id);
+
+    const labels = {
+        en: {
+            withdraw: "WITHDRAW APPLICATION",
+            revoke: "REVOKE APPROVAL",
+            delete: "DELETE PERMANENTLY",
+            withdrawn: "Withdrawn",
+            revoked: "Approval revoked",
+            confirmWithdraw: "Withdraw this application? Your approval and future training registrations may be cancelled.",
+            confirmRevoke: "Revoke this member's Academy approval?",
+            confirmDelete: "PERMANENTLY delete this application? This cannot be undone.",
+            reason: "Reason for revoking approval (optional):",
+            success: "Academy application updated successfully.",
+            error: "Could not update the application."
+        },
+        de: {
+            withdraw: "BEWERBUNG ZURÜCKZIEHEN",
+            revoke: "FREIGABE ENTZIEHEN",
+            delete: "ENDGÜLTIG LÖSCHEN",
+            withdrawn: "Zurückgezogen",
+            revoked: "Freigabe entzogen",
+            confirmWithdraw: "Diese Bewerbung zurückziehen? Deine Freigabe und zukünftige Trainingsanmeldungen können dadurch entfallen.",
+            confirmRevoke: "Diesem Mitglied die Academy-Freigabe entziehen?",
+            confirmDelete: "Diese Bewerbung ENDGÜLTIG löschen? Das kann nicht rückgängig gemacht werden.",
+            reason: "Grund für den Entzug (optional):",
+            success: "Academy-Bewerbung erfolgreich aktualisiert.",
+            error: "Die Bewerbung konnte nicht geändert werden."
+        },
+        fr: {
+            withdraw: "RETIRER LA CANDIDATURE",
+            revoke: "RETIRER L'AUTORISATION",
+            delete: "SUPPRIMER DÉFINITIVEMENT",
+            withdrawn: "Retirée",
+            revoked: "Autorisation retirée",
+            confirmWithdraw: "Retirer cette candidature ? Les autorisations et inscriptions futures peuvent être annulées.",
+            confirmRevoke: "Retirer l'autorisation de ce membre ?",
+            confirmDelete: "Supprimer DÉFINITIVEMENT cette candidature ? Cette action est irréversible.",
+            reason: "Motif du retrait (facultatif) :",
+            success: "Candidature mise à jour.",
+            error: "Impossible de modifier la candidature."
+        }
+    };
+
+    const L = key => {
+        const language = document.documentElement.lang;
+        return (labels[language] || labels.en)[key];
+    };
+
+    let own = [];
+    let adminRows = [];
+    let requestNumber = 0;
+    let busy = false;
+    let refreshTimer = null;
+
+    function notify(message, error = false) {
+        const box = $("message");
+        if (!box) return;
+
+        box.textContent = message;
+        box.className = "message " +
+            (error ? "error" : "success");
+
+        box.classList.remove("hidden");
+    }
+
+    function actionButton(text, action, id, danger = false) {
+        const button = document.createElement("button");
+
+        button.type = "button";
+        button.textContent = text;
+        button.dataset.manageAction = action;
+        button.dataset.manageId = String(id);
+
+        button.className = danger
+            ? "btn btn-danger"
+            : "btn btn-secondary";
+
+        button.style.margin = "5px 8px 5px 0";
+
+        return button;
+    }
+
+    function updateBadge(card, status) {
+        if (!["withdrawn", "revoked"].includes(status)) {
+            return;
+        }
+
+        const badge = card.querySelector(".status");
+        if (!badge) return;
+
+        badge.textContent = L(status);
+        badge.classList.remove("claimed", "completed", "available");
+        badge.classList.add("cancelled");
+    }
+
+    function decorateOwn() {
+        const board = $("academyMyApplications");
+        if (!board) return;
+
+        const cards = [...board.querySelectorAll(
+            "article.flight-card"
+        )];
+
+        cards.forEach((card, index) => {
+            const item = own[index];
+            if (!item) return;
+
+            updateBadge(card, item.status);
+
+            if (card.querySelector(".afo-management-actions")) {
+                return;
+            }
+
+            if (!["pending", "approved"].includes(item.status)) {
+                return;
+            }
+
+            const actions = document.createElement("div");
+            actions.className = "afo-management-actions";
+            actions.style.cssText =
+                "margin-top:15px;padding-top:12px;" +
+                "border-top:1px solid var(--line,#ccc)";
+
+            actions.appendChild(actionButton(
+                L("withdraw"),
+                "withdraw",
+                item.id,
+                true
+            ));
+
+            card.appendChild(actions);
+        });
+    }
+
+    function decorateAdmin() {
+        const board = $("academyAdminApplications");
+        if (!board) return;
+
+        const filter =
+            $("academyAdminStatusFilter")?.value || "all";
+
+        const visible = adminRows.filter(item =>
+            filter === "all" || item.status === filter
+        );
+
+        const cards = [...board.querySelectorAll(
+            "article.flight-card"
+        )];
+
+        cards.forEach((card, index) => {
+            const item = visible[index];
+            if (!item) return;
+
+            updateBadge(card, item.status);
+
+            if (card.querySelector(".afo-management-actions")) {
+                return;
+            }
+
+            const actions = document.createElement("div");
+            actions.className = "afo-management-actions";
+            actions.style.cssText =
+                "margin-top:15px;padding-top:12px;" +
+                "border-top:1px solid var(--line,#ccc)";
+
+            if (item.status === "approved") {
+                actions.appendChild(actionButton(
+                    L("revoke"),
+                    "revoke",
+                    item.application_id,
+                    false
+                ));
+            }
+
+            actions.appendChild(actionButton(
+                L("delete"),
+                "delete",
+                item.application_id,
+                true
+            ));
+
+            card.appendChild(actions);
+        });
+    }
+
+    async function loadManagement() {
+        const request = ++requestNumber;
+
+        const { data: sessionData } =
+            await supabaseClient.auth.getSession();
+
+        if (request !== requestNumber) return;
+
+        const user = sessionData?.session?.user;
+
+        if (!user) {
+            own = [];
+            adminRows = [];
+            return;
+        }
+
+        const [mine, management] = await Promise.all([
+            supabaseClient
+                .from("academy_applications")
+                .select("id,status,created_at")
+                .eq("user_id", user.id)
+                .order("created_at", { ascending: false }),
+
+            supabaseClient.rpc(
+                "list_academy_applications_admin"
+            )
+        ]);
+
+        if (request !== requestNumber) return;
+
+        own = mine.error ? [] : (mine.data || []);
+
+        // The server decides who is an administrator.
+        adminRows = management.error
+            ? []
+            : (management.data || []);
+
+        decorateOwn();
+        decorateAdmin();
+    }
+
+    function scheduleRefresh() {
+        if (refreshTimer) clearTimeout(refreshTimer);
+
+        refreshTimer = setTimeout(() => {
+            refreshTimer = null;
+
+            loadManagement().catch(console.error);
+        }, 100);
+    }
+
+    async function executeAction(action, id) {
+        if (busy || !/^\d+$/.test(String(id))) return;
+
+        let rpc;
+        let args;
+
+        if (action === "withdraw") {
+            if (!confirm(L("confirmWithdraw"))) return;
+
+            rpc = "withdraw_academy_application";
+            args = { p_application_id: id };
+
+        } else if (action === "revoke") {
+            if (!confirm(L("confirmRevoke"))) return;
+
+            const reason = prompt(L("reason"), "");
+            if (reason === null) return;
+
+            rpc = "revoke_academy_application_admin";
+            args = {
+                p_application_id: id,
+                p_reason: reason.trim() || null
+            };
+
+        } else if (action === "delete") {
+            if (!confirm(L("confirmDelete"))) return;
+
+            rpc = "delete_academy_application_admin";
+            args = { p_application_id: id };
+
+        } else {
+            return;
+        }
+
+        busy = true;
+
+        document
+            .querySelectorAll("[data-manage-action]")
+            .forEach(button => button.disabled = true);
+
+        try {
+            const { data, error } =
+                await supabaseClient.rpc(rpc, args);
+
+            if (error) throw error;
+
+            if (!data?.success) {
+                throw new Error("Operation rejected.");
+            }
+
+            notify(L("success"));
+
+            // Reload the original Academy lists.
+            if (window.AFO_ACADEMY?.refresh) {
+                await window.AFO_ACADEMY.refresh();
+            }
+
+            await loadManagement();
+
+        } catch (error) {
+            console.error("Academy management:", error);
+
+            notify(
+                L("error") + " " + error.message,
+                true
+            );
+
+        } finally {
+            busy = false;
+
+            document
+                .querySelectorAll("[data-manage-action]")
+                .forEach(button => button.disabled = false);
+        }
+    }
+
+    function observeCards(id) {
+        const board = $(id);
+        if (!board) return;
+
+        const observer = new MutationObserver(records => {
+            // React when the original Academy code renders cards,
+            // not when our own buttons are inserted.
+            const changed = records.some(record =>
+                [...record.addedNodes, ...record.removedNodes]
+                    .some(node =>
+                        node.nodeType === 1 &&
+                        (
+                            node.matches?.("article.flight-card") ||
+                            node.querySelector?.("article.flight-card")
+                        )
+                    )
+            );
+
+            if (changed) scheduleRefresh();
+        });
+
+        observer.observe(board, {
+            childList: true,
+            subtree: true
+        });
+
+        board.addEventListener("click", event => {
+            const button = event.target.closest(
+                "button[data-manage-action][data-manage-id]"
+            );
+
+            if (!button || busy) return;
+
+            executeAction(
+                button.dataset.manageAction,
+                button.dataset.manageId
+            ).catch(console.error);
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        observeCards("academyMyApplications");
+        observeCards("academyAdminApplications");
+
+        $("academyAdminStatusFilter")?.addEventListener(
+            "change",
+            scheduleRefresh
+        );
+
+        document.addEventListener(
+            "afo-language-change",
+            scheduleRefresh
+        );
+
+        supabaseClient.auth.onAuthStateChange(() => {
+            setTimeout(scheduleRefresh, 0);
+        });
+
+        scheduleRefresh();
+    });
+
+})();
