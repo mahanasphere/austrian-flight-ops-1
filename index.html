@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,7 +19,6 @@
 }
 
 *{box-sizing:border-box}
-
 html{scroll-behavior:smooth}
 
 body{
@@ -62,7 +62,7 @@ button{cursor:pointer}
     width:58px;
     height:58px;
     object-fit:contain;
-    display:block;
+    display:block
 }
 
 .brand-fallback{
@@ -418,7 +418,6 @@ button{cursor:pointer}
 }
 
 .info-box strong{font-size:12px}
-
 .tag-row{margin-top:11px}
 
 .tag{
@@ -586,7 +585,6 @@ textarea:focus-visible{
 }
 
 .field{min-width:0}
-
 .full{grid-column:1/-1}
 
 .form-help{
@@ -651,9 +649,7 @@ textarea:focus-visible{
 }
 
 .empty-state.compact{padding:17px}
-
 .empty-icon{font-size:28px}
-
 .empty-state strong{display:block}
 
 .empty-state p{
@@ -715,7 +711,7 @@ textarea:focus-visible{
 
         <a class="brand" href="#top" style="text-decoration:none;color:inherit">
 
-                <img class="brand-logo" src="assets/austrian-logo.png" alt="Austrian Airlines logo">
+            <img class="brand-logo" src="assets/austrian-logo.png" alt="Austrian Airlines logo">
 
             <div>
                 <div class="brand-title">Austrian Airlines</div>
@@ -745,7 +741,6 @@ textarea:focus-visible{
 <main id="top" class="main">
 
     <section class="hero">
-
         <div class="hero-content">
 
             <span class="hero-kicker">
@@ -780,16 +775,14 @@ textarea:focus-visible{
                 </a>
 
             </div>
-
         </div>
-
     </section>
 
     <nav class="nav-strip" aria-label="Page navigation">
         <a href="#miles">Miles & More</a>
         <a href="#atc24">ATC24</a>
         <a href="#events">Event Flights</a>
-        <a href="#admin">Admin</a>
+        <a href="#adminPanel">Admin</a>
     </nav>
 
     <div id="message" class="message hidden"></div>
@@ -797,18 +790,15 @@ textarea:focus-visible{
     <section id="miles" class="section">
 
         <div class="section-title">
-
             <div>
                 <h2>💳 Miles & More</h2>
                 <p class="muted">
                     Your Event Flight rewards, Points and current status.
                 </p>
             </div>
-
         </div>
 
         <div id="milesMorePanel">
-
             <div class="empty-state compact">
 
                 <span class="empty-icon">💳</span>
@@ -824,7 +814,6 @@ textarea:focus-visible{
                 </div>
 
             </div>
-
         </div>
 
     </section>
@@ -832,17 +821,14 @@ textarea:focus-visible{
     <section id="atc24" class="section">
 
         <div class="section-title">
-
             <div>
                 <h2>✈️ Today's ATC24 Flights</h2>
-
                 <p class="muted">
                     Scheduled operations and claimable flights.
                 </p>
             </div>
 
             <span id="flightCount" class="count"></span>
-
         </div>
 
         <div id="flightBoard" class="flight-grid"></div>
@@ -852,10 +838,8 @@ textarea:focus-visible{
     <section id="events" class="section">
 
         <div class="section-title">
-
             <div>
                 <h2>🌍 Event Flights</h2>
-
                 <p class="muted">
                     Book a seat and earn Miles & More Miles and Points
                     after completing the flight.
@@ -863,7 +847,6 @@ textarea:focus-visible{
             </div>
 
             <span id="eventFlightCount" class="count"></span>
-
         </div>
 
         <div id="eventFlightBoard" class="flight-grid"></div>
@@ -873,15 +856,12 @@ textarea:focus-visible{
     <section id="adminPanel" class="section hidden">
 
         <div class="section-title">
-
             <div>
                 <h2>🛠️ Admin — Flight Management</h2>
-
                 <p class="muted">
                     Create and manage scheduled ATC24 operations.
                 </p>
             </div>
-
         </div>
 
         <div class="admin-form">
@@ -947,14 +927,12 @@ textarea:focus-visible{
             ></textarea>
 
             <div class="full">
-
                 <button
                     class="btn btn-primary"
                     onclick="createFlight()"
                 >
                     CREATE ATC24 FLIGHT
                 </button>
-
             </div>
 
         </div>
@@ -967,24 +945,15 @@ textarea:focus-visible{
 
     </section>
 
-    <section
-        id="admin"
-        class="section hidden"
-        aria-hidden="true"
-    ></section>
-
     <section id="eventAdminPanel" class="section hidden">
 
         <div class="section-title">
-
             <div>
                 <h2>🎫 Admin — Event Flight Management</h2>
-
                 <p class="muted">
                     Create, update and remove Event Flights.
                 </p>
             </div>
-
         </div>
 
         <div class="admin-note">
@@ -1154,14 +1123,12 @@ textarea:focus-visible{
             </select>
 
             <div class="full">
-
                 <button
                     class="btn btn-primary"
                     onclick="createEventFlight()"
                 >
                     CREATE EVENT FLIGHT
                 </button>
-
             </div>
 
         </div>
