@@ -5,734 +5,60 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#c80012">
-
   <title>Austrian Airlines — Flight Operations</title>
-
-  <meta
-    name="description"
-    content="Unofficial Austrian Airlines PTFS Flight Operations: ATC24, Event Flights, Miles & More and Academy."
-  >
-
-  <!-- Temporary styles until style.css is created -->
-  <style>
-    :root {
-      --red: #c80012;
-      --ink: #19202a;
-      --muted: #69717e;
-      --bg: #f4f6f8;
-      --surface: #fff;
-      --line: #e3e7ec;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--ink);
-      font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
-    }
-
-    button, input, select, textarea {
-      font: inherit;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-    a {
-      color: inherit;
-    }
-
-    .hidden, [hidden] {
-      display: none !important;
-    }
-
-    .view {
-      display: none;
-    }
-
-    .view.is-active {
-      display: block;
-    }
-
-    .site-header {
-      position: sticky;
-      top: 0;
-      z-index: 30;
-      background: var(--surface);
-      border-bottom: 1px solid var(--line);
-    }
-
-    .header-inner {
-      max-width: 1320px;
-      margin: auto;
-      padding: 12px 22px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .brand {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      text-decoration: none;
-    }
-
-    .brand-logo {
-      width: 50px;
-      height: 50px;
-      object-fit: contain;
-    }
-
-    .brand-title {
-      font-size: 18px;
-      font-weight: 850;
-    }
-
-    .brand-subtitle,
-    .muted,
-    .form-help {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      gap: 9px;
-    }
-
-    .user-pill {
-      padding: 9px 12px;
-      border: 1px solid var(--line);
-      border-radius: 22px;
-    }
-
-    .main {
-      max-width: 1320px;
-      margin: auto;
-      padding: 28px 20px 60px;
-      min-height: 65vh;
-    }
-
-    .hero {
-      min-height: 405px;
-      display: flex;
-      align-items: center;
-      border-radius: 32px;
-      overflow: hidden;
-      color: white;
-
-      background:
-        linear-gradient(
-          90deg,
-          rgba(7, 21, 37, .86),
-          rgba(7, 21, 37, .18)
-        ),
-        #183d60 url('assets/austrian-787.png') center/cover no-repeat;
-    }
-
-    .hero-content {
-      padding: 45px 52px;
-      max-width: 760px;
-    }
-
-    .hero-kicker {
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-    }
-
-    .hero h1 {
-      font-size: clamp(42px, 6vw, 76px);
-      line-height: 1.05;
-      margin: 14px 0;
-      letter-spacing: -.05em;
-    }
-
-    .hero p {
-      font-size: 17px;
-      max-width: 620px;
-    }
-
-    .hero-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 24px;
-    }
-
-    .nav-strip {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      flex-wrap: wrap;
-      padding: 9px;
-      margin: 24px 0;
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-    }
-
-    .nav-strip a {
-      padding: 10px 14px;
-      border-radius: 11px;
-      text-decoration: none;
-      font-weight: 750;
-      font-size: 13px;
-    }
-
-    .nav-strip a:hover,
-    .nav-strip a[aria-current="page"] {
-      background: #fff0f1;
-      color: var(--red);
-    }
-
-    .section {
-      padding: 27px;
-      border: 1px solid var(--line);
-      background: var(--surface);
-      border-radius: 24px;
-      margin-bottom: 20px;
-    }
-
-    .section-title {
-      display: flex;
-      align-items: start;
-      justify-content: space-between;
-      gap: 15px;
-      margin-bottom: 21px;
-    }
-
-    .section-title h2 {
-      margin: 0 0 5px;
-    }
-
-    .section-title p {
-      margin: 0;
-    }
-
-    .flight-grid {
-      display: grid;
-      grid-template-columns:
-        repeat(auto-fit, minmax(min(100%, 320px), 1fr));
-      gap: 16px;
-    }
-
-    .flight-card {
-      padding: 21px;
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-    }
-
-    .card-topline,
-    .route-line,
-    .admin-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .route-line {
-      margin: 20px 0;
-      font-size: 24px;
-      font-weight: 850;
-    }
-
-    .route-arrow {
-      color: var(--muted);
-    }
-
-    .info-grid,
-    .admin-form {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .info-box,
-    .miles-stat,
-    .capacity-grid > div {
-      background: var(--bg);
-      padding: 12px;
-      border-radius: 12px;
-    }
-
-    .info-box span,
-    .stat-label,
-    .capacity-grid span {
-      display: block;
-      color: var(--muted);
-      font-size: 11px;
-    }
-
-    .info-box strong,
-    .miles-stat strong {
-      display: block;
-    }
-
-    .miles-grid,
-    .capacity-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .miles-stat strong {
-      font-size: 26px;
-    }
-
-    .capacity-grid {
-      margin-top: 12px;
-    }
-
-    .actions,
-    .admin-actions {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px;
-      margin-top: 15px;
-    }
-
-    .btn {
-      display: inline-block;
-      border: 0;
-      border-radius: 12px;
-      padding: 11px 15px;
-      font-weight: 750;
-      font-size: 13px;
-      text-decoration: none;
-    }
-
-    .btn-primary {
-      background: var(--red);
-      color: white;
-    }
-
-    .btn-secondary {
-      background: #e9edf1;
-      color: #20252d;
-    }
-
-    .btn-dark {
-      background: #1f2937;
-      color: white;
-    }
-
-    .btn-danger {
-      background: #b00020;
-      color: white;
-    }
-
-    .status,
-    .tag {
-      display: inline-block;
-      border-radius: 30px;
-      padding: 5px 9px;
-      background: #e8eef5;
-      font-size: 11px;
-      font-weight: 750;
-    }
-
-    .available,
-    .completed {
-      background: #e6f7ec;
-      color: #176b39;
-    }
-
-    .claimed {
-      background: #fff1d9;
-      color: #805400;
-    }
-
-    .progress {
-      background: #e4efff;
-      color: #245a9a;
-    }
-
-    .cancelled {
-      background: #ffe2e6;
-      color: #a0001c;
-    }
-
-    .additional,
-    .timeline-box,
-    .booking-status,
-    .admin-note,
-    .empty-state,
-    .error-state {
-      padding: 13px;
-      margin-top: 12px;
-      background: var(--bg);
-      border-radius: 13px;
-    }
-
-    .booking-status {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 9px;
-    }
-
-    .empty-state {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .empty-icon {
-      font-size: 26px;
-    }
-
-    .admin-form input,
-    .admin-form textarea,
-    .admin-form select,
-    .admin-status-select,
-    .settings-select {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid var(--line);
-      border-radius: 11px;
-      background: var(--surface);
-      color: var(--ink);
-    }
-
-    .admin-form label,
-    .settings-label {
-      display: block;
-      font-weight: 750;
-      margin: 0 0 5px;
-    }
-
-    .admin-form textarea {
-      min-height: 90px;
-      resize: vertical;
-    }
-
-    .full {
-      grid-column: 1 / -1;
-    }
-
-    .admin-row {
-      padding: 13px;
-      margin: 10px 0;
-      border: 1px solid var(--line);
-      border-radius: 13px;
-    }
-
-    .admin-row > div:first-child {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .message {
-      position: sticky;
-      top: 82px;
-      z-index: 25;
-      background: #fff6d9;
-      border: 1px solid #e8d9a1;
-      border-radius: 12px;
-      padding: 13px;
-      margin-bottom: 15px;
-    }
-
-    .message.error,
-    .error-state {
-      background: #ffeded;
-      color: #a00018;
-    }
-
-    .message.success {
-      background: #e9f7ec;
-      color: #135f31;
-    }
-
-    .admin-tabs,
-    .academy-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 0 0 19px;
-    }
-
-    .admin-tab {
-      border: 1px solid var(--line);
-      background: var(--surface);
-      color: var(--ink);
-      padding: 11px 15px;
-      border-radius: 12px;
-      font-weight: 750;
-    }
-
-    .admin-tab[aria-selected="true"] {
-      background: var(--red);
-      color: white;
-    }
-
-    .admin-tab-panel {
-      display: none;
-    }
-
-    .admin-tab-panel.is-active {
-      display: block;
-    }
-
-    .academy-card {
-      flex: 1 1 240px;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 22px;
-    }
-
-    .academy-card h3 {
-      margin-top: 0;
-    }
-
-    .settings-dialog {
-      width: min(440px, calc(100% - 28px));
-      padding: 26px;
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      color: var(--ink);
-      background: var(--surface);
-    }
-
-    .settings-dialog::backdrop {
-      background: rgba(5, 12, 23, .6);
-    }
-
-    .settings-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 15px;
-      align-items: center;
-      margin-bottom: 17px;
-    }
-
-    .settings-field {
-      margin: 16px 0;
-    }
-
-    .settings-field select {
-      width: 100%;
-    }
-
-    .icon-button {
-      border: 1px solid var(--line);
-      background: var(--surface);
-      color: var(--ink);
-      border-radius: 12px;
-      padding: 10px 13px;
-    }
-
-    .footer {
-      text-align: center;
-      color: var(--muted);
-      padding: 20px 18px 46px;
-      font-size: 12px;
-    }
-
-    html[data-theme="dark"] {
-      --ink: #edf2f8;
-      --muted: #a1adbb;
-      --bg: #111923;
-      --surface: #1b2634;
-      --line: #354459;
-    }
-
-    html[data-theme="dark"] .btn-secondary {
-      background: #314159;
-      color: white;
-    }
-
-    html[data-theme="dark"] .flight-card,
-    html[data-theme="dark"] .admin-row {
-      background: var(--surface);
-    }
-
-    html[data-theme="dark"] .info-box,
-    html[data-theme="dark"] .miles-stat,
-    html[data-theme="dark"] .capacity-grid > div {
-      background: #263447;
-    }
-
-    html[data-font-size="small"] body {
-      font-size: 13px;
-    }
-
-    html[data-font-size="large"] body {
-      font-size: 18px;
-    }
-
-    @media (max-width: 720px) {
-      .main {
-        padding: 18px 12px 45px;
-      }
-
-      .header-inner {
-        padding: 11px 12px;
-      }
-
-      .brand-logo {
-        width: 40px;
-        height: 40px;
-      }
-
-      .brand-title {
-        font-size: 15px;
-      }
-
-      .brand-subtitle {
-        font-size: 11px;
-      }
-
-      .hero {
-        min-height: 360px;
-        border-radius: 22px;
-      }
-
-      .hero-content {
-        padding: 34px 24px;
-      }
-
-      .section {
-        padding: 18px;
-      }
-
-      .miles-grid,
-      .admin-form {
-        grid-template-columns: 1fr;
-      }
-
-      .full {
-        grid-column: auto;
-      }
-
-      .admin-row {
-        align-items: stretch;
-        flex-direction: column;
-      }
-
-      .user-pill {
-        display: none;
-      }
-
-      .section-title {
-        flex-wrap: wrap;
-      }
-    }
-  </style>
-
-  <!-- Additional styling will be created in step 2 -->
+  <meta name="description" content="Unofficial Austrian Airlines PTFS Flight Operations: ATC24, Event Flights, Miles & More and Academy.">
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-  <!-- =========================================
-       HEADER
-  ========================================== -->
+  <!-- HEADER -->
 
   <header class="site-header">
     <div class="header-inner">
 
-      <a
-        class="brand"
-        href="#home"
-        aria-label="Austrian Airlines Flight Operations Home"
-      >
-        <img
-          class="brand-logo"
-          src="assets/austrian-logo.png"
-          alt="Austrian Airlines"
-        >
-
+      <a class="brand" href="#home" aria-label="Austrian Airlines Flight Operations Home">
+        <img class="brand-logo" src="assets/austrian-logo.png" alt="Austrian Airlines">
         <div>
-          <div class="brand-title">
-            Austrian Airlines
-          </div>
-
-          <div class="brand-subtitle">
-            Flight Operations
-          </div>
+          <div class="brand-title">Austrian Airlines</div>
+          <div class="brand-subtitle">Flight Operations</div>
         </div>
       </a>
 
       <div class="header-right">
-
         <div id="userPill" class="user-pill hidden">
           👨‍✈️ <span id="userName"></span>
         </div>
 
-        <button
-          id="settingsButton"
-          class="icon-button"
-          type="button"
-          aria-label="Settings"
-          title="Settings"
-        >
+        <button id="settingsButton" class="icon-button"
+          type="button" aria-label="Settings" title="Settings">
           ⚙️
         </button>
 
-        <button
-          id="loginButton"
-          class="btn btn-primary"
-          type="button"
-          data-i18n="auth.login"
-        >
+        <button id="loginButton" class="btn btn-primary"
+          type="button" data-i18n="auth.login">
           Login with Discord
         </button>
 
-        <button
-          id="logoutButton"
-          class="btn btn-secondary hidden"
-          type="button"
-          data-i18n="auth.logout"
-        >
+        <button id="logoutButton" class="btn btn-secondary hidden"
+          type="button" data-i18n="auth.logout">
           Logout
         </button>
-
       </div>
+
     </div>
   </header>
-
-
-  <!-- =========================================
-       MAIN CONTENT
-  ========================================== -->
 
   <main id="top" class="main">
 
     <!-- HOME -->
 
-    <section
-      id="home"
-      class="view is-active"
-      aria-labelledby="homeHeading"
-    >
+    <section id="home" class="view is-active" aria-labelledby="homeHeading">
       <div class="hero">
         <div class="hero-content">
+          <span class="hero-kicker">AUSTRIAN AIRLINES PTFS</span>
 
-          <span class="hero-kicker">
-            AUSTRIAN AIRLINES PTFS
-          </span>
-
-          <h1
-            id="homeHeading"
-            data-i18n="home.title"
-          >
+          <h1 id="homeHeading" data-i18n="home.title">
             Flight Operations.
           </h1>
 
@@ -742,139 +68,69 @@
           </p>
 
           <div class="hero-actions">
-
-            <a
-              class="btn btn-primary"
-              href="#atc24"
-              data-i18n="home.atc24"
-            >
+            <a class="btn btn-primary" href="#atc24" data-i18n="home.atc24">
               View ATC24 Flights
             </a>
 
-            <a
-              class="btn btn-secondary"
-              href="#events"
-              data-i18n="home.events"
-            >
+            <a class="btn btn-secondary" href="#events" data-i18n="home.events">
               View Event Flights
             </a>
-
           </div>
         </div>
       </div>
     </section>
 
+    <!-- NAVIGATION -->
 
-    <!-- =========================================
-         NAVIGATION
-    ========================================== -->
+    <nav class="nav-strip" aria-label="Main navigation">
+      <a href="#home" data-nav="home" data-i18n="nav.home"
+        aria-current="page">Home</a>
 
-    <nav
-      class="nav-strip"
-      aria-label="Main navigation"
-    >
-
-      <a
-        href="#home"
-        data-nav="home"
-        data-i18n="nav.home"
-        aria-current="page"
-      >
-        Home
-      </a>
-
-      <a
-        href="#miles"
-        data-nav="miles"
-        data-i18n="nav.miles"
-      >
+      <a href="#miles" data-nav="miles" data-i18n="nav.miles">
         Miles &amp; More
       </a>
 
-      <a
-        href="#atc24"
-        data-nav="atc24"
-        data-i18n="nav.atc24"
-      >
+      <a href="#atc24" data-nav="atc24" data-i18n="nav.atc24">
         ATC24
       </a>
 
-      <a
-        href="#events"
-        data-nav="events"
-        data-i18n="nav.events"
-      >
+      <a href="#events" data-nav="events" data-i18n="nav.events">
         Event Flights
       </a>
 
-      <a
-        href="#academy"
-        data-nav="academy"
-        data-i18n="nav.academy"
-      >
+      <a href="#academy" data-nav="academy" data-i18n="nav.academy">
         Academy
       </a>
 
-      <a
-        href="#admin"
-        data-nav="admin"
-        id="adminNavLink"
-        class="hidden"
-        data-i18n="nav.admin"
-      >
+      <a href="#admin" data-nav="admin" id="adminNavLink"
+        class="hidden" data-i18n="nav.admin">
         Admin
       </a>
-
     </nav>
 
+    <!-- GLOBAL MESSAGE -->
 
-    <!-- GLOBAL NOTIFICATIONS -->
+    <div id="message" class="message hidden"
+      role="status" aria-live="polite"></div>
 
-    <div
-      id="message"
-      class="message hidden"
-      role="status"
-      aria-live="polite"
-    ></div>
+    <!-- MILES & MORE -->
 
-
-    <!-- =========================================
-         MILES & MORE
-    ========================================== -->
-
-    <section
-      id="miles"
-      class="section view"
-      aria-labelledby="milesHeading"
-    >
-
+    <section id="miles" class="section view" aria-labelledby="milesHeading">
       <div class="section-title">
         <div>
-
-          <h2
-            id="milesHeading"
-            data-i18n="miles.title"
-          >
+          <h2 id="milesHeading" data-i18n="miles.title">
             💳 Miles &amp; More
           </h2>
 
-          <p
-            class="muted"
-            data-i18n="miles.description"
-          >
+          <p class="muted" data-i18n="miles.description">
             Your Event Flight rewards, Points and current status.
           </p>
-
         </div>
       </div>
 
       <div id="milesMorePanel">
-
         <div class="empty-state compact">
-          <span class="empty-icon">
-            💳
-          </span>
-
+          <span class="empty-icon">💳</span>
           <div>
             <strong data-i18n="miles.login">
               Sign in to view your Miles &amp; More profile.
@@ -885,409 +141,362 @@
             </p>
           </div>
         </div>
-
       </div>
     </section>
 
+    <!-- ATC24 -->
 
-    <!-- =========================================
-         ATC24 FLIGHTS
-    ========================================== -->
-
-    <section
-      id="atc24"
-      class="section view"
-      aria-labelledby="atc24Heading"
-    >
-
+    <section id="atc24" class="section view" aria-labelledby="atc24Heading">
       <div class="section-title">
-
         <div>
-          <h2
-            id="atc24Heading"
-            data-i18n="atc24.title"
-          >
+          <h2 id="atc24Heading" data-i18n="atc24.title">
             ✈️ Today's ATC24 Flights
           </h2>
 
-          <p
-            class="muted"
-            data-i18n="atc24.description"
-          >
+          <p class="muted" data-i18n="atc24.description">
             Scheduled operations and claimable flights.
           </p>
         </div>
 
-        <span
-          id="flightCount"
-          class="count"
-        ></span>
-
+        <span id="flightCount" class="count"></span>
       </div>
 
-      <div
-        id="flightBoard"
-        class="flight-grid"
-      ></div>
-
+      <div id="flightBoard" class="flight-grid"></div>
     </section>
 
+    <!-- EVENT FLIGHTS -->
 
-    <!-- =========================================
-         EVENT FLIGHTS
-    ========================================== -->
-
-    <section
-      id="events"
-      class="section view"
-      aria-labelledby="eventsHeading"
-    >
-
+    <section id="events" class="section view" aria-labelledby="eventsHeading">
       <div class="section-title">
-
         <div>
-          <h2
-            id="eventsHeading"
-            data-i18n="events.title"
-          >
+          <h2 id="eventsHeading" data-i18n="events.title">
             🌍 Event Flights
           </h2>
 
-          <p
-            class="muted"
-            data-i18n="events.description"
-          >
+          <p class="muted" data-i18n="events.description">
             Book a seat and earn Miles &amp; More Miles and Points
             after completing the flight.
           </p>
         </div>
 
-        <span
-          id="eventFlightCount"
-          class="count"
-        ></span>
-
+        <span id="eventFlightCount" class="count"></span>
       </div>
 
-      <div
-        id="eventFlightBoard"
-        class="flight-grid"
-      ></div>
-
+      <div id="eventFlightBoard" class="flight-grid"></div>
     </section>
 
-
-    <!-- =========================================
+    <!-- ===========================================
          AUSTRIAN ACADEMY
-    ========================================== -->
+         =========================================== -->
 
-    <section
-      id="academy"
-      class="section view"
-      aria-labelledby="academyHeading"
-    >
+    <section id="academy" class="section view" aria-labelledby="academyHeading">
 
       <div class="section-title">
         <div>
-
-          <h2
-            id="academyHeading"
-            data-i18n="academy.title"
-          >
+          <h2 id="academyHeading" data-i18n="academy.title">
             🎓 Austrian Academy
           </h2>
 
-          <p
-            class="muted"
-            data-i18n="academy.description"
-          >
-            Applications, training and qualifications for our
-            virtual pilots and ATC members.
+          <p class="muted" data-i18n="academy.description">
+            Applications, training and qualifications for our virtual
+            pilots and ATC members.
           </p>
-
         </div>
       </div>
+
+      <!-- ACADEMY CATEGORIES -->
 
       <div class="academy-grid">
 
         <article class="academy-card">
-
-          <h3 data-i18n="academy.pilot">
-            ✈️ Pilot Academy
-          </h3>
+          <h3 data-i18n="academy.pilot">✈️ Pilot Academy</h3>
 
           <p data-i18n="academy.pilotDescription">
             Apply for ATC24 or Event Flight pilot training.
           </p>
 
-          <span
-            class="status"
-            data-i18n="academy.comingSoon"
-          >
-            Coming soon in V1.3.0
+          <span class="status">
+            Application system in preparation
           </span>
-
         </article>
 
-
         <article class="academy-card">
-
-          <h3 data-i18n="academy.atc">
-            📡 ATC Academy
-          </h3>
+          <h3 data-i18n="academy.atc">📡 ATC Academy</h3>
 
           <p data-i18n="academy.atcDescription">
             Apply to train as a virtual air traffic controller.
           </p>
 
-          <span
-            class="status"
-            data-i18n="academy.comingSoon"
-          >
-            Coming soon in V1.3.0
+          <span class="status">
+            Application system in preparation
           </span>
-
         </article>
 
-
         <article class="academy-card">
-
-          <h3 data-i18n="academy.training">
-            📅 Training Sessions
-          </h3>
+          <h3 data-i18n="academy.training">📅 Training Sessions</h3>
 
           <p data-i18n="academy.trainingDescription">
             View upcoming sessions and manage your training progress.
           </p>
 
-          <span
-            class="status"
-            data-i18n="academy.comingSoon"
-          >
+          <span class="status" data-i18n="academy.comingSoon">
             Coming soon in V1.3.0
           </span>
-
         </article>
 
       </div>
+
+      <!-- ACADEMY APPLICATION FORM -->
+
+      <div class="section" style="margin-top:24px"
+        aria-labelledby="academyApplyHeading">
+
+        <div class="section-title">
+          <div>
+            <h3 id="academyApplyHeading" data-i18n="academy.formTitle">
+              Apply to the Austrian Academy
+            </h3>
+
+            <p class="muted" data-i18n="academy.formDescription">
+              Choose a training category and tell us why you would like to join.
+            </p>
+          </div>
+        </div>
+
+        <div id="academyLoginNote" class="admin-note hidden"
+          role="status" data-i18n="academy.loginRequired">
+          Please log in with Discord before submitting an application.
+        </div>
+
+        <form id="academyApplicationForm" class="admin-form"
+          onsubmit="return false;">
+
+          <div class="field full">
+            <label for="academyApplicationType" data-i18n="academy.category">
+              Training category
+            </label>
+
+            <select id="academyApplicationType" name="application_type" required>
+              <option value="" selected disabled data-i18n="academy.chooseCategory">
+                Choose an Academy programme
+              </option>
+
+              <option value="atc24_pilot" data-i18n="academy.categoryAtc24">
+                ATC24 Pilot
+              </option>
+
+              <option value="event_pilot" data-i18n="academy.categoryEvent">
+                Event Flight Pilot
+              </option>
+
+              <option value="atc" data-i18n="academy.categoryAtc">
+                Air Traffic Controller (ATC)
+              </option>
+            </select>
+          </div>
+
+          <div class="field full">
+            <label for="academyMotivation" data-i18n="academy.motivation">
+              Why would you like to join?
+            </label>
+
+            <textarea
+              id="academyMotivation"
+              name="motivation"
+              required
+              minlength="10"
+              maxlength="2000"
+              placeholder="Tell us why you would like to join (10–2000 characters)"
+              data-i18n-placeholder="academy.motivationPlaceholder"
+            ></textarea>
+
+            <div class="form-help" data-i18n="academy.motivationHelp">
+              Please write at least 10 characters. Maximum 2000 characters.
+            </div>
+          </div>
+
+          <div class="field full">
+            <label for="academyExperience" data-i18n="academy.experience">
+              Previous experience (optional)
+            </label>
+
+            <textarea
+              id="academyExperience"
+              name="experience"
+              maxlength="1000"
+              placeholder="Optional: your experience with PTFS or flight simulation"
+              data-i18n-placeholder="academy.experiencePlaceholder"
+            ></textarea>
+
+            <div class="form-help" data-i18n="academy.experienceHelp">
+              Maximum 1000 characters.
+            </div>
+          </div>
+
+          <div class="full">
+
+            <button
+              id="academySubmitButton"
+              type="submit"
+              class="btn btn-primary"
+              disabled
+              data-i18n="academy.submit"
+            >
+              SUBMIT APPLICATION
+            </button>
+
+            <p class="form-help" id="academySubmitHelp"
+              data-i18n="academy.connecting">
+              Application submissions will be enabled once the website
+              connection is complete.
+            </p>
+
+          </div>
+
+        </form>
+      </div>
+
+      <!-- MY APPLICATIONS -->
+
+      <div class="section" aria-labelledby="academyMyApplicationsHeading">
+
+        <h3 id="academyMyApplicationsHeading"
+          data-i18n="academy.myApplications">
+          My applications
+        </h3>
+
+        <p class="muted" data-i18n="academy.myApplicationsDescription">
+          View the status of your applications here.
+        </p>
+
+        <div id="academyMyApplications" aria-live="polite">
+          <div class="empty-state compact" data-i18n="academy.statusPreparing">
+            Application status tracking will be connected in the next step.
+          </div>
+        </div>
+
+      </div>
+
     </section>
 
-
-    <!-- =========================================
+    <!-- ===========================================
          ADMINISTRATION
-    ========================================== -->
+         =========================================== -->
 
-    <section
-      id="admin"
-      class="view"
-      aria-labelledby="adminHeading"
-    >
+    <section id="admin" class="view" aria-labelledby="adminHeading">
 
       <div class="section">
 
         <div class="section-title">
           <div>
-
-            <h2
-              id="adminHeading"
-              data-i18n="admin.title"
-            >
+            <h2 id="adminHeading" data-i18n="admin.title">
               🛠️ Administration
             </h2>
 
-            <p
-              class="muted"
-              data-i18n="admin.description"
-            >
-              Manage ATC24, Event Flights, Academy applications
-              and training.
+            <p class="muted" data-i18n="admin.description">
+              Manage ATC24, Event Flights, Academy applications and training.
             </p>
-
           </div>
         </div>
 
+        <nav class="admin-tabs" aria-label="Administration sections">
 
-        <!-- ADMIN TABS -->
-
-        <nav
-          class="admin-tabs"
-          aria-label="Administration sections"
-        >
-
-          <button
-            class="admin-tab"
-            type="button"
+          <button class="admin-tab" type="button"
             data-admin-target="adminPanel"
             aria-selected="true"
-            data-i18n="admin.tabAtc24"
-          >
+            data-i18n="admin.tabAtc24">
             ATC24 Flights
           </button>
 
-          <button
-            class="admin-tab"
-            type="button"
+          <button class="admin-tab" type="button"
             data-admin-target="eventAdminPanel"
             aria-selected="false"
-            data-i18n="admin.tabEvents"
-          >
+            data-i18n="admin.tabEvents">
             Event Flights
           </button>
 
-          <button
-            class="admin-tab"
-            type="button"
+          <button class="admin-tab" type="button"
             data-admin-target="adminApplications"
             aria-selected="false"
-            data-i18n="admin.tabApplications"
-          >
+            data-i18n="admin.tabApplications">
             Applications
           </button>
 
-          <button
-            class="admin-tab"
-            type="button"
+          <button class="admin-tab" type="button"
             data-admin-target="adminTrainings"
             aria-selected="false"
-            data-i18n="admin.tabTrainings"
-          >
+            data-i18n="admin.tabTrainings">
             Trainings
           </button>
 
-          <button
-            class="admin-tab"
-            type="button"
+          <button class="admin-tab" type="button"
             data-admin-target="adminInstructors"
             aria-selected="false"
-            data-i18n="admin.tabInstructors"
-          >
+            data-i18n="admin.tabInstructors">
             Instructors
           </button>
 
         </nav>
 
+        <!-- ADMIN ATC24 -->
 
-        <!-- ADMIN: ATC24 -->
-
-        <div
-          id="adminPanel"
-          class="admin-tab-panel is-active hidden"
-        >
+        <div id="adminPanel" class="admin-tab-panel is-active hidden">
 
           <h3 data-i18n="admin.atc24Heading">
             ATC24 Flight Management
           </h3>
 
-          <p
-            class="muted"
-            data-i18n="admin.atc24Intro"
-          >
+          <p class="muted" data-i18n="admin.atc24Intro">
             Create and manage scheduled ATC24 operations.
           </p>
 
           <div class="admin-form">
 
-            <input
-              id="flightNumber"
-              type="text"
+            <input id="flightNumber" type="text"
               placeholder="Flight Number — OS101"
-              data-i18n-placeholder="form.flightNumber"
-            >
+              data-i18n-placeholder="form.flightNumber">
 
-            <input
-              id="departure"
-              type="text"
+            <input id="departure" type="text"
               placeholder="Departure — VIE"
-              data-i18n-placeholder="form.departure"
-            >
+              data-i18n-placeholder="form.departure">
 
-            <input
-              id="arrival"
-              type="text"
+            <input id="arrival" type="text"
               placeholder="Arrival — LHR"
-              data-i18n-placeholder="form.arrival"
-            >
+              data-i18n-placeholder="form.arrival">
 
-            <input
-              id="scheduled"
-              type="datetime-local"
-              aria-label="Scheduled departure"
-            >
+            <input id="scheduled" type="datetime-local"
+              aria-label="Scheduled departure">
 
-            <input
-              id="aircraft"
-              type="text"
+            <input id="aircraft" type="text"
               placeholder="Aircraft Model — Airbus A320"
-              data-i18n-placeholder="form.aircraft"
-            >
+              data-i18n-placeholder="form.aircraft">
 
-            <input
-              id="operator"
-              type="text"
+            <input id="operator" type="text"
               placeholder="Operator Airline — Austrian Airlines"
-              data-i18n-placeholder="form.operator"
-            >
+              data-i18n-placeholder="form.operator">
 
-            <input
-              id="livery"
-              type="text"
+            <input id="livery" type="text"
               placeholder="Livery Airline — Austrian Airlines"
-              data-i18n-placeholder="form.livery"
-            >
+              data-i18n-placeholder="form.livery">
 
-            <select
-              id="recurrence"
-              aria-label="Flight recurrence"
-            >
-
-              <option
-                value="once"
-                data-i18n="form.once"
-              >
-                One-time flight
-              </option>
-
-              <option
-                value="daily"
-                data-i18n="form.daily"
-              >
-                Every day
-              </option>
-
-              <option
-                value="weekdays"
-                data-i18n="form.weekdays"
-              >
-                Monday–Friday
-              </option>
-
-              <option
-                value="weekends"
-                data-i18n="form.weekends"
-              >
-                Saturday–Sunday
-              </option>
-
+            <select id="recurrence" aria-label="Flight recurrence">
+              <option value="once" data-i18n="form.once">One-time flight</option>
+              <option value="daily" data-i18n="form.daily">Every day</option>
+              <option value="weekdays" data-i18n="form.weekdays">Monday–Friday</option>
+              <option value="weekends" data-i18n="form.weekends">Saturday–Sunday</option>
             </select>
 
-            <textarea
-              id="additionalInfo"
+            <textarea id="additionalInfo"
               placeholder="Additional Information (optional)"
-              data-i18n-placeholder="form.additional"
-            ></textarea>
+              data-i18n-placeholder="form.additional"></textarea>
 
             <div class="full">
-
-              <button
-                class="btn btn-primary"
-                type="button"
-                onclick="createFlight()"
-                data-i18n="admin.createAtc24"
-              >
+              <button class="btn btn-primary" type="button"
+                onclick="createFlight()" data-i18n="admin.createAtc24">
                 CREATE ATC24 FLIGHT
               </button>
-
             </div>
+
           </div>
 
           <h3 data-i18n="admin.existingAtc24">
@@ -1298,257 +507,141 @@
 
         </div>
 
+        <!-- ADMIN EVENT FLIGHTS -->
 
-        <!-- ADMIN: EVENT FLIGHTS -->
-
-        <div
-          id="eventAdminPanel"
-          class="admin-tab-panel hidden"
-        >
+        <div id="eventAdminPanel" class="admin-tab-panel hidden">
 
           <h3 data-i18n="admin.eventsHeading">
             Event Flight Management
           </h3>
 
-          <p
-            class="muted"
-            data-i18n="admin.eventsIntro"
-          >
+          <p class="muted" data-i18n="admin.eventsIntro">
             Create, update and remove Event Flights.
           </p>
 
-          <div
-            class="admin-note"
-            data-i18n="admin.pointsNote"
-          >
-            Points are automatic:
-            Short-haul = 1,
-            Medium-haul = 2,
-            Long-haul = 3.
-            Miles are entered manually;
-            passengers receive rewards after completing the flight.
+          <div class="admin-note" data-i18n="admin.pointsNote">
+            Points are automatic: Short-haul = 1, Medium-haul = 2,
+            Long-haul = 3. Miles are entered manually; passengers
+            receive rewards after completing the flight.
           </div>
 
           <div class="admin-form">
 
-            <input
-              id="eventFlightNumber"
-              type="text"
+            <input id="eventFlightNumber" type="text"
               placeholder="Flight Number — OS101"
-              data-i18n-placeholder="form.flightNumber"
-            >
+              data-i18n-placeholder="form.flightNumber">
 
-            <input
-              id="eventDeparture"
-              type="text"
+            <input id="eventDeparture" type="text"
               placeholder="Departure — VIE"
-              data-i18n-placeholder="form.departure"
-            >
+              data-i18n-placeholder="form.departure">
 
-            <input
-              id="eventArrival"
-              type="text"
+            <input id="eventArrival" type="text"
               placeholder="Arrival — LHR"
-              data-i18n-placeholder="form.arrival"
-            >
+              data-i18n-placeholder="form.arrival">
 
-            <input
-              id="eventDepartureTime"
-              type="datetime-local"
-              aria-label="Event departure time"
-            >
+            <input id="eventDepartureTime" type="datetime-local"
+              aria-label="Event departure time">
 
-            <input
-              id="eventAircraft"
-              type="text"
+            <input id="eventAircraft" type="text"
               placeholder="Aircraft Model — Airbus A320"
-              data-i18n-placeholder="form.aircraft"
-            >
+              data-i18n-placeholder="form.aircraft">
 
             <div class="field">
-
-              <input
-                id="eventPilot"
-                type="text"
+              <input id="eventPilot" type="text"
                 placeholder="Pilot Discord ID (optional)"
-                data-i18n-placeholder="form.pilot"
-              >
+                data-i18n-placeholder="form.pilot">
 
-              <div
-                class="form-help"
-                data-i18n="form.pilotHelp"
-              >
+              <div class="form-help" data-i18n="form.pilotHelp">
                 The pilot must have logged into the website once.
               </div>
-
             </div>
 
             <div class="field">
-
-              <label
-                for="eventDistance"
-                data-i18n="form.distance"
-              >
+              <label for="eventDistance" data-i18n="form.distance">
                 Distance category
               </label>
 
               <select id="eventDistance">
-
-                <option
-                  value="short"
-                  data-i18n="form.short"
-                >
+                <option value="short" data-i18n="form.short">
                   Short-haul — 1 Point
                 </option>
 
-                <option
-                  value="medium"
-                  data-i18n="form.medium"
-                >
+                <option value="medium" data-i18n="form.medium">
                   Medium-haul — 2 Points
                 </option>
 
-                <option
-                  value="long"
-                  data-i18n="form.long"
-                >
+                <option value="long" data-i18n="form.long">
                   Long-haul — 3 Points
                 </option>
-
               </select>
             </div>
 
             <div class="field">
-
-              <label
-                for="eventMiles"
-                data-i18n="form.miles"
-              >
+              <label for="eventMiles" data-i18n="form.miles">
                 Miles
               </label>
 
-              <input
-                id="eventMiles"
-                type="number"
-                min="0"
-                step="1"
+              <input id="eventMiles" type="number" min="0" step="1"
                 placeholder="e.g. 750"
-                data-i18n-placeholder="form.milesPlaceholder"
-              >
-
+                data-i18n-placeholder="form.milesPlaceholder">
             </div>
 
             <div class="field">
-
-              <label
-                for="economyCapacity"
-                data-i18n="form.economyCapacity"
-              >
+              <label for="economyCapacity" data-i18n="form.economyCapacity">
                 Economy capacity
               </label>
 
-              <input
-                id="economyCapacity"
-                type="number"
-                min="0"
-                step="1"
-                value="0"
-              >
-
+              <input id="economyCapacity" type="number"
+                min="0" step="1" value="0">
             </div>
 
             <div class="field">
-
-              <label
-                for="businessCapacity"
-                data-i18n="form.businessCapacity"
-              >
+              <label for="businessCapacity" data-i18n="form.businessCapacity">
                 Business capacity
               </label>
 
-              <input
-                id="businessCapacity"
-                type="number"
-                min="0"
-                step="1"
-                value="0"
-              >
-
+              <input id="businessCapacity" type="number"
+                min="0" step="1" value="0">
             </div>
 
             <div class="field">
-
-              <label
-                for="firstCapacity"
-                data-i18n="form.firstCapacity"
-              >
+              <label for="firstCapacity" data-i18n="form.firstCapacity">
                 First capacity
               </label>
 
-              <input
-                id="firstCapacity"
-                type="number"
-                min="0"
-                step="1"
-                value="0"
-              >
-
+              <input id="firstCapacity" type="number"
+                min="0" step="1" value="0">
             </div>
 
-            <select
-              id="eventStatus"
-              aria-label="Event status"
-            >
-
-              <option
-                value="scheduled"
-                data-i18n="status.scheduled"
-              >
+            <select id="eventStatus" aria-label="Event status">
+              <option value="scheduled" data-i18n="status.scheduled">
                 Scheduled
               </option>
 
-              <option
-                value="boarding"
-                data-i18n="status.boarding"
-              >
+              <option value="boarding" data-i18n="status.boarding">
                 Boarding
               </option>
 
-              <option
-                value="departed"
-                data-i18n="status.departed"
-              >
+              <option value="departed" data-i18n="status.departed">
                 Departed
               </option>
 
-              <option
-                value="completed"
-                data-i18n="status.completed"
-              >
+              <option value="completed" data-i18n="status.completed">
                 Completed
               </option>
 
-              <option
-                value="cancelled"
-                data-i18n="status.cancelled"
-              >
+              <option value="cancelled" data-i18n="status.cancelled">
                 Cancelled
               </option>
-
             </select>
 
             <div class="full">
-
-              <button
-                class="btn btn-primary"
-                type="button"
-                onclick="createEventFlight()"
-                data-i18n="admin.createEvent"
-              >
+              <button class="btn btn-primary" type="button"
+                onclick="createEventFlight()" data-i18n="admin.createEvent">
                 CREATE EVENT FLIGHT
               </button>
-
             </div>
+
           </div>
 
           <h3 data-i18n="admin.existingEvents">
@@ -1559,68 +652,82 @@
 
         </div>
 
+        <!-- ADMIN ACADEMY APPLICATIONS -->
 
-        <!-- ADMIN: ACADEMY APPLICATIONS -->
-
-        <div
-          id="adminApplications"
-          class="admin-tab-panel"
-        >
+        <div id="adminApplications" class="admin-tab-panel">
 
           <h3 data-i18n="admin.applicationsHeading">
             Academy Applications
           </h3>
 
-          <p
-            class="muted"
-            data-i18n="admin.comingSoon"
-          >
-            This management area will be activated
-            when the Academy database functions are ready.
+          <p class="muted" data-i18n="admin.applicationsIntro">
+            Review applications, approve or reject them and provide
+            feedback to applicants.
           </p>
+
+          <div class="field" style="max-width:260px; margin:18px 0">
+
+            <label for="academyAdminStatusFilter"
+              class="settings-label" data-i18n="admin.filterStatus">
+              Filter by status
+            </label>
+
+            <select id="academyAdminStatusFilter" class="settings-select">
+              <option value="all" data-i18n="admin.filterAll">
+                All applications
+              </option>
+
+              <option value="pending" data-i18n="admin.filterPending">
+                Pending
+              </option>
+
+              <option value="approved" data-i18n="admin.filterApproved">
+                Approved
+              </option>
+
+              <option value="rejected" data-i18n="admin.filterRejected">
+                Rejected
+              </option>
+            </select>
+
+          </div>
+
+          <div id="academyAdminApplications" aria-live="polite">
+            <div class="empty-state compact"
+              data-i18n="admin.applicationsPreparing">
+              The application review system will be connected
+              in the next step.
+            </div>
+          </div>
 
         </div>
 
+        <!-- ADMIN TRAININGS -->
 
-        <!-- ADMIN: ACADEMY TRAININGS -->
-
-        <div
-          id="adminTrainings"
-          class="admin-tab-panel"
-        >
+        <div id="adminTrainings" class="admin-tab-panel">
 
           <h3 data-i18n="admin.trainingsHeading">
             Academy Trainings
           </h3>
 
-          <p
-            class="muted"
-            data-i18n="admin.comingSoon"
-          >
-            This management area will be activated
-            when the Academy database functions are ready.
+          <p class="muted" data-i18n="admin.comingSoon">
+            This management area will be activated when
+            the Academy database functions are ready.
           </p>
 
         </div>
 
+        <!-- ADMIN INSTRUCTORS -->
 
-        <!-- ADMIN: INSTRUCTORS -->
-
-        <div
-          id="adminInstructors"
-          class="admin-tab-panel"
-        >
+        <div id="adminInstructors" class="admin-tab-panel">
 
           <h3 data-i18n="admin.instructorsHeading">
             Academy Instructors
           </h3>
 
-          <p
-            class="muted"
-            data-i18n="admin.comingSoon"
-          >
-            This management area will be activated
-            when the Academy database functions are ready.
+          <p class="muted" data-i18n="admin.comingSoon">
+            This management area will be activated when
+            the Academy database functions are ready.
           </p>
 
         </div>
@@ -1630,203 +737,102 @@
 
   </main>
 
-
-  <!-- =========================================
-       FOOTER
-  ========================================== -->
+  <!-- FOOTER -->
 
   <footer class="footer">
-
-    <strong>
-      Austrian Airlines Flight Operations
-    </strong>
+    <strong>Austrian Airlines Flight Operations</strong>
 
     <p data-i18n="footer.disclaimer">
       Unofficial virtual airline / flight simulation project.
       Not affiliated with or endorsed by Austrian Airlines.
     </p>
-
   </footer>
 
+  <!-- SETTINGS -->
 
-  <!-- =========================================
-       SETTINGS
-  ========================================== -->
-
-  <dialog
-    id="settingsDialog"
-    class="settings-dialog"
-    aria-labelledby="settingsHeading"
-  >
+  <dialog id="settingsDialog" class="settings-dialog"
+    aria-labelledby="settingsHeading">
 
     <div class="settings-head">
 
-      <h2
-        id="settingsHeading"
-        data-i18n="settings.title"
-      >
+      <h2 id="settingsHeading" data-i18n="settings.title">
         ⚙️ Settings
       </h2>
 
-      <button
-        id="closeSettings"
-        type="button"
-        class="icon-button"
-        aria-label="Close settings"
-      >
+      <button id="closeSettings" type="button"
+        class="icon-button" aria-label="Close settings">
         ✕
       </button>
 
     </div>
 
-
-    <!-- APPEARANCE -->
-
     <div class="settings-field">
 
-      <label
-        class="settings-label"
-        for="themeSelect"
-        data-i18n="settings.theme"
-      >
+      <label class="settings-label" for="themeSelect"
+        data-i18n="settings.theme">
         Appearance
       </label>
 
-      <select
-        id="themeSelect"
-        class="settings-select"
-      >
-
-        <option
-          value="light"
-          data-i18n="settings.light"
-        >
-          Light mode
-        </option>
-
-        <option
-          value="dark"
-          data-i18n="settings.dark"
-        >
-          Dark mode
-        </option>
-
+      <select id="themeSelect" class="settings-select">
+        <option value="light" data-i18n="settings.light">Light mode</option>
+        <option value="dark" data-i18n="settings.dark">Dark mode</option>
       </select>
+
     </div>
-
-
-    <!-- FONT SIZE -->
 
     <div class="settings-field">
 
-      <label
-        class="settings-label"
-        for="fontSizeSelect"
-        data-i18n="settings.font"
-      >
+      <label class="settings-label" for="fontSizeSelect"
+        data-i18n="settings.font">
         Font size
       </label>
 
-      <select
-        id="fontSizeSelect"
-        class="settings-select"
-      >
-
-        <option
-          value="small"
-          data-i18n="settings.small"
-        >
-          Small
-        </option>
-
-        <option
-          value="normal"
-          data-i18n="settings.normal"
-        >
-          Normal
-        </option>
-
-        <option
-          value="large"
-          data-i18n="settings.large"
-        >
-          Large
-        </option>
-
+      <select id="fontSizeSelect" class="settings-select">
+        <option value="small" data-i18n="settings.small">Small</option>
+        <option value="normal" data-i18n="settings.normal">Normal</option>
+        <option value="large" data-i18n="settings.large">Large</option>
       </select>
+
     </div>
-
-
-    <!-- LANGUAGE -->
 
     <div class="settings-field">
 
-      <label
-        class="settings-label"
-        for="languageSelect"
-        data-i18n="settings.language"
-      >
+      <label class="settings-label" for="languageSelect"
+        data-i18n="settings.language">
         Language
       </label>
 
-      <select
-        id="languageSelect"
-        class="settings-select"
-      >
-
-        <option value="en">
-          🇬🇧 English
-        </option>
-
-        <option value="de">
-          🇦🇹 Deutsch
-        </option>
-
-        <option value="fr">
-          🇫🇷 Français
-        </option>
-
+      <select id="languageSelect" class="settings-select">
+        <option value="en">🇬🇧 English</option>
+        <option value="de">🇦🇹 Deutsch</option>
+        <option value="fr">🇫🇷 Français</option>
       </select>
+
     </div>
 
   </dialog>
 
-
-  <!-- =========================================
-       SCRIPTS
-  ========================================== -->
+  <!-- SCRIPTS -->
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Created in step 3 -->
   <script src="translations.js"></script>
-
-  <!-- Existing flight operations app -->
   <script src="app.js"></script>
 
-
-  <!-- =========================================
-       NAVIGATION AND SETTINGS
-  ========================================== -->
+  <!-- PAGE NAVIGATION & SETTINGS -->
 
   <script>
     (function () {
 
       const VIEWS = new Set([
-        'home',
-        'miles',
-        'atc24',
-        'events',
-        'academy',
-        'admin'
+        "home",
+        "miles",
+        "atc24",
+        "events",
+        "academy",
+        "admin"
       ]);
 
       const $ui = id => document.getElementById(id);
-
-
-      // =====================================
-      // LOCAL SETTINGS
-      // =====================================
 
       const store = (key, value) => {
         try {
@@ -1842,276 +848,206 @@
         }
       };
 
-
-      // =====================================
-      // PAGE NAVIGATION
-      // =====================================
-
       function showView() {
 
-        let view =
-          decodeURIComponent(location.hash.slice(1)) || 'home';
+        let view = decodeURIComponent(
+          location.hash.slice(1)
+        ) || "home";
 
         if (!VIEWS.has(view)) {
-          view = 'home';
+          view = "home";
         }
 
-        // Admin pages are not displayed to non-admins.
-        // Server-side database permissions remain authoritative.
         if (
-          view === 'admin' &&
-          !(typeof admin === 'function' && admin())
+          view === "admin" &&
+          !(typeof admin === "function" && admin())
         ) {
-          view = 'home';
+          view = "home";
         }
 
-        document.querySelectorAll('.view').forEach(section => {
-
+        document.querySelectorAll(".view").forEach(section => {
           section.classList.toggle(
-            'is-active',
+            "is-active",
             section.id === view
           );
-
         });
 
-        document.querySelectorAll('[data-nav]').forEach(link => {
-
+        document.querySelectorAll("[data-nav]").forEach(link => {
           if (link.dataset.nav === view) {
-            link.setAttribute('aria-current', 'page');
+            link.setAttribute("aria-current", "page");
           } else {
-            link.removeAttribute('aria-current');
+            link.removeAttribute("aria-current");
           }
-
         });
 
         window.scrollTo({
           top: 0,
-          behavior: 'auto'
+          behavior: "auto"
         });
-
       }
-
-
-      // =====================================
-      // ADMIN NAVIGATION
-      // =====================================
 
       function showAdminTab(panelId) {
 
-        document.querySelectorAll(
-          '[data-admin-target]'
-        ).forEach(button => {
+        document.querySelectorAll("[data-admin-target]")
+          .forEach(button => {
 
-          button.setAttribute(
-            'aria-selected',
-            String(button.dataset.adminTarget === panelId)
-          );
+            button.setAttribute(
+              "aria-selected",
+              String(button.dataset.adminTarget === panelId)
+            );
 
-        });
+          });
 
-        document.querySelectorAll(
-          '.admin-tab-panel'
-        ).forEach(panel => {
+        document.querySelectorAll(".admin-tab-panel")
+          .forEach(panel => {
 
-          panel.classList.toggle(
-            'is-active',
-            panel.id === panelId
-          );
+            panel.classList.toggle(
+              "is-active",
+              panel.id === panelId
+            );
 
-        });
-
+          });
       }
-
-
-      // =====================================
-      // STATIC TRANSLATIONS
-      // =====================================
 
       function translateStatic() {
 
-        const lang = $ui('languageSelect').value;
+        const language = $ui("languageSelect").value;
 
         const dict =
-          window.AFO_TRANSLATIONS?.[lang] ||
+          window.AFO_TRANSLATIONS?.[language] ||
           window.AFO_TRANSLATIONS?.en;
 
-        document.documentElement.lang = lang;
+        document.documentElement.lang = language;
 
-        // Translations are added in step 3.
         if (!dict) return;
 
-        document.querySelectorAll(
-          '[data-i18n]'
-        ).forEach(node => {
+        document.querySelectorAll("[data-i18n]")
+          .forEach(node => {
 
-          const translated =
-            dict[node.dataset.i18n];
+            const value = dict[node.dataset.i18n];
 
-          if (typeof translated === 'string') {
-            node.textContent = translated;
-          }
+            if (typeof value === "string") {
+              node.textContent = value;
+            }
 
-        });
+          });
 
-        document.querySelectorAll(
-          '[data-i18n-placeholder]'
-        ).forEach(node => {
+        document.querySelectorAll("[data-i18n-placeholder]")
+          .forEach(node => {
 
-          const translated =
-            dict[node.dataset.i18nPlaceholder];
+            const value = dict[node.dataset.i18nPlaceholder];
 
-          if (typeof translated === 'string') {
-            node.placeholder = translated;
-          }
+            if (typeof value === "string") {
+              node.placeholder = value;
+            }
 
-        });
+          });
 
         document.dispatchEvent(
-          new CustomEvent('afo-language-change', {
+          new CustomEvent("afo-language-change", {
             detail: {
-              language: lang
+              language
             }
           })
         );
-
       }
-
-
-      // =====================================
-      // APPEARANCE
-      // =====================================
 
       function setTheme(value) {
 
         const theme =
-          value === 'dark' ? 'dark' : 'light';
+          value === "dark" ? "dark" : "light";
 
         document.documentElement.dataset.theme = theme;
+        $ui("themeSelect").value = theme;
 
-        $ui('themeSelect').value = theme;
-
-        store('afo-theme', theme);
-
+        store("afo-theme", theme);
       }
-
-
-      // =====================================
-      // FONT SIZE
-      // =====================================
 
       function setFont(value) {
 
         const size = [
-          'small',
-          'normal',
-          'large'
+          "small",
+          "normal",
+          "large"
         ].includes(value)
           ? value
-          : 'normal';
+          : "normal";
 
         document.documentElement.dataset.fontSize = size;
+        $ui("fontSizeSelect").value = size;
 
-        $ui('fontSizeSelect').value = size;
-
-        store('afo-font-size', size);
-
+        store("afo-font-size", size);
       }
-
-
-      // =====================================
-      // LANGUAGE
-      // =====================================
 
       function setLanguage(value) {
 
-        const lang = [
-          'en',
-          'de',
-          'fr'
+        const language = [
+          "en",
+          "de",
+          "fr"
         ].includes(value)
           ? value
-          : 'en';
+          : "en";
 
-        $ui('languageSelect').value = lang;
+        $ui("languageSelect").value = language;
 
-        store('afo-language', lang);
-
+        store("afo-language", language);
         translateStatic();
-
       }
 
+      document.addEventListener("DOMContentLoaded", () => {
 
-      // =====================================
-      // INITIALIZATION
-      // =====================================
+        setTheme(
+          restore("afo-theme", "light")
+        );
 
-      document.addEventListener(
-        'DOMContentLoaded',
-        () => {
+        setFont(
+          restore("afo-font-size", "normal")
+        );
 
-          // Restore saved settings.
-          setTheme(
-            restore('afo-theme', 'light')
-          );
+        setLanguage(
+          restore("afo-language", "en")
+        );
 
-          setFont(
-            restore('afo-font-size', 'normal')
-          );
+        $ui("themeSelect").addEventListener(
+          "change",
+          event => setTheme(event.target.value)
+        );
 
-          setLanguage(
-            restore('afo-language', 'en')
-          );
+        $ui("fontSizeSelect").addEventListener(
+          "change",
+          event => setFont(event.target.value)
+        );
 
+        $ui("languageSelect").addEventListener(
+          "change",
+          event => setLanguage(event.target.value)
+        );
 
-          // Settings controls.
-          $ui('themeSelect').addEventListener(
-            'change',
-            event => setTheme(event.target.value)
-          );
+        $ui("settingsButton").addEventListener(
+          "click",
+          () => $ui("settingsDialog").showModal()
+        );
 
-          $ui('fontSizeSelect').addEventListener(
-            'change',
-            event => setFont(event.target.value)
-          );
+        $ui("closeSettings").addEventListener(
+          "click",
+          () => $ui("settingsDialog").close()
+        );
 
-          $ui('languageSelect').addEventListener(
-            'change',
-            event => setLanguage(event.target.value)
-          );
-
-
-          // Open settings.
-          $ui('settingsButton').addEventListener(
-            'click',
-            () => $ui('settingsDialog').showModal()
-          );
-
-
-          // Close settings.
-          $ui('closeSettings').addEventListener(
-            'click',
-            () => $ui('settingsDialog').close()
-          );
-
-          $ui('settingsDialog').addEventListener(
-            'click',
-            event => {
-
-              if (event.target === $ui('settingsDialog')) {
-                $ui('settingsDialog').close();
-              }
-
+        $ui("settingsDialog").addEventListener(
+          "click",
+          event => {
+            if (event.target === $ui("settingsDialog")) {
+              $ui("settingsDialog").close();
             }
-          );
+          }
+        );
 
-
-          // Admin tabs.
-          document.querySelectorAll(
-            '[data-admin-target]'
-          ).forEach(button => {
+        document.querySelectorAll("[data-admin-target]")
+          .forEach(button => {
 
             button.addEventListener(
-              'click',
+              "click",
               () => showAdminTab(
                 button.dataset.adminTarget
               )
@@ -2119,52 +1055,44 @@
 
           });
 
+        const panel = $ui("adminPanel");
 
-          // Observe admin authorization state
-          // already maintained by app.js.
-          const panel = $ui('adminPanel');
+        const updateAdminNavigation = () => {
 
-          const updateAdminNavigation = () => {
+          const allowed =
+            !panel.classList.contains("hidden");
 
-            const allowed =
-              !panel.classList.contains('hidden');
+          $ui("adminNavLink").classList.toggle(
+            "hidden",
+            !allowed
+          );
 
-            $ui('adminNavLink').classList.toggle(
-              'hidden',
-              !allowed
-            );
+          if (
+            !allowed &&
+            location.hash === "#admin"
+          ) {
+            showView();
+          }
+        };
 
-            if (
-              !allowed &&
-              location.hash === '#admin'
-            ) {
-              showView();
-            }
-
-          };
-
-          new MutationObserver(
-            updateAdminNavigation
-          ).observe(panel, {
+        new MutationObserver(updateAdminNavigation).observe(
+          panel,
+          {
             attributes: true,
-            attributeFilter: ['class']
-          });
+            attributeFilter: ["class"]
+          }
+        );
 
-          updateAdminNavigation();
-          showView();
+        updateAdminNavigation();
+        showView();
 
-        }
-      );
+      });
 
-
-      // Browser Back / Forward support.
       window.addEventListener(
-        'hashchange',
+        "hashchange",
         showView
       );
 
-
-      // Available for upcoming app.js updates.
       window.AFO_UI = {
         showView,
         showAdminTab,
