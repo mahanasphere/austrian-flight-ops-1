@@ -1,832 +1,372 @@
 
-/* ============================================================
-   AUSTRIAN AIRLINES FLIGHT OPERATIONS
-   V1.3.0 – TRANSLATIONS
+/* =============================================================
+   AUSTRIAN FLIGHT OPERATIONS – TRANSLATIONS V1.3.0
 
+   Complete translations:
    English / Deutsch / Français
-   Includes Austrian Academy applications
-   ============================================================ */
-
-window.AFO_TRANSLATIONS = {
-
-    /* ========================================================
-       ENGLISH
-       ======================================================== */
-
-    en: {
-
-        // NAVIGATION
-
-        "nav.home": "Home",
-        "nav.miles": "Miles & More",
-        "nav.atc24": "ATC24",
-        "nav.events": "Event Flights",
-        "nav.academy": "Academy",
-        "nav.admin": "Admin",
-
-        // AUTHENTICATION
-
-        "auth.login": "Login with Discord",
-        "auth.logout": "Logout",
-
-        // HOME
-
-        "home.title": "Flight Operations.",
-        "home.description": "Run your scheduled flights, join special Event Flights and build your Miles & More status — all in one place.",
-        "home.atc24": "View ATC24 Flights",
-        "home.events": "View Event Flights",
-
-        // MILES & MORE
-
-        "miles.title": "💳 Miles & More",
-        "miles.description": "Your Event Flight rewards, Points and current status.",
-        "miles.login": "Sign in to view your Miles & More profile.",
-        "miles.track": "Track Miles, Points and your current status.",
-        "miles.balance": "Miles",
-        "miles.points": "Points",
-        "miles.status": "Status",
-        "miles.lifetime": "Lifetime Miles",
-        "miles.toNext": "{points} point(s) to {status}",
-        "miles.highest": "Highest status reached",
-
-        // ATC24
-
-        "atc24.title": "✈️ Today's ATC24 Flights",
-        "atc24.description": "Scheduled operations and claimable flights.",
-
-        // EVENT FLIGHTS
-
-        "events.title": "🌍 Event Flights",
-        "events.description": "Book a seat and earn Miles & More Miles and Points after completing the flight.",
-
-        // FLIGHT CARDS
-
-        "flight.one": "{count} flight",
-        "flight.many": "{count} flights",
-        "flight.noFlights": "No ATC24 flights available today.",
-        "flight.checkLater": "Check back later for the next scheduled operation.",
-        "flight.claim": "CLAIM FLIGHT",
-        "flight.loginClaim": "LOGIN WITH DISCORD TO CLAIM",
-        "flight.start": "START FLIGHT",
-        "flight.pushback": "PUSHBACK",
-        "flight.takeoff": "TAKEOFF",
-        "flight.landing": "LANDING",
-        "flight.end": "END FLIGHT",
-        "flight.claimedByOther": "A pilot has claimed this flight.",
-        "flight.operatedByOther": "A pilot is currently operating this flight.",
-        "flight.completed": "Flight completed",
-        "flight.departure": "Departure",
-        "flight.aircraft": "Aircraft",
-        "flight.operator": "Operator",
-        "flight.livery": "Livery",
-        "flight.startedAt": "Started",
-        "flight.pushbackAt": "Pushback",
-        "flight.takeoffAt": "Takeoff",
-        "flight.landingAt": "Landing",
-        "flight.completedAt": "Completed",
-        "flight.approvalRequired": "Pilot Approved is required to claim ATC24 flights.",
-
-        // EVENT BOOKINGS
-
-        "event.one": "{count} event",
-        "event.many": "{count} events",
-        "event.noEvents": "No Event Flights are scheduled.",
-        "event.newSoon": "New special operations will appear here.",
-        "event.distance": "Distance",
-        "event.economy": "Economy",
-        "event.business": "Business",
-        "event.first": "First",
-        "event.bookEconomy": "BOOK ECONOMY",
-        "event.bookBusiness": "BOOK BUSINESS — 20,000 MILES",
-        "event.bookFirst": "BOOK FIRST — 100,000 MILES",
-        "event.economyFull": "Economy full",
-        "event.businessFull": "Business full",
-        "event.firstFull": "First full",
-        "event.loginBook": "LOGIN WITH DISCORD TO BOOK",
-        "event.cancelled": "This Event Flight has been cancelled.",
-        "event.finished": "This Event Flight is completed.",
-        "event.booked": "Your booking",
-        "event.checkedIn": "Checked in",
-        "event.notCheckedIn": "Not checked in",
-        "event.boarded": "Boarded",
-        "event.notBoarded": "Not boarded",
-        "event.checkIn": "CHECK IN",
-        "event.board": "BOARD",
-        "event.complete": "COMPLETE EVENT FLIGHT",
-        "event.short": "Short-haul",
-        "event.medium": "Medium-haul",
-        "event.long": "Long-haul",
-        "event.businessLocked": "Frequent Traveller status and 20,000 Miles required",
-        "event.firstLocked": "Senator status and 100,000 Miles required",
-
-        // AUSTRIAN ACADEMY
-
-        "academy.title": "🎓 Austrian Academy",
-        "academy.description": "Applications, training and qualifications for our virtual pilots and ATC members.",
-        "academy.pilot": "✈️ Pilot Academy",
-        "academy.pilotDescription": "Apply for ATC24 or Event Flight pilot training.",
-        "academy.atc": "📡 ATC Academy",
-        "academy.atcDescription": "Apply to train as a virtual air traffic controller.",
-        "academy.training": "📅 Training Sessions",
-        "academy.trainingDescription": "View upcoming sessions and manage your training progress.",
-        "academy.comingSoon": "Coming soon in V1.3.0",
-
-        // ACADEMY APPLICATION FORM
-
-        "academy.formTitle": "Apply to the Austrian Academy",
-        "academy.formDescription": "Choose a training category and tell us why you would like to join.",
-        "academy.loginRequired": "Please log in with Discord before submitting an application.",
-
-        "academy.category": "Training category",
-        "academy.chooseCategory": "Choose an Academy programme",
-        "academy.categoryAtc24": "ATC24 Pilot",
-        "academy.categoryEvent": "Event Flight Pilot",
-        "academy.categoryAtc": "Air Traffic Controller (ATC)",
-
-        "academy.motivation": "Why would you like to join?",
-        "academy.motivationPlaceholder": "Tell us why you would like to join (10–2000 characters)",
-        "academy.motivationHelp": "Please write at least 10 characters. Maximum 2000 characters.",
-
-        "academy.experience": "Previous experience (optional)",
-        "academy.experiencePlaceholder": "Optional: your experience with PTFS or flight simulation",
-        "academy.experienceHelp": "Maximum 1000 characters.",
-
-        "academy.submit": "SUBMIT APPLICATION",
-        "academy.connecting": "Application submissions will be enabled once the website connection is complete.",
-        "academy.submitting": "Submitting application...",
-        "academy.submitted": "Your Academy application was submitted successfully.",
-        "academy.submitFailed": "Could not submit your Academy application.",
-
-        // MY APPLICATIONS
-
-        "academy.myApplications": "My applications",
-        "academy.myApplicationsDescription": "View the status of your applications here.",
-        "academy.statusPreparing": "Application status tracking will be connected in the next step.",
-        "academy.noApplications": "You have not submitted any Academy applications yet.",
-        "academy.loginToView": "Log in with Discord to view your applications.",
-        "academy.applicationPending": "Pending review",
-        "academy.applicationApproved": "Approved",
-        "academy.applicationRejected": "Rejected",
-        "academy.submittedAt": "Submitted",
-        "academy.reviewedAt": "Reviewed",
-        "academy.reviewNote": "Management feedback",
-
-        // ADMINISTRATION
-
-        "admin.title": "🛠️ Administration",
-        "admin.description": "Manage ATC24, Event Flights, Academy applications and training.",
-        "admin.tabAtc24": "ATC24 Flights",
-        "admin.tabEvents": "Event Flights",
-        "admin.tabApplications": "Applications",
-        "admin.tabTrainings": "Trainings",
-        "admin.tabInstructors": "Instructors",
-
-        "admin.atc24Heading": "ATC24 Flight Management",
-        "admin.atc24Intro": "Create and manage scheduled ATC24 operations.",
-        "admin.createAtc24": "CREATE ATC24 FLIGHT",
-        "admin.existingAtc24": "Existing ATC24 Flights",
-
-        "admin.eventsHeading": "Event Flight Management",
-        "admin.eventsIntro": "Create, update and remove Event Flights.",
-        "admin.pointsNote": "Points are automatic: Short-haul = 1, Medium-haul = 2, Long-haul = 3. Miles are entered manually; passengers receive rewards after completing the flight.",
-        "admin.createEvent": "CREATE EVENT FLIGHT",
-        "admin.existingEvents": "Existing Event Flights",
-
-        // ADMIN ACADEMY APPLICATIONS
-
-        "admin.applicationsHeading": "Academy Applications",
-        "admin.applicationsIntro": "Review applications, approve or reject them and provide feedback to applicants.",
-        "admin.filterStatus": "Filter by status",
-        "admin.filterAll": "All applications",
-        "admin.filterPending": "Pending",
-        "admin.filterApproved": "Approved",
-        "admin.filterRejected": "Rejected",
-        "admin.applicationsPreparing": "The application review system will be connected in the next step.",
-        "admin.noApplications": "No Academy applications found.",
-        "admin.applicant": "Applicant",
-        "admin.reviewNote": "Review note (optional)",
-        "admin.approve": "APPROVE",
-        "admin.reject": "REJECT",
-        "admin.reviewSuccess": "Application reviewed successfully.",
-        "admin.reviewFailed": "Could not review this application.",
-
-        // ADMIN TRAINING AREAS
-
-        "admin.trainingsHeading": "Academy Trainings",
-        "admin.instructorsHeading": "Academy Instructors",
-        "admin.comingSoon": "This management area will be activated when the Academy database functions are ready.",
-
-        // FORMS
-
-        "form.flightNumber": "Flight Number — OS101",
-        "form.departure": "Departure — VIE",
-        "form.arrival": "Arrival — LHR",
-        "form.aircraft": "Aircraft Model — Airbus A320",
-        "form.operator": "Operator Airline — Austrian Airlines",
-        "form.livery": "Livery Airline — Austrian Airlines",
-        "form.once": "One-time flight",
-        "form.daily": "Every day",
-        "form.weekdays": "Monday–Friday",
-        "form.weekends": "Saturday–Sunday",
-        "form.additional": "Additional Information (optional)",
-        "form.pilot": "Pilot Discord ID (optional)",
-        "form.pilotHelp": "The pilot must have logged into the website once.",
-        "form.distance": "Distance category",
-        "form.short": "Short-haul — 1 Point",
-        "form.medium": "Medium-haul — 2 Points",
-        "form.long": "Long-haul — 3 Points",
-        "form.miles": "Miles",
-        "form.milesPlaceholder": "e.g. 750",
-        "form.economyCapacity": "Economy capacity",
-        "form.businessCapacity": "Business capacity",
-        "form.firstCapacity": "First capacity",
-
-        // EVENT STATUS
-
-        "status.scheduled": "Scheduled",
-        "status.boarding": "Boarding",
-        "status.departed": "Departed",
-        "status.completed": "Completed",
-        "status.cancelled": "Cancelled",
-
-        // SETTINGS
-
-        "settings.title": "⚙️ Settings",
-        "settings.theme": "Appearance",
-        "settings.light": "Light mode",
-        "settings.dark": "Dark mode",
-        "settings.font": "Font size",
-        "settings.small": "Small",
-        "settings.normal": "Normal",
-        "settings.large": "Large",
-        "settings.language": "Language",
-
-        // FOOTER
-
-        "footer.disclaimer": "Unofficial virtual airline / flight simulation project. Not affiliated with or endorsed by Austrian Airlines."
-
-    },
-
-
-    /* ========================================================
-       DEUTSCH
-       ======================================================== */
-
-    de: {
-
-        // NAVIGATION
-
-        "nav.home": "Startseite",
-        "nav.miles": "Miles & More",
-        "nav.atc24": "ATC24",
-        "nav.events": "Event-Flüge",
-        "nav.academy": "Academy",
-        "nav.admin": "Verwaltung",
-
-        // ANMELDUNG
-
-        "auth.login": "Mit Discord anmelden",
-        "auth.logout": "Abmelden",
-
-        // STARTSEITE
-
-        "home.title": "Flugbetrieb.",
-        "home.description": "Führe deine Linienflüge durch, nimm an besonderen Event-Flügen teil und verbessere deinen Miles-&-More-Status – alles an einem Ort.",
-        "home.atc24": "ATC24-Flüge ansehen",
-        "home.events": "Event-Flüge ansehen",
-
-        // MILES & MORE
-
-        "miles.title": "💳 Miles & More",
-        "miles.description": "Deine Prämien aus Event-Flügen, Points und dein aktueller Status.",
-        "miles.login": "Melde dich an, um dein Miles-&-More-Profil zu sehen.",
-        "miles.track": "Verfolge deine Miles, Points und deinen aktuellen Status.",
-        "miles.balance": "Miles",
-        "miles.points": "Points",
-        "miles.status": "Status",
-        "miles.lifetime": "Gesammelte Miles",
-        "miles.toNext": "Noch {points} Point(s) bis {status}",
-        "miles.highest": "Höchsten Status erreicht",
-
-        // ATC24
-
-        "atc24.title": "✈️ Heutige ATC24-Flüge",
-        "atc24.description": "Geplante Flüge und verfügbare Flugaufträge.",
-
-        // EVENT-FLÜGE
-
-        "events.title": "🌍 Event-Flüge",
-        "events.description": "Buche einen Sitzplatz und sammle nach dem abgeschlossenen Flug Miles und Points für Miles & More.",
-
-        // FLUGKARTEN
-
-        "flight.one": "{count} Flug",
-        "flight.many": "{count} Flüge",
-        "flight.noFlights": "Heute sind keine ATC24-Flüge verfügbar.",
-        "flight.checkLater": "Schau später wieder vorbei, wenn neue Flüge geplant sind.",
-        "flight.claim": "FLUG ÜBERNEHMEN",
-        "flight.loginClaim": "MIT DISCORD ANMELDEN",
-        "flight.start": "FLUG STARTEN",
-        "flight.pushback": "PUSHBACK",
-        "flight.takeoff": "START",
-        "flight.landing": "LANDUNG",
-        "flight.end": "FLUG ABSCHLIESSEN",
-        "flight.claimedByOther": "Dieser Flug wurde bereits übernommen.",
-        "flight.operatedByOther": "Dieser Flug wird gerade durchgeführt.",
-        "flight.completed": "Flug abgeschlossen",
-        "flight.departure": "Abflug",
-        "flight.aircraft": "Flugzeug",
-        "flight.operator": "Betreiber",
-        "flight.livery": "Lackierung",
-        "flight.startedAt": "Begonnen",
-        "flight.pushbackAt": "Pushback",
-        "flight.takeoffAt": "Start",
-        "flight.landingAt": "Landung",
-        "flight.completedAt": "Abgeschlossen",
-        "flight.approvalRequired": "Du benötigst die Freigabe „Pilot Approved“, um ATC24-Flüge zu übernehmen.",
-
-        // EVENT-BUCHUNGEN
-
-        "event.one": "{count} Event",
-        "event.many": "{count} Events",
-        "event.noEvents": "Derzeit sind keine Event-Flüge geplant.",
-        "event.newSoon": "Neue Sonderflüge erscheinen hier.",
-        "event.distance": "Strecke",
-        "event.economy": "Economy",
-        "event.business": "Business",
-        "event.first": "First",
-        "event.bookEconomy": "ECONOMY BUCHEN",
-        "event.bookBusiness": "BUSINESS BUCHEN — 20.000 MILES",
-        "event.bookFirst": "FIRST BUCHEN — 100.000 MILES",
-        "event.economyFull": "Economy ausgebucht",
-        "event.businessFull": "Business ausgebucht",
-        "event.firstFull": "First ausgebucht",
-        "event.loginBook": "MIT DISCORD ZUM BUCHEN ANMELDEN",
-        "event.cancelled": "Dieser Event-Flug wurde abgesagt.",
-        "event.finished": "Dieser Event-Flug ist abgeschlossen.",
-        "event.booked": "Deine Buchung",
-        "event.checkedIn": "Eingecheckt",
-        "event.notCheckedIn": "Noch nicht eingecheckt",
-        "event.boarded": "Boarding abgeschlossen",
-        "event.notBoarded": "Noch nicht geboardet",
-        "event.checkIn": "EINCHECKEN",
-        "event.board": "BOARDING",
-        "event.complete": "EVENT-FLUG ABSCHLIESSEN",
-        "event.short": "Kurzstrecke",
-        "event.medium": "Mittelstrecke",
-        "event.long": "Langstrecke",
-        "event.businessLocked": "Frequent-Traveller-Status und 20.000 Miles erforderlich",
-        "event.firstLocked": "Senator-Status und 100.000 Miles erforderlich",
-
-        // AUSTRIAN ACADEMY
-
-        "academy.title": "🎓 Austrian Academy",
-        "academy.description": "Bewerbungen, Ausbildungen und Qualifikationen für unsere virtuellen Piloten und ATC-Mitglieder.",
-        "academy.pilot": "✈️ Pilotenakademie",
-        "academy.pilotDescription": "Bewirb dich für die Ausbildung zum ATC24- oder Event-Flight-Piloten.",
-        "academy.atc": "📡 ATC-Akademie",
-        "academy.atcDescription": "Bewirb dich für die Ausbildung zum virtuellen Fluglotsen.",
-        "academy.training": "📅 Trainingstermine",
-        "academy.trainingDescription": "Sieh dir kommende Trainings an und verfolge deinen Ausbildungsfortschritt.",
-        "academy.comingSoon": "Demnächst in V1.3.0",
-
-        // ACADEMY-BEWERBUNG
-
-        "academy.formTitle": "Bei der Austrian Academy bewerben",
-        "academy.formDescription": "Wähle einen Ausbildungsbereich und erzähle uns, warum du teilnehmen möchtest.",
-        "academy.loginRequired": "Bitte melde dich mit Discord an, bevor du eine Bewerbung abschickst.",
-
-        "academy.category": "Ausbildungsbereich",
-        "academy.chooseCategory": "Academy-Ausbildung auswählen",
-        "academy.categoryAtc24": "ATC24-Pilot",
-        "academy.categoryEvent": "Event-Flight-Pilot",
-        "academy.categoryAtc": "Fluglotse (ATC)",
-
-        "academy.motivation": "Warum möchtest du teilnehmen?",
-        "academy.motivationPlaceholder": "Erzähle uns, warum du teilnehmen möchtest (10–2000 Zeichen)",
-        "academy.motivationHelp": "Bitte schreibe mindestens 10 und höchstens 2000 Zeichen.",
-
-        "academy.experience": "Bisherige Erfahrung (optional)",
-        "academy.experiencePlaceholder": "Optional: Deine Erfahrung mit PTFS oder Flugsimulation",
-        "academy.experienceHelp": "Maximal 1000 Zeichen.",
-
-        "academy.submit": "BEWERBUNG ABSCHICKEN",
-        "academy.connecting": "Bewerbungen können abgeschickt werden, sobald die Website-Anbindung fertig ist.",
-        "academy.submitting": "Bewerbung wird abgeschickt...",
-        "academy.submitted": "Deine Academy-Bewerbung wurde erfolgreich eingereicht.",
-        "academy.submitFailed": "Deine Academy-Bewerbung konnte nicht abgeschickt werden.",
-
-        // MEINE BEWERBUNGEN
-
-        "academy.myApplications": "Meine Bewerbungen",
-        "academy.myApplicationsDescription": "Hier kannst du den Status deiner Bewerbungen verfolgen.",
-        "academy.statusPreparing": "Die Anzeige deiner Bewerbungen wird im nächsten Schritt verbunden.",
-        "academy.noApplications": "Du hast noch keine Academy-Bewerbung eingereicht.",
-        "academy.loginToView": "Melde dich mit Discord an, um deine Bewerbungen zu sehen.",
-        "academy.applicationPending": "Wartet auf Prüfung",
-        "academy.applicationApproved": "Angenommen",
-        "academy.applicationRejected": "Abgelehnt",
-        "academy.submittedAt": "Eingereicht",
-        "academy.reviewedAt": "Geprüft",
-        "academy.reviewNote": "Rückmeldung des Managements",
-
-        // VERWALTUNG
-
-        "admin.title": "🛠️ Verwaltung",
-        "admin.description": "Verwalte ATC24, Event-Flüge, Academy-Bewerbungen und Trainings.",
-        "admin.tabAtc24": "ATC24-Flüge",
-        "admin.tabEvents": "Event-Flüge",
-        "admin.tabApplications": "Bewerbungen",
-        "admin.tabTrainings": "Trainings",
-        "admin.tabInstructors": "Instruktoren",
-
-        "admin.atc24Heading": "ATC24-Flugverwaltung",
-        "admin.atc24Intro": "Erstelle und verwalte geplante ATC24-Flüge.",
-        "admin.createAtc24": "ATC24-FLUG ERSTELLEN",
-        "admin.existingAtc24": "Bestehende ATC24-Flüge",
-
-        "admin.eventsHeading": "Event-Flight-Verwaltung",
-        "admin.eventsIntro": "Erstelle, bearbeite und lösche Event-Flüge.",
-        "admin.pointsNote": "Points werden automatisch vergeben: Kurzstrecke = 1, Mittelstrecke = 2, Langstrecke = 3. Miles werden manuell eingetragen; Teilnehmer erhalten sie nach abgeschlossenem Flug.",
-        "admin.createEvent": "EVENT-FLUG ERSTELLEN",
-        "admin.existingEvents": "Bestehende Event-Flüge",
-
-        // ACADEMY-VERWALTUNG
-
-        "admin.applicationsHeading": "Academy-Bewerbungen",
-        "admin.applicationsIntro": "Prüfe Bewerbungen, nimm sie an oder lehne sie ab und gib den Bewerbern eine Rückmeldung.",
-        "admin.filterStatus": "Nach Status filtern",
-        "admin.filterAll": "Alle Bewerbungen",
-        "admin.filterPending": "Ausstehend",
-        "admin.filterApproved": "Angenommen",
-        "admin.filterRejected": "Abgelehnt",
-        "admin.applicationsPreparing": "Die Bewerbungsverwaltung wird im nächsten Schritt verbunden.",
-        "admin.noApplications": "Keine Academy-Bewerbungen gefunden.",
-        "admin.applicant": "Bewerber",
-        "admin.reviewNote": "Rückmeldung (optional)",
-        "admin.approve": "ANNEHMEN",
-        "admin.reject": "ABLEHNEN",
-        "admin.reviewSuccess": "Bewerbung erfolgreich bearbeitet.",
-        "admin.reviewFailed": "Die Bewerbung konnte nicht bearbeitet werden.",
-
-        // AUSBILDUNGSVERWALTUNG
-
-        "admin.trainingsHeading": "Academy-Trainings",
-        "admin.instructorsHeading": "Academy-Instruktoren",
-        "admin.comingSoon": "Dieser Verwaltungsbereich wird aktiviert, sobald die Academy-Datenbankfunktionen bereitstehen.",
-
-        // FORMULARE
-
-        "form.flightNumber": "Flugnummer — OS101",
-        "form.departure": "Abflug — VIE",
-        "form.arrival": "Ankunft — LHR",
-        "form.aircraft": "Flugzeugtyp — Airbus A320",
-        "form.operator": "Betreibende Airline — Austrian Airlines",
-        "form.livery": "Lackierung — Austrian Airlines",
-        "form.once": "Einmaliger Flug",
-        "form.daily": "Jeden Tag",
-        "form.weekdays": "Montag–Freitag",
-        "form.weekends": "Samstag–Sonntag",
-        "form.additional": "Zusätzliche Informationen (optional)",
-        "form.pilot": "Discord-ID des Piloten (optional)",
-        "form.pilotHelp": "Der Pilot muss sich mindestens einmal auf der Website angemeldet haben.",
-        "form.distance": "Streckenkategorie",
-        "form.short": "Kurzstrecke — 1 Point",
-        "form.medium": "Mittelstrecke — 2 Points",
-        "form.long": "Langstrecke — 3 Points",
-        "form.miles": "Miles",
-        "form.milesPlaceholder": "z. B. 750",
-        "form.economyCapacity": "Economy-Sitzplätze",
-        "form.businessCapacity": "Business-Sitzplätze",
-        "form.firstCapacity": "First-Sitzplätze",
-
-        // EVENT-STATUS
-
-        "status.scheduled": "Geplant",
-        "status.boarding": "Boarding",
-        "status.departed": "Abgeflogen",
-        "status.completed": "Abgeschlossen",
-        "status.cancelled": "Abgesagt",
-
-        // EINSTELLUNGEN
-
-        "settings.title": "⚙️ Einstellungen",
-        "settings.theme": "Darstellung",
-        "settings.light": "Heller Modus",
-        "settings.dark": "Dunkler Modus",
-        "settings.font": "Schriftgröße",
-        "settings.small": "Klein",
-        "settings.normal": "Normal",
-        "settings.large": "Groß",
-        "settings.language": "Sprache",
-
-        // FOOTER
-
-        "footer.disclaimer": "Inoffizielles virtuelles Airline- und Flugsimulationsprojekt. Keine Verbindung zu Austrian Airlines und keine Unterstützung durch Austrian Airlines."
-
-    },
-
-
-    /* ========================================================
-       FRANÇAIS
-       ======================================================== */
-
-    fr: {
-
-        // NAVIGATION
-
-        "nav.home": "Accueil",
-        "nav.miles": "Miles & More",
-        "nav.atc24": "ATC24",
-        "nav.events": "Vols événementiels",
-        "nav.academy": "Académie",
-        "nav.admin": "Administration",
-
-        // CONNEXION
-
-        "auth.login": "Se connecter avec Discord",
-        "auth.logout": "Se déconnecter",
-
-        // ACCUEIL
-
-        "home.title": "Opérations aériennes.",
-        "home.description": "Effectuez vos vols programmés, participez à des vols événementiels et faites progresser votre statut Miles & More, au même endroit.",
-        "home.atc24": "Voir les vols ATC24",
-        "home.events": "Voir les vols événementiels",
-
-        // MILES & MORE
-
-        "miles.title": "💳 Miles & More",
-        "miles.description": "Vos récompenses de vols événementiels, vos Points et votre statut actuel.",
-        "miles.login": "Connectez-vous pour consulter votre profil Miles & More.",
-        "miles.track": "Suivez vos Miles, vos Points et votre statut actuel.",
-        "miles.balance": "Miles",
-        "miles.points": "Points",
-        "miles.status": "Statut",
-        "miles.lifetime": "Miles cumulés",
-        "miles.toNext": "Encore {points} point(s) pour atteindre {status}",
-        "miles.highest": "Statut le plus élevé atteint",
-
-        // ATC24
-
-        "atc24.title": "✈️ Vols ATC24 du jour",
-        "atc24.description": "Vols programmés et vols disponibles.",
-
-        // VOLS ÉVÉNEMENTIELS
-
-        "events.title": "🌍 Vols événementiels",
-        "events.description": "Réservez une place et gagnez des Miles et des Points Miles & More après avoir terminé le vol.",
-
-        // CARTES DE VOL
-
-        "flight.one": "{count} vol",
-        "flight.many": "{count} vols",
-        "flight.noFlights": "Aucun vol ATC24 disponible aujourd’hui.",
-        "flight.checkLater": "Revenez plus tard pour les prochains vols programmés.",
-        "flight.claim": "PRENDRE EN CHARGE LE VOL",
-        "flight.loginClaim": "SE CONNECTER AVEC DISCORD",
-        "flight.start": "DÉMARRER LE VOL",
-        "flight.pushback": "REPOUSSAGE",
-        "flight.takeoff": "DÉCOLLAGE",
-        "flight.landing": "ATTERRISSAGE",
-        "flight.end": "TERMINER LE VOL",
-        "flight.claimedByOther": "Un pilote a déjà pris en charge ce vol.",
-        "flight.operatedByOther": "Un pilote effectue actuellement ce vol.",
-        "flight.completed": "Vol terminé",
-        "flight.departure": "Départ",
-        "flight.aircraft": "Appareil",
-        "flight.operator": "Compagnie exploitante",
-        "flight.livery": "Livrée",
-        "flight.startedAt": "Commencé",
-        "flight.pushbackAt": "Repoussage",
-        "flight.takeoffAt": "Décollage",
-        "flight.landingAt": "Atterrissage",
-        "flight.completedAt": "Terminé",
-        "flight.approvalRequired": "L’autorisation « Pilot Approved » est nécessaire pour prendre en charge les vols ATC24.",
-
-        // RÉSERVATIONS
-
-        "event.one": "{count} événement",
-        "event.many": "{count} événements",
-        "event.noEvents": "Aucun vol événementiel n’est programmé.",
-        "event.newSoon": "Les nouveaux vols spéciaux apparaîtront ici.",
-        "event.distance": "Distance",
-        "event.economy": "Économique",
-        "event.business": "Affaires",
-        "event.first": "Première",
-        "event.bookEconomy": "RÉSERVER EN ÉCONOMIQUE",
-        "event.bookBusiness": "RÉSERVER EN AFFAIRES — 20 000 MILES",
-        "event.bookFirst": "RÉSERVER EN PREMIÈRE — 100 000 MILES",
-        "event.economyFull": "Classe économique complète",
-        "event.businessFull": "Classe affaires complète",
-        "event.firstFull": "Première classe complète",
-        "event.loginBook": "SE CONNECTER AVEC DISCORD POUR RÉSERVER",
-        "event.cancelled": "Ce vol événementiel a été annulé.",
-        "event.finished": "Ce vol événementiel est terminé.",
-        "event.booked": "Votre réservation",
-        "event.checkedIn": "Enregistré",
-        "event.notCheckedIn": "Pas encore enregistré",
-        "event.boarded": "Embarquement effectué",
-        "event.notBoarded": "Pas encore embarqué",
-        "event.checkIn": "S’ENREGISTRER",
-        "event.board": "EMBARQUER",
-        "event.complete": "TERMINER LE VOL ÉVÉNEMENTIEL",
-        "event.short": "Court-courrier",
-        "event.medium": "Moyen-courrier",
-        "event.long": "Long-courrier",
-        "event.businessLocked": "Statut Frequent Traveller et 20 000 Miles requis",
-        "event.firstLocked": "Statut Senator et 100 000 Miles requis",
-
-        // AUSTRIAN ACADEMY
-
-        "academy.title": "🎓 Austrian Academy",
-        "academy.description": "Candidatures, formations et qualifications pour nos pilotes virtuels et membres ATC.",
-        "academy.pilot": "✈️ Académie des pilotes",
-        "academy.pilotDescription": "Postulez à une formation de pilote ATC24 ou de vol événementiel.",
-        "academy.atc": "📡 Académie ATC",
-        "academy.atcDescription": "Postulez pour devenir contrôleur aérien virtuel.",
-        "academy.training": "📅 Sessions de formation",
-        "academy.trainingDescription": "Consultez les prochaines sessions et suivez votre progression.",
-        "academy.comingSoon": "Bientôt dans la V1.3.0",
-
-        // FORMULAIRE DE CANDIDATURE
-
-        "academy.formTitle": "Candidater à l’Austrian Academy",
-        "academy.formDescription": "Choisissez un domaine de formation et expliquez-nous pourquoi vous souhaitez nous rejoindre.",
-        "academy.loginRequired": "Veuillez vous connecter avec Discord avant d’envoyer votre candidature.",
-
-        "academy.category": "Domaine de formation",
-        "academy.chooseCategory": "Choisissez un programme de l’Académie",
-        "academy.categoryAtc24": "Pilote ATC24",
-        "academy.categoryEvent": "Pilote de vol événementiel",
-        "academy.categoryAtc": "Contrôleur aérien (ATC)",
-
-        "academy.motivation": "Pourquoi souhaitez-vous nous rejoindre ?",
-        "academy.motivationPlaceholder": "Expliquez pourquoi vous souhaitez nous rejoindre (10 à 2 000 caractères)",
-        "academy.motivationHelp": "Veuillez écrire au moins 10 caractères et au maximum 2 000 caractères.",
-
-        "academy.experience": "Expérience antérieure (facultatif)",
-        "academy.experiencePlaceholder": "Facultatif : votre expérience sur PTFS ou en simulation de vol",
-        "academy.experienceHelp": "1 000 caractères maximum.",
-
-        "academy.submit": "ENVOYER LA CANDIDATURE",
-        "academy.connecting": "L’envoi des candidatures sera disponible une fois la connexion au site terminée.",
-        "academy.submitting": "Envoi de la candidature...",
-        "academy.submitted": "Votre candidature à l’Académie a été envoyée avec succès.",
-        "academy.submitFailed": "Impossible d’envoyer votre candidature à l’Académie.",
-
-        // MES CANDIDATURES
-
-        "academy.myApplications": "Mes candidatures",
-        "academy.myApplicationsDescription": "Consultez ici le statut de vos candidatures.",
-        "academy.statusPreparing": "Le suivi des candidatures sera connecté à l’étape suivante.",
-        "academy.noApplications": "Vous n’avez pas encore envoyé de candidature à l’Académie.",
-        "academy.loginToView": "Connectez-vous avec Discord pour voir vos candidatures.",
-        "academy.applicationPending": "En attente d’examen",
-        "academy.applicationApproved": "Acceptée",
-        "academy.applicationRejected": "Refusée",
-        "academy.submittedAt": "Envoyée",
-        "academy.reviewedAt": "Examinée",
-        "academy.reviewNote": "Retour de l’équipe de gestion",
-
-        // ADMINISTRATION
-
-        "admin.title": "🛠️ Administration",
-        "admin.description": "Gérez les vols ATC24, les vols événementiels, les candidatures et les formations de l’Académie.",
-        "admin.tabAtc24": "Vols ATC24",
-        "admin.tabEvents": "Vols événementiels",
-        "admin.tabApplications": "Candidatures",
-        "admin.tabTrainings": "Formations",
-        "admin.tabInstructors": "Instructeurs",
-
-        "admin.atc24Heading": "Gestion des vols ATC24",
-        "admin.atc24Intro": "Créez et gérez les vols ATC24 programmés.",
-        "admin.createAtc24": "CRÉER UN VOL ATC24",
-        "admin.existingAtc24": "Vols ATC24 existants",
-
-        "admin.eventsHeading": "Gestion des vols événementiels",
-        "admin.eventsIntro": "Créez, modifiez et supprimez les vols événementiels.",
-        "admin.pointsNote": "Les Points sont attribués automatiquement : court-courrier = 1, moyen-courrier = 2, long-courrier = 3. Les Miles sont saisis manuellement et attribués aux passagers après le vol.",
-        "admin.createEvent": "CRÉER UN VOL ÉVÉNEMENTIEL",
-        "admin.existingEvents": "Vols événementiels existants",
-
-        // ADMINISTRATION DES CANDIDATURES
-
-        "admin.applicationsHeading": "Candidatures à l’Académie",
-        "admin.applicationsIntro": "Examinez les candidatures, acceptez-les ou refusez-les et envoyez une réponse aux candidats.",
-        "admin.filterStatus": "Filtrer par statut",
-        "admin.filterAll": "Toutes les candidatures",
-        "admin.filterPending": "En attente",
-        "admin.filterApproved": "Acceptées",
-        "admin.filterRejected": "Refusées",
-        "admin.applicationsPreparing": "Le système de gestion des candidatures sera connecté à l’étape suivante.",
-        "admin.noApplications": "Aucune candidature trouvée.",
-        "admin.applicant": "Candidat",
-        "admin.reviewNote": "Commentaire (facultatif)",
-        "admin.approve": "ACCEPTER",
-        "admin.reject": "REFUSER",
-        "admin.reviewSuccess": "Candidature traitée avec succès.",
-        "admin.reviewFailed": "Impossible de traiter cette candidature.",
-
-        // GESTION DES FORMATIONS
-
-        "admin.trainingsHeading": "Formations de l’Académie",
-        "admin.instructorsHeading": "Instructeurs de l’Académie",
-        "admin.comingSoon": "Cette section sera activée lorsque les fonctions de base de données de l’Académie seront prêtes.",
-
-        // FORMULAIRES
-
-        "form.flightNumber": "Numéro de vol — OS101",
-        "form.departure": "Départ — VIE",
-        "form.arrival": "Arrivée — LHR",
-        "form.aircraft": "Type d’appareil — Airbus A320",
-        "form.operator": "Compagnie exploitante — Austrian Airlines",
-        "form.livery": "Livrée — Austrian Airlines",
-        "form.once": "Vol unique",
-        "form.daily": "Tous les jours",
-        "form.weekdays": "Du lundi au vendredi",
-        "form.weekends": "Samedi et dimanche",
-        "form.additional": "Informations supplémentaires (facultatif)",
-        "form.pilot": "ID Discord du pilote (facultatif)",
-        "form.pilotHelp": "Le pilote doit s’être connecté au site au moins une fois.",
-        "form.distance": "Catégorie de distance",
-        "form.short": "Court-courrier — 1 Point",
-        "form.medium": "Moyen-courrier — 2 Points",
-        "form.long": "Long-courrier — 3 Points",
-        "form.miles": "Miles",
-        "form.milesPlaceholder": "p. ex. 750",
-        "form.economyCapacity": "Places en économique",
-        "form.businessCapacity": "Places en affaires",
-        "form.firstCapacity": "Places en première",
-
-        // STATUTS
-
-        "status.scheduled": "Programmé",
-        "status.boarding": "Embarquement",
-        "status.departed": "Parti",
-        "status.completed": "Terminé",
-        "status.cancelled": "Annulé",
-
-        // PARAMÈTRES
-
-        "settings.title": "⚙️ Paramètres",
-        "settings.theme": "Apparence",
-        "settings.light": "Mode clair",
-        "settings.dark": "Mode sombre",
-        "settings.font": "Taille du texte",
-        "settings.small": "Petite",
-        "settings.normal": "Normale",
-        "settings.large": "Grande",
-        "settings.language": "Langue",
-
-        // PIED DE PAGE
-
-        "footer.disclaimer": "Projet non officiel de compagnie aérienne virtuelle et de simulation de vol. Sans affiliation ni soutien de la compagnie Austrian Airlines."
-
-    }
-
-};
-
-
-/* ============================================================
-   TRANSLATION HELPER
-
-   Supports:
-   - English, German and French
-   - Automatic English fallback
-   - Variables such as {count}, {points}, {status}
-
-   Example:
-   AFO_t("academy.applicationPending")
-   ============================================================ */
-
-window.AFO_t = function (key, values = {}) {
-
-    const language =
-        document.documentElement.lang || "en";
-
-    const translations =
-        window.AFO_TRANSLATIONS;
-
-    const raw =
-        translations[language]?.[key] ??
-        translations.en[key] ??
-        key;
-
-    return String(raw).replace(
-        /\{([a-zA-Z0-9_]+)\}/g,
-        (match, name) => {
-
-            if (
-                Object.prototype.hasOwnProperty.call(
-                    values,
-                    name
-                )
-            ) {
-                return String(values[name]);
-            }
-
-            return match;
-        }
+
+   ATC24, Event Flights, Miles & More,
+   Academy Applications, Trainings and Instructors.
+
+   Each row:
+   [key, English, German, French]
+   ============================================================= */
+
+(() => {
+  "use strict";
+
+  const rows = [
+
+    // ===== NAVIGATION =====
+
+    ["nav.home", "Home", "Startseite", "Accueil"],
+    ["nav.miles", "Miles & More", "Miles & More", "Miles & More"],
+    ["nav.atc24", "ATC24", "ATC24", "ATC24"],
+    ["nav.events", "Event Flights", "Event-Flüge", "Vols événementiels"],
+    ["nav.academy", "Academy", "Academy", "Académie"],
+    ["nav.admin", "Admin", "Verwaltung", "Administration"],
+    ["auth.login", "Login with Discord", "Mit Discord anmelden", "Se connecter avec Discord"],
+    ["auth.logout", "Logout", "Abmelden", "Se déconnecter"],
+
+    // ===== HOME =====
+
+    ["home.title", "Flight Operations.", "Flugbetrieb.", "Opérations aériennes."],
+    ["home.description", "Run your scheduled flights, join special Event Flights and build your Miles & More status — all in one place.", "Führe deine Linienflüge durch, nimm an besonderen Event-Flügen teil und verbessere deinen Miles-&-More-Status – alles an einem Ort.", "Effectuez vos vols programmés, participez à des vols événementiels et faites progresser votre statut Miles & More, au même endroit."],
+    ["home.atc24", "View ATC24 Flights", "ATC24-Flüge ansehen", "Voir les vols ATC24"],
+    ["home.events", "View Event Flights", "Event-Flüge ansehen", "Voir les vols événementiels"],
+
+    // ===== MILES & MORE =====
+
+    ["miles.title", "💳 Miles & More", "💳 Miles & More", "💳 Miles & More"],
+    ["miles.description", "Your Event Flight rewards, Points and current status.", "Deine Prämien aus Event-Flügen, Points und dein aktueller Status.", "Vos récompenses de vols événementiels, vos Points et votre statut actuel."],
+    ["miles.login", "Sign in to view your Miles & More profile.", "Melde dich an, um dein Miles-&-More-Profil zu sehen.", "Connectez-vous pour consulter votre profil Miles & More."],
+    ["miles.track", "Track Miles, Points and your current status.", "Verfolge deine Miles, Points und deinen aktuellen Status.", "Suivez vos Miles, vos Points et votre statut actuel."],
+    ["miles.balance", "Miles", "Miles", "Miles"],
+    ["miles.points", "Points", "Points", "Points"],
+    ["miles.status", "Status", "Status", "Statut"],
+    ["miles.lifetime", "Lifetime Miles", "Gesammelte Miles", "Miles cumulés"],
+    ["miles.toNext", "{points} point(s) to {status}", "Noch {points} Point(s) bis {status}", "Encore {points} point(s) pour atteindre {status}"],
+    ["miles.highest", "Highest status reached", "Höchsten Status erreicht", "Statut le plus élevé atteint"],
+
+    // ===== ATC24 / FLIGHTS =====
+
+    ["atc24.title", "✈️ Today's ATC24 Flights", "✈️ Heutige ATC24-Flüge", "✈️ Vols ATC24 du jour"],
+    ["atc24.description", "Scheduled operations and claimable flights.", "Geplante Flüge und verfügbare Flugaufträge.", "Vols programmés et vols disponibles."],
+    ["flight.one", "{count} flight", "{count} Flug", "{count} vol"],
+    ["flight.many", "{count} flights", "{count} Flüge", "{count} vols"],
+    ["flight.noFlights", "No ATC24 flights available today.", "Heute sind keine ATC24-Flüge verfügbar.", "Aucun vol ATC24 disponible aujourd’hui."],
+    ["flight.checkLater", "Check back later for the next scheduled operation.", "Schau später wieder vorbei, wenn neue Flüge geplant sind.", "Revenez plus tard pour les prochains vols programmés."],
+    ["flight.claim", "CLAIM FLIGHT", "FLUG ÜBERNEHMEN", "PRENDRE EN CHARGE LE VOL"],
+    ["flight.loginClaim", "LOGIN WITH DISCORD TO CLAIM", "MIT DISCORD ANMELDEN", "SE CONNECTER AVEC DISCORD"],
+    ["flight.start", "START FLIGHT", "FLUG STARTEN", "DÉMARRER LE VOL"],
+    ["flight.pushback", "PUSHBACK", "PUSHBACK", "REPOUSSAGE"],
+    ["flight.takeoff", "TAKEOFF", "START", "DÉCOLLAGE"],
+    ["flight.landing", "LANDING", "LANDUNG", "ATTERRISSAGE"],
+    ["flight.end", "END FLIGHT", "FLUG ABSCHLIESSEN", "TERMINER LE VOL"],
+    ["flight.claimedByOther", "A pilot has claimed this flight.", "Dieser Flug wurde bereits übernommen.", "Un pilote a déjà pris en charge ce vol."],
+    ["flight.operatedByOther", "A pilot is currently operating this flight.", "Dieser Flug wird gerade durchgeführt.", "Un pilote effectue actuellement ce vol."],
+    ["flight.completed", "Flight completed", "Flug abgeschlossen", "Vol terminé"],
+    ["flight.departure", "Departure", "Abflug", "Départ"],
+    ["flight.aircraft", "Aircraft", "Flugzeug", "Appareil"],
+    ["flight.operator", "Operator", "Betreiber", "Compagnie exploitante"],
+    ["flight.livery", "Livery", "Lackierung", "Livrée"],
+    ["flight.startedAt", "Started", "Begonnen", "Commencé"],
+    ["flight.pushbackAt", "Pushback", "Pushback", "Repoussage"],
+    ["flight.takeoffAt", "Takeoff", "Start", "Décollage"],
+    ["flight.landingAt", "Landing", "Landung", "Atterrissage"],
+    ["flight.completedAt", "Completed", "Abgeschlossen", "Terminé"],
+    ["flight.approvalRequired", "Pilot Approved is required to claim ATC24 flights.", "Du benötigst die Freigabe „Pilot Approved“, um ATC24-Flüge zu übernehmen.", "L’autorisation « Pilot Approved » est nécessaire pour prendre en charge les vols ATC24."],
+
+    // ===== EVENT FLIGHTS =====
+
+    ["events.title", "🌍 Event Flights", "🌍 Event-Flüge", "🌍 Vols événementiels"],
+    ["events.description", "Book a seat and earn Miles & More Miles and Points after completing the flight.", "Buche einen Sitzplatz und sammle nach dem abgeschlossenen Flug Miles und Points für Miles & More.", "Réservez une place et gagnez des Miles et des Points Miles & More après avoir terminé le vol."],
+    ["event.one", "{count} event", "{count} Event", "{count} événement"],
+    ["event.many", "{count} events", "{count} Events", "{count} événements"],
+    ["event.noEvents", "No Event Flights are scheduled.", "Derzeit sind keine Event-Flüge geplant.", "Aucun vol événementiel n’est programmé."],
+    ["event.newSoon", "New special operations will appear here.", "Neue Sonderflüge erscheinen hier.", "Les nouveaux vols spéciaux apparaîtront ici."],
+    ["event.distance", "Distance", "Strecke", "Distance"],
+    ["event.economy", "Economy", "Economy", "Économique"],
+    ["event.business", "Business", "Business", "Affaires"],
+    ["event.first", "First", "First", "Première"],
+    ["event.bookEconomy", "BOOK ECONOMY", "ECONOMY BUCHEN", "RÉSERVER EN ÉCONOMIQUE"],
+    ["event.bookBusiness", "BOOK BUSINESS — 20,000 MILES", "BUSINESS BUCHEN — 20.000 MILES", "RÉSERVER EN AFFAIRES — 20 000 MILES"],
+    ["event.bookFirst", "BOOK FIRST — 100,000 MILES", "FIRST BUCHEN — 100.000 MILES", "RÉSERVER EN PREMIÈRE — 100 000 MILES"],
+    ["event.economyFull", "Economy full", "Economy ausgebucht", "Classe économique complète"],
+    ["event.businessFull", "Business full", "Business ausgebucht", "Classe affaires complète"],
+    ["event.firstFull", "First full", "First ausgebucht", "Première classe complète"],
+    ["event.loginBook", "LOGIN WITH DISCORD TO BOOK", "MIT DISCORD ZUM BUCHEN ANMELDEN", "SE CONNECTER AVEC DISCORD POUR RÉSERVER"],
+    ["event.cancelled", "This Event Flight has been cancelled.", "Dieser Event-Flug wurde abgesagt.", "Ce vol événementiel a été annulé."],
+    ["event.finished", "This Event Flight is completed.", "Dieser Event-Flug ist abgeschlossen.", "Ce vol événementiel est terminé."],
+    ["event.booked", "Your booking", "Deine Buchung", "Votre réservation"],
+    ["event.checkedIn", "Checked in", "Eingecheckt", "Enregistré"],
+    ["event.notCheckedIn", "Not checked in", "Noch nicht eingecheckt", "Pas encore enregistré"],
+    ["event.boarded", "Boarded", "Boarding abgeschlossen", "Embarquement effectué"],
+    ["event.notBoarded", "Not boarded", "Noch nicht geboardet", "Pas encore embarqué"],
+    ["event.checkIn", "CHECK IN", "EINCHECKEN", "S’ENREGISTRER"],
+    ["event.board", "BOARD", "BOARDING", "EMBARQUER"],
+    ["event.complete", "COMPLETE EVENT FLIGHT", "EVENT-FLUG ABSCHLIESSEN", "TERMINER LE VOL ÉVÉNEMENTIEL"],
+    ["event.short", "Short-haul", "Kurzstrecke", "Court-courrier"],
+    ["event.medium", "Medium-haul", "Mittelstrecke", "Moyen-courrier"],
+    ["event.long", "Long-haul", "Langstrecke", "Long-courrier"],
+    ["event.businessLocked", "Frequent Traveller status and 20,000 Miles required", "Frequent-Traveller-Status und 20.000 Miles erforderlich", "Statut Frequent Traveller et 20 000 Miles requis"],
+    ["event.firstLocked", "Senator status and 100,000 Miles required", "Senator-Status und 100.000 Miles erforderlich", "Statut Senator et 100 000 Miles requis"],
+
+    // ===== ACADEMY =====
+
+    ["academy.title", "🎓 Austrian Academy", "🎓 Austrian Academy", "🎓 Austrian Academy"],
+    ["academy.description", "Applications, training and qualifications for our virtual pilots and ATC members.", "Bewerbungen, Ausbildungen und Qualifikationen für unsere virtuellen Piloten und ATC-Mitglieder.", "Candidatures, formations et qualifications pour nos pilotes virtuels et membres ATC."],
+    ["academy.pilot", "✈️ Pilot Academy", "✈️ Pilotenakademie", "✈️ Académie des pilotes"],
+    ["academy.pilotDescription", "Apply for ATC24 or Event Flight pilot training.", "Bewirb dich für die Ausbildung zum ATC24- oder Event-Flight-Piloten.", "Postulez à une formation de pilote ATC24 ou de vol événementiel."],
+    ["academy.atc", "📡 ATC Academy", "📡 ATC-Akademie", "📡 Académie ATC"],
+    ["academy.atcDescription", "Apply to train as a virtual air traffic controller.", "Bewirb dich für die Ausbildung zum virtuellen Fluglotsen.", "Postulez pour devenir contrôleur aérien virtuel."],
+    ["academy.training", "📅 Training Sessions", "📅 Trainingstermine", "📅 Sessions de formation"],
+    ["academy.trainingDescription", "View upcoming sessions and manage your training progress.", "Sieh dir kommende Trainings an und verfolge deinen Ausbildungsfortschritt.", "Consultez les prochaines sessions et suivez votre progression."],
+    ["academy.comingSoon", "Coming soon in V1.3.0", "Demnächst in V1.3.0", "Bientôt dans la V1.3.0"],
+    ["academy.formTitle", "Apply to the Austrian Academy", "Bei der Austrian Academy bewerben", "Candidater à l’Austrian Academy"],
+    ["academy.formDescription", "Choose a training category and tell us why you would like to join.", "Wähle einen Ausbildungsbereich und erzähle uns, warum du teilnehmen möchtest.", "Choisissez un domaine de formation et expliquez-nous pourquoi vous souhaitez nous rejoindre."],
+    ["academy.loginRequired", "Please log in with Discord before submitting an application.", "Bitte melde dich mit Discord an, bevor du eine Bewerbung abschickst.", "Veuillez vous connecter avec Discord avant d’envoyer votre candidature."],
+    ["academy.category", "Training category", "Ausbildungsbereich", "Domaine de formation"],
+    ["academy.chooseCategory", "Choose an Academy programme", "Academy-Ausbildung auswählen", "Choisissez un programme de l’Académie"],
+    ["academy.categoryAtc24", "ATC24 Pilot", "ATC24-Pilot", "Pilote ATC24"],
+    ["academy.categoryEvent", "Event Flight Pilot", "Event-Flight-Pilot", "Pilote de vol événementiel"],
+    ["academy.categoryAtc", "Air Traffic Controller (ATC)", "Fluglotse (ATC)", "Contrôleur aérien (ATC)"],
+    ["academy.motivation", "Why would you like to join?", "Warum möchtest du teilnehmen?", "Pourquoi souhaitez-vous nous rejoindre ?"],
+    ["academy.motivationPlaceholder", "Tell us why you would like to join (10–2000 characters)", "Erzähle uns, warum du teilnehmen möchtest (10–2000 Zeichen)", "Expliquez pourquoi vous souhaitez nous rejoindre (10 à 2 000 caractères)"],
+    ["academy.motivationHelp", "Please write at least 10 characters. Maximum 2000 characters.", "Bitte schreibe mindestens 10 und höchstens 2000 Zeichen.", "Veuillez écrire au moins 10 caractères et au maximum 2 000 caractères."],
+    ["academy.experience", "Previous experience (optional)", "Bisherige Erfahrung (optional)", "Expérience antérieure (facultatif)"],
+    ["academy.experiencePlaceholder", "Optional: your experience with PTFS or flight simulation", "Optional: Deine Erfahrung mit PTFS oder Flugsimulation", "Facultatif : votre expérience sur PTFS ou en simulation de vol"],
+    ["academy.experienceHelp", "Maximum 1000 characters.", "Maximal 1000 Zeichen.", "1 000 caractères maximum."],
+    ["academy.submit", "SUBMIT APPLICATION", "BEWERBUNG ABSCHICKEN", "ENVOYER LA CANDIDATURE"],
+    ["academy.connecting", "Application submissions will be enabled once the website connection is complete.", "Bewerbungen können abgeschickt werden, sobald die Website-Anbindung fertig ist.", "L’envoi des candidatures sera disponible une fois la connexion au site terminée."],
+    ["academy.submitting", "Submitting application...", "Bewerbung wird abgeschickt...", "Envoi de la candidature..."],
+    ["academy.submitted", "Your Academy application was submitted successfully.", "Deine Academy-Bewerbung wurde erfolgreich eingereicht.", "Votre candidature à l’Académie a été envoyée avec succès."],
+    ["academy.submitFailed", "Could not submit your Academy application.", "Deine Academy-Bewerbung konnte nicht abgeschickt werden.", "Impossible d’envoyer votre candidature à l’Académie."],
+    ["academy.myApplications", "My applications", "Meine Bewerbungen", "Mes candidatures"],
+    ["academy.myApplicationsDescription", "View the status of your applications here.", "Hier kannst du den Status deiner Bewerbungen verfolgen.", "Consultez ici le statut de vos candidatures."],
+    ["academy.statusPreparing", "Application status tracking will be connected in the next step.", "Die Anzeige deiner Bewerbungen wird im nächsten Schritt verbunden.", "Le suivi des candidatures sera connecté à l’étape suivante."],
+    ["academy.noApplications", "You have not submitted any Academy applications yet.", "Du hast noch keine Academy-Bewerbung eingereicht.", "Vous n’avez pas encore envoyé de candidature à l’Académie."],
+    ["academy.loginToView", "Log in with Discord to view your applications.", "Melde dich mit Discord an, um deine Bewerbungen zu sehen.", "Connectez-vous avec Discord pour voir vos candidatures."],
+    ["academy.applicationPending", "Pending review", "Wartet auf Prüfung", "En attente d’examen"],
+    ["academy.applicationApproved", "Approved", "Angenommen", "Acceptée"],
+    ["academy.applicationRejected", "Rejected", "Abgelehnt", "Refusée"],
+    ["academy.submittedAt", "Submitted", "Eingereicht", "Envoyée"],
+    ["academy.reviewedAt", "Reviewed", "Geprüft", "Examinée"],
+    ["academy.reviewNote", "Management feedback", "Rückmeldung des Managements", "Retour de l’équipe de gestion"],
+
+    // ===== ADMINISTRATION =====
+
+    ["admin.title", "🛠️ Administration", "🛠️ Verwaltung", "🛠️ Administration"],
+    ["admin.description", "Manage ATC24, Event Flights, Academy applications and training.", "Verwalte ATC24, Event-Flüge, Academy-Bewerbungen und Trainings.", "Gérez les vols ATC24, les vols événementiels, les candidatures et les formations de l’Académie."],
+    ["admin.tabAtc24", "ATC24 Flights", "ATC24-Flüge", "Vols ATC24"],
+    ["admin.tabEvents", "Event Flights", "Event-Flüge", "Vols événementiels"],
+    ["admin.tabApplications", "Applications", "Bewerbungen", "Candidatures"],
+    ["admin.tabTrainings", "Trainings", "Trainings", "Formations"],
+    ["admin.tabInstructors", "Instructors", "Instruktoren", "Instructeurs"],
+    ["admin.atc24Heading", "ATC24 Flight Management", "ATC24-Flugverwaltung", "Gestion des vols ATC24"],
+    ["admin.atc24Intro", "Create and manage scheduled ATC24 operations.", "Erstelle und verwalte geplante ATC24-Flüge.", "Créez et gérez les vols ATC24 programmés."],
+    ["admin.createAtc24", "CREATE ATC24 FLIGHT", "ATC24-FLUG ERSTELLEN", "CRÉER UN VOL ATC24"],
+    ["admin.existingAtc24", "Existing ATC24 Flights", "Bestehende ATC24-Flüge", "Vols ATC24 existants"],
+    ["admin.eventsHeading", "Event Flight Management", "Event-Flight-Verwaltung", "Gestion des vols événementiels"],
+    ["admin.eventsIntro", "Create, update and remove Event Flights.", "Erstelle, bearbeite und lösche Event-Flüge.", "Créez, modifiez et supprimez les vols événementiels."],
+    ["admin.pointsNote", "Points are automatic: Short-haul = 1, Medium-haul = 2, Long-haul = 3. Miles are entered manually; passengers receive rewards after completing the flight.", "Points werden automatisch vergeben: Kurzstrecke = 1, Mittelstrecke = 2, Langstrecke = 3. Miles werden manuell eingetragen; Teilnehmer erhalten sie nach abgeschlossenem Flug.", "Les Points sont attribués automatiquement : court-courrier = 1, moyen-courrier = 2, long-courrier = 3. Les Miles sont saisis manuellement et attribués aux passagers après le vol."],
+    ["admin.createEvent", "CREATE EVENT FLIGHT", "EVENT-FLUG ERSTELLEN", "CRÉER UN VOL ÉVÉNEMENTIEL"],
+    ["admin.existingEvents", "Existing Event Flights", "Bestehende Event-Flüge", "Vols événementiels existants"],
+    ["admin.applicationsHeading", "Academy Applications", "Academy-Bewerbungen", "Candidatures à l’Académie"],
+    ["admin.applicationsIntro", "Review applications, approve or reject them and provide feedback to applicants.", "Prüfe Bewerbungen, nimm sie an oder lehne sie ab und gib den Bewerbern eine Rückmeldung.", "Examinez les candidatures, acceptez-les ou refusez-les et envoyez une réponse aux candidats."],
+    ["admin.filterStatus", "Filter by status", "Nach Status filtern", "Filtrer par statut"],
+    ["admin.filterAll", "All applications", "Alle Bewerbungen", "Toutes les candidatures"],
+    ["admin.filterPending", "Pending", "Ausstehend", "En attente"],
+    ["admin.filterApproved", "Approved", "Angenommen", "Acceptées"],
+    ["admin.filterRejected", "Rejected", "Abgelehnt", "Refusées"],
+    ["admin.applicationsPreparing", "The application review system will be connected in the next step.", "Die Bewerbungsverwaltung wird im nächsten Schritt verbunden.", "Le système de gestion des candidatures sera connecté à l’étape suivante."],
+    ["admin.noApplications", "No Academy applications found.", "Keine Academy-Bewerbungen gefunden.", "Aucune candidature trouvée."],
+    ["admin.applicant", "Applicant", "Bewerber", "Candidat"],
+    ["admin.reviewNote", "Review note (optional)", "Rückmeldung (optional)", "Commentaire (facultatif)"],
+    ["admin.approve", "APPROVE", "ANNEHMEN", "ACCEPTER"],
+    ["admin.reject", "REJECT", "ABLEHNEN", "REFUSER"],
+    ["admin.reviewSuccess", "Application reviewed successfully.", "Bewerbung erfolgreich bearbeitet.", "Candidature traitée avec succès."],
+    ["admin.reviewFailed", "Could not review this application.", "Die Bewerbung konnte nicht bearbeitet werden.", "Impossible de traiter cette candidature."],
+    ["admin.trainingsHeading", "Academy Trainings", "Academy-Trainings", "Formations de l’Académie"],
+    ["admin.instructorsHeading", "Academy Instructors", "Academy-Instruktoren", "Instructeurs de l’Académie"],
+    ["admin.comingSoon", "This management area will be activated when the Academy database functions are ready.", "Dieser Verwaltungsbereich wird aktiviert, sobald die Academy-Datenbankfunktionen bereitstehen.", "Cette section sera activée lorsque les fonctions de base de données de l’Académie seront prêtes."],
+
+    // ===== EXISTING FORMS =====
+
+    ["form.flightNumber", "Flight Number — OS101", "Flugnummer — OS101", "Numéro de vol — OS101"],
+    ["form.departure", "Departure — VIE", "Abflug — VIE", "Départ — VIE"],
+    ["form.arrival", "Arrival — LHR", "Ankunft — LHR", "Arrivée — LHR"],
+    ["form.aircraft", "Aircraft Model — Airbus A320", "Flugzeugtyp — Airbus A320", "Type d’appareil — Airbus A320"],
+    ["form.operator", "Operator Airline — Austrian Airlines", "Betreibende Airline — Austrian Airlines", "Compagnie exploitante — Austrian Airlines"],
+    ["form.livery", "Livery Airline — Austrian Airlines", "Lackierung — Austrian Airlines", "Livrée — Austrian Airlines"],
+    ["form.once", "One-time flight", "Einmaliger Flug", "Vol unique"],
+    ["form.daily", "Every day", "Jeden Tag", "Tous les jours"],
+    ["form.weekdays", "Monday–Friday", "Montag–Freitag", "Du lundi au vendredi"],
+    ["form.weekends", "Saturday–Sunday", "Samstag–Sonntag", "Samedi et dimanche"],
+    ["form.additional", "Additional Information (optional)", "Zusätzliche Informationen (optional)", "Informations supplémentaires (facultatif)"],
+    ["form.pilot", "Pilot Discord ID (optional)", "Discord-ID des Piloten (optional)", "ID Discord du pilote (facultatif)"],
+    ["form.pilotHelp", "The pilot must have logged into the website once.", "Der Pilot muss sich mindestens einmal auf der Website angemeldet haben.", "Le pilote doit s’être connecté au site au moins une fois."],
+    ["form.distance", "Distance category", "Streckenkategorie", "Catégorie de distance"],
+    ["form.short", "Short-haul — 1 Point", "Kurzstrecke — 1 Point", "Court-courrier — 1 Point"],
+    ["form.medium", "Medium-haul — 2 Points", "Mittelstrecke — 2 Points", "Moyen-courrier — 2 Points"],
+    ["form.long", "Long-haul — 3 Points", "Langstrecke — 3 Points", "Long-courrier — 3 Points"],
+    ["form.miles", "Miles", "Miles", "Miles"],
+    ["form.milesPlaceholder", "e.g. 750", "z. B. 750", "p. ex. 750"],
+    ["form.economyCapacity", "Economy capacity", "Economy-Sitzplätze", "Places en économique"],
+    ["form.businessCapacity", "Business capacity", "Business-Sitzplätze", "Places en affaires"],
+    ["form.firstCapacity", "First capacity", "First-Sitzplätze", "Places en première"],
+    ["status.scheduled", "Scheduled", "Geplant", "Programmé"],
+    ["status.boarding", "Boarding", "Boarding", "Embarquement"],
+    ["status.departed", "Departed", "Abgeflogen", "Parti"],
+    ["status.completed", "Completed", "Abgeschlossen", "Terminé"],
+    ["status.cancelled", "Cancelled", "Abgesagt", "Annulé"],
+
+    // ===== TRAININGS: WEBSITE =====
+
+    ["training.scheduleTitle", "📅 Upcoming Academy Trainings", "📅 Kommende Academy-Trainings", "📅 Prochaines formations de l’Académie"],
+    ["training.scheduleDescription", "Find the right training after your Academy application has been approved.", "Finde das passende Training, sobald deine Academy-Bewerbung angenommen wurde.", "Trouvez une formation adaptée après l’acceptation de votre candidature à l’Académie."],
+    ["training.connecting", "The training schedule will be connected in the next step.", "Die Trainingsübersicht wird im nächsten Schritt verbunden.", "Le calendrier des formations sera connecté à l’étape suivante."],
+    ["training.instructorTitle", "👨‍🏫 My Instructor Dashboard", "👨‍🏫 Mein Instruktorenbereich", "👨‍🏫 Mon espace instructeur"],
+    ["training.instructorDescription", "View assigned sessions and manage participant attendance.", "Sieh dir deine zugeteilten Trainings an und verwalte die Anwesenheit der Teilnehmer.", "Consultez vos formations attribuées et gérez la présence des participants."],
+
+    // ===== TRAININGS: ADMIN FORM =====
+
+    ["training.adminDescription", "Create training sessions, assign qualified instructors and manage attendance.", "Erstelle Trainings, teile qualifizierte Instruktoren zu und verwalte die Anwesenheit.", "Créez des formations, affectez des instructeurs qualifiés et gérez les présences."],
+    ["training.titleLabel", "Training title", "Trainingstitel", "Titre de la formation"],
+    ["training.titlePlaceholder", "Example: ATC24 Pilot – Basic Training", "Beispiel: ATC24 Pilot – Grundausbildung", "Exemple : pilote ATC24 – Formation initiale"],
+    ["training.startLabel", "Start date and time", "Beginn (Datum und Uhrzeit)", "Date et heure de début"],
+    ["training.durationLabel", "Duration (minutes)", "Dauer (Minuten)", "Durée (minutes)"],
+    ["training.capacityLabel", "Available places", "Verfügbare Plätze", "Places disponibles"],
+    ["training.instructorDiscordLabel", "Instructor Discord ID (optional)", "Discord-ID des Instruktors (optional)", "Identifiant Discord de l’instructeur (facultatif)"],
+    ["training.instructorDiscordPlaceholder", "Discord user ID – must be an active qualified instructor", "Discord-Benutzer-ID – aktiver, qualifizierter Instruktor erforderlich", "ID utilisateur Discord – instructeur actif et qualifié requis"],
+    ["training.descriptionLabel", "Training description (optional)", "Trainingsbeschreibung (optional)", "Description de la formation (facultatif)"],
+    ["training.descriptionPlaceholder", "What will participants learn?", "Was lernen die Teilnehmer?", "Qu’apprendront les participants ?"],
+    ["training.create", "CREATE TRAINING", "TRAINING ERSTELLEN", "CRÉER UNE FORMATION"],
+    ["training.existingTitle", "Existing trainings", "Bestehende Trainings", "Formations existantes"],
+    ["training.participantsTitle", "Training participants", "Trainingsteilnehmer", "Participants à la formation"],
+
+    // ===== INSTRUCTORS: ADMIN FORM =====
+
+    ["training.instructorAdminDescription", "Authorize instructors by their Discord ID and training specialties. Members must have logged in once.", "Ernenne Instruktoren anhand ihrer Discord-ID und Ausbildungsbereiche. Mitglieder müssen sich vorher einmal angemeldet haben.", "Autorisez les instructeurs avec leur identifiant Discord et leurs spécialités. Les membres doivent s’être connectés au moins une fois."],
+    ["training.discordIdLabel", "Instructor Discord ID", "Discord-ID des Instruktors", "Identifiant Discord de l’instructeur"],
+    ["training.discordIdPlaceholder", "Discord user ID", "Discord-Benutzer-ID", "Identifiant utilisateur Discord"],
+    ["training.specialtiesLabel", "Authorized training categories", "Berechtigte Ausbildungsbereiche", "Domaines de formation autorisés"],
+    ["training.activeLabel", "Instructor active", "Instruktor aktiv", "Instructeur actif"],
+    ["training.saveInstructor", "SAVE INSTRUCTOR", "INSTRUKTOR SPEICHERN", "ENREGISTRER L’INSTRUCTEUR"],
+    ["training.instructorListTitle", "Registered instructors", "Eingetragene Instruktoren", "Instructeurs enregistrés"],
+
+    // ===== TRAININGS: DYNAMIC DISPLAY =====
+
+    ["training.loading", "Loading trainings...", "Trainings werden geladen...", "Chargement des formations..."],
+    ["training.noSessions", "No Academy trainings scheduled yet.", "Noch keine Academy-Trainings geplant.", "Aucune formation de l’Académie n’est encore programmée."],
+    ["training.noInstructor", "No instructor assigned", "Noch kein Instruktor zugewiesen", "Aucun instructeur affecté"],
+    ["training.instructor", "Instructor", "Instruktor", "Instructeur"],
+    ["training.startsAt", "Start", "Beginn", "Début"],
+    ["training.duration", "Duration", "Dauer", "Durée"],
+    ["training.minutes", "{count} minutes", "{count} Minuten", "{count} minutes"],
+    ["training.places", "Places", "Plätze", "Places"],
+    ["training.bookedCount", "{booked} / {capacity} registered", "{booked} / {capacity} angemeldet", "{booked} / {capacity} inscrits"],
+    ["training.full", "Training fully booked", "Training ausgebucht", "Formation complète"],
+    ["training.register", "REGISTER", "ANMELDEN", "S’INSCRIRE"],
+    ["training.cancelRegistration", "CANCEL REGISTRATION", "ANMELDUNG STORNIEREN", "ANNULER L’INSCRIPTION"],
+    ["training.alreadyRegistered", "You are registered", "Du bist angemeldet", "Vous êtes inscrit"],
+    ["training.requiresApproval", "An approved application in this training category is required.", "Für diese Ausbildung ist eine angenommene Bewerbung erforderlich.", "Une candidature acceptée dans cette catégorie est obligatoire."],
+    ["training.loginRequired", "Log in with Discord to register.", "Melde dich mit Discord an, um dich anzumelden.", "Connectez-vous avec Discord pour vous inscrire."],
+    ["training.registerSuccess", "Training registration successful.", "Du bist erfolgreich für das Training angemeldet.", "Inscription à la formation réussie."],
+    ["training.registerFailed", "Registration failed.", "Die Trainingsanmeldung ist fehlgeschlagen.", "Échec de l’inscription."],
+    ["training.cancelSuccess", "Your training registration has been cancelled.", "Deine Trainingsanmeldung wurde storniert.", "Votre inscription à la formation a été annulée."],
+    ["training.cancelFailed", "Could not cancel training registration.", "Die Trainingsanmeldung konnte nicht storniert werden.", "Impossible d’annuler l’inscription à la formation."],
+    ["training.confirmCancel", "Cancel your registration for this training?", "Möchtest du deine Anmeldung zu diesem Training stornieren?", "Voulez-vous annuler votre inscription à cette formation ?"],
+    ["training.loadFailed", "Could not load Academy trainings.", "Academy-Trainings konnten nicht geladen werden.", "Impossible de charger les formations de l’Académie."],
+
+    // ===== TRAININGS: ADMIN ACTIONS =====
+
+    ["training.trainingCreated", "Training created successfully.", "Training erfolgreich erstellt.", "Formation créée avec succès."],
+    ["training.trainingCreateFailed", "Could not create training.", "Training konnte nicht erstellt werden.", "Impossible de créer la formation."],
+    ["training.instructorSaved", "Instructor saved successfully.", "Instruktor erfolgreich gespeichert.", "Instructeur enregistré avec succès."],
+    ["training.instructorSaveFailed", "Could not save instructor.", "Instruktor konnte nicht gespeichert werden.", "Impossible d’enregistrer l’instructeur."],
+    ["training.noInstructors", "No instructors registered yet.", "Noch keine Instruktoren eingetragen.", "Aucun instructeur enregistré pour le moment."],
+    ["training.active", "Active", "Aktiv", "Actif"],
+    ["training.inactive", "Inactive", "Inaktiv", "Inactif"],
+    ["training.scheduled", "Scheduled", "Geplant", "Programmée"],
+    ["training.completed", "Completed", "Abgeschlossen", "Terminée"],
+    ["training.cancelled", "Cancelled", "Abgesagt", "Annulée"],
+    ["training.cancelTraining", "CANCEL TRAINING", "TRAINING ABSAGEN", "ANNULER LA FORMATION"],
+    ["training.completeTraining", "COMPLETE TRAINING", "TRAINING ABSCHLIESSEN", "TERMINER LA FORMATION"],
+    ["training.confirmCancelTraining", "Cancel this training?", "Dieses Training absagen?", "Annuler cette formation ?"],
+    ["training.statusUpdated", "Training status updated.", "Trainingsstatus aktualisiert.", "Statut de la formation mis à jour."],
+    ["training.statusUpdateFailed", "Could not change training status.", "Trainingsstatus konnte nicht geändert werden.", "Impossible de modifier le statut de la formation."],
+    ["training.assignInstructor", "ASSIGN INSTRUCTOR", "INSTRUKTOR ZUWEISEN", "AFFECTER UN INSTRUCTEUR"],
+    ["training.assignmentSuccess", "Instructor assignment updated.", "Instruktorenzuweisung aktualisiert.", "Affectation de l’instructeur mise à jour."],
+    ["training.assignmentFailed", "Could not assign instructor.", "Instruktor konnte nicht zugewiesen werden.", "Impossible d’affecter l’instructeur."],
+
+    // ===== PARTICIPANTS & ATTENDANCE =====
+
+    ["training.viewParticipants", "VIEW PARTICIPANTS", "TEILNEHMER ANZEIGEN", "VOIR LES PARTICIPANTS"],
+    ["training.noParticipants", "No participants registered.", "Noch keine Teilnehmer angemeldet.", "Aucun participant inscrit."],
+    ["training.attended", "Attended", "Anwesend", "Présent"],
+    ["training.noShow", "Absent", "Nicht erschienen", "Absent"],
+    ["training.registered", "Registered", "Angemeldet", "Inscrit"],
+    ["training.registrationCancelled", "Registration cancelled", "Anmeldung storniert", "Inscription annulée"],
+    ["training.markAttended", "MARK PRESENT", "ALS ANWESEND MARKIEREN", "MARQUER PRÉSENT"],
+    ["training.markNoShow", "MARK ABSENT", "ALS ABWESEND MARKIEREN", "MARQUER ABSENT"],
+    ["training.attendanceSaved", "Attendance saved.", "Anwesenheit gespeichert.", "Présence enregistrée."],
+    ["training.attendanceFailed", "Could not save attendance.", "Anwesenheit konnte nicht gespeichert werden.", "Impossible d’enregistrer la présence."],
+    ["training.noAssigned", "You have no assigned trainings.", "Dir sind keine Trainings zugewiesen.", "Aucune formation ne vous est attribuée."],
+    ["training.adminOnly", "Administrator access required.", "Administratorrechte erforderlich.", "Accès administrateur requis."],
+
+    // ===== SETTINGS / FOOTER =====
+
+    ["settings.title", "⚙️ Settings", "⚙️ Einstellungen", "⚙️ Paramètres"],
+    ["settings.theme", "Appearance", "Darstellung", "Apparence"],
+    ["settings.light", "Light mode", "Heller Modus", "Mode clair"],
+    ["settings.dark", "Dark mode", "Dunkler Modus", "Mode sombre"],
+    ["settings.font", "Font size", "Schriftgröße", "Taille du texte"],
+    ["settings.small", "Small", "Klein", "Petite"],
+    ["settings.normal", "Normal", "Normal", "Normale"],
+    ["settings.large", "Large", "Groß", "Grande"],
+    ["settings.language", "Language", "Sprache", "Langue"],
+    ["footer.disclaimer", "Unofficial virtual airline / flight simulation project. Not affiliated with or endorsed by Austrian Airlines.", "Inoffizielles virtuelles Airline- und Flugsimulationsprojekt. Keine Verbindung zu Austrian Airlines und keine Unterstützung durch Austrian Airlines.", "Projet non officiel de compagnie aérienne virtuelle et de simulation de vol. Sans affiliation ni soutien de la compagnie Austrian Airlines."]
+  ];
+
+  // Build the same dictionaries used by index.html and app.js.
+
+  const dictionaries = {
+    en: {},
+    de: {},
+    fr: {}
+  };
+
+  for (const [key, english, german, french] of rows) {
+    dictionaries.en[key] = english;
+    dictionaries.de[key] = german;
+    dictionaries.fr[key] = french;
+  }
+
+  window.AFO_TRANSLATIONS = dictionaries;
+
+  // Translation helper for dynamic interface elements.
+
+  window.AFO_t = function (key, values = {}) {
+
+    const language = document.documentElement.lang;
+
+    const dict =
+      dictionaries[language] ||
+      dictionaries.en;
+
+    const template =
+      dict[key] ??
+      dictionaries.en[key] ??
+      key;
+
+    return String(template).replace(
+      /\{([a-zA-Z0-9_]+)\}/g,
+      (match, name) =>
+        Object.prototype.hasOwnProperty.call(values, name)
+          ? String(values[name])
+          : match
     );
-};
+  };
+
+})();
