@@ -2176,3 +2176,659 @@
     };
 
 })();
+
+
+/* ===========================================================
+   AUSTRIAN ACADEMY – UI POLISH V1.3.0
+
+   Modern training cards and instructor name selection.
+   Add after the existing Academy code.
+   =========================================================== */
+
+(() => {
+  "use strict";
+
+  const $ = id => document.getElementById(id);
+
+  let instructors = [];
+  let updating = false;
+
+  const text = (en, de, fr) => {
+    const lang = document.documentElement.lang;
+
+    return lang === "de"
+      ? de
+      : lang === "fr"
+        ? fr
+        : en;
+  };
+
+  const esc = value => String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+
+  /* =====================================================
+     NEW VISUAL DESIGN
+     ===================================================== */
+
+  function addStyles() {
+    if ($("afo-academy-polish")) return;
+
+    const style = document.createElement("style");
+
+    style.id = "afo-academy-polish";
+
+    style.textContent = `
+      #academyTrainingBoard {
+        gap: 22px;
+      }
+
+      #academyTrainingBoard .flight-card {
+        position: relative;
+        overflow: hidden;
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      #academyTrainingBoard .flight-card::before,
+      #academyAdminTrainingList .flight-card::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(
+          90deg,
+          var(--red),
+          #ef5b70,
+          #ffc1c9
+        );
+      }
+
+      #academyTrainingBoard .card-topline {
+        align-items: center;
+        gap: 16px;
+        margin: 4px 0 21px;
+      }
+
+      #academyTrainingBoard .card-topline h3 {
+        font-size: 1.42rem;
+        font-weight: 850;
+        line-height: 1.25;
+        margin: 10px 0 0;
+        letter-spacing: -.035em;
+        overflow-wrap: anywhere;
+      }
+
+      #academyTrainingBoard .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 11px;
+        color: var(--red-text);
+        background: var(--red-soft);
+        border-radius: 100px;
+        font-weight: 850;
+        letter-spacing: .045em;
+        font-size: .74rem;
+        text-transform: uppercase;
+      }
+
+      #academyTrainingBoard .flight-card > p {
+        padding-bottom: 12px;
+        color: var(--muted);
+        font-size: .91rem;
+      }
+
+      #academyTrainingBoard .info-grid {
+        gap: 12px;
+        margin: 14px 0;
+      }
+
+      #academyTrainingBoard .info-box {
+        padding: 15px;
+        border-radius: 14px;
+        background: var(--surface-alt);
+        border: 1px solid var(--line);
+      }
+
+      #academyTrainingBoard .info-box:first-child {
+        grid-column: 1 / -1;
+        border-left: 4px solid var(--red);
+      }
+
+      #academyTrainingBoard .info-box strong {
+        display: block;
+        font-size: .98rem;
+        font-weight: 800;
+        overflow-wrap: anywhere;
+      }
+
+      /* OCCUPANCY INDICATOR */
+
+      .afo-capacity-label {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        color: var(--muted);
+        font-size: .8rem;
+        font-weight: 800;
+        margin: 19px 0 8px;
+      }
+
+      .afo-capacity-track {
+        height: 9px;
+        background: var(--line);
+        border-radius: 100px;
+        overflow: hidden;
+      }
+
+      .afo-capacity-fill {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(
+          90deg,
+          var(--red),
+          #fa6680
+        );
+      }
+
+      /* CARD ACTIONS */
+
+      #academyTrainingBoard .actions {
+        margin-top: 20px;
+        padding-top: 18px;
+        border-top: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      #academyTrainingBoard .actions .btn {
+        flex: 1 1 auto;
+        min-height: 44px;
+      }
+
+      /* TRAINING AND INSTRUCTOR FORMS */
+
+      #academyTrainingForm,
+      #academyInstructorForm {
+        background: var(--surface-alt);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 23px;
+      }
+
+      #academyTrainingForm input,
+      #academyTrainingForm select,
+      #academyTrainingForm textarea,
+      #academyInstructorForm input:not([type=checkbox]) {
+        background: var(--surface);
+      }
+
+      /* ADMIN TRAINING CARDS */
+
+      #academyAdminTrainingList .flight-card {
+        position: relative;
+        overflow: hidden;
+        padding: 24px;
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+      }
+
+      #academyAdminTrainingList .card-topline h3 {
+        font-size: 1.3rem;
+        margin: 9px 0;
+      }
+
+      #academyAdminTrainingList .flight-card > p.muted {
+        display: inline-flex;
+        align-items: center;
+        margin: 5px 8px 9px 0;
+        padding: 8px 11px;
+        border-radius: 10px;
+        background: var(--surface-alt);
+      }
+
+      #academyAdminTrainingList .field {
+        background: var(--surface-alt);
+        border: 1px solid var(--line);
+        padding: 14px;
+        border-radius: 13px;
+      }
+
+      #academyAdminTrainingList .actions {
+        display: flex;
+        gap: 9px;
+        flex-wrap: wrap;
+      }
+
+      #academyAdminTrainingList .actions .btn {
+        min-height: 42px;
+      }
+
+      #academyAdminInstructorList .admin-row,
+      #academyInstructorTrainingList .admin-row {
+        background: var(--surface);
+        border-radius: 16px;
+      }
+
+      /* MOBILE LAYOUT */
+
+      @media (max-width: 600px) {
+        #academyTrainingBoard .flight-card,
+        #academyAdminTrainingList .flight-card {
+          padding: 18px;
+        }
+
+        #academyTrainingForm,
+        #academyInstructorForm {
+          padding: 17px;
+        }
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  /* =====================================================
+     INSTRUCTOR DATA AND NAME SELECTION
+     ===================================================== */
+
+  function activeFor(category) {
+    return instructors
+      .filter(person =>
+        person.active &&
+        person.specialties?.includes(category) &&
+        /^\d{10,25}$/.test(
+          String(person.discord_id || "")
+        )
+      )
+      .sort((a, b) =>
+        String(a.discord_username || a.discord_id)
+          .localeCompare(
+            String(b.discord_username || b.discord_id)
+          )
+      );
+  }
+
+  function optionHtml(category, noneAllowed) {
+    const options = activeFor(category)
+      .map(person => `
+        <option value="${esc(person.discord_id)}">
+          ${esc(person.discord_username || person.discord_id)}
+        </option>
+      `)
+      .join("");
+
+    const first = noneAllowed
+      ? `
+        <option value="">
+          ${text(
+            "No instructor",
+            "Kein Instruktor",
+            "Aucun instructeur"
+          )}
+        </option>
+      `
+      : `
+        <option value="" disabled selected>
+          ${text(
+            "Choose an instructor",
+            "Instruktor auswählen",
+            "Choisir un instructeur"
+          )}
+        </option>
+      `;
+
+    return first + options;
+  }
+
+  function createSelect(original) {
+    const select = document.createElement("select");
+
+    select.id = original.id;
+    select.className =
+      original.className || "settings-select";
+
+    select.name = original.name || "";
+
+    select.setAttribute(
+      "aria-label",
+      text(
+        "Instructor",
+        "Instruktor",
+        "Instructeur"
+      )
+    );
+
+    original.replaceWith(select);
+
+    return select;
+  }
+
+  /* DROPDOWN WHEN CREATING A TRAINING */
+
+  function updateCreationPicker() {
+    const original = $("academyTrainingInstructor");
+
+    if (!original) return;
+
+    const select = original.tagName === "SELECT"
+      ? original
+      : createSelect(original);
+
+    const category =
+      $("academyTrainingCategory")?.value ||
+      "atc24_pilot";
+
+    const selected = select.value;
+
+    select.innerHTML = optionHtml(category, true);
+
+    if (
+      [...select.options].some(
+        option => option.value === selected
+      )
+    ) {
+      select.value = selected;
+    }
+
+    const label = document.querySelector(
+      'label[for="academyTrainingInstructor"]'
+    );
+
+    if (label) {
+      label.removeAttribute("data-i18n");
+
+      label.textContent = text(
+        "Instructor (optional)",
+        "Instruktor (optional)",
+        "Instructeur (facultatif)"
+      );
+    }
+  }
+
+  /* IDENTIFY THE TRAINING CATEGORY */
+
+  function categoryForCard(card) {
+    const label = card
+      .querySelector(".eyebrow")
+      ?.textContent.trim();
+
+    const choices =
+      $("academyTrainingCategory")?.options || [];
+
+    const match = [...choices].find(
+      option =>
+        option.textContent.trim() === label
+    );
+
+    return match?.value || "atc24_pilot";
+  }
+
+  /* DROPDOWN WHEN ASSIGNING AN INSTRUCTOR */
+
+  function updateAssignPickers() {
+    const board = $("academyAdminTrainingList");
+
+    if (!board) return;
+
+    board
+      .querySelectorAll('input[id^="assign-"]')
+      .forEach(input => {
+
+        const category = categoryForCard(
+          input.closest(".flight-card")
+        );
+
+        const select = createSelect(input);
+
+        select.dataset.category = category;
+        select.required = true;
+
+        select.innerHTML = optionHtml(
+          category,
+          false
+        );
+      });
+  }
+
+  /* =====================================================
+     OCCUPANCY BAR
+     ===================================================== */
+
+  function decorateCards() {
+    const board = $("academyTrainingBoard");
+
+    if (!board) return;
+
+    board
+      .querySelectorAll(".flight-card")
+      .forEach(card => {
+
+        if (
+          card.querySelector(".afo-capacity-track")
+        ) {
+          return;
+        }
+
+        const boxes = card.querySelectorAll(
+          ".info-box"
+        );
+
+        const places =
+          boxes[2]?.textContent || "";
+
+        const match = places.match(
+          /(\d+)\s*\/\s*(\d+)/
+        );
+
+        if (!match) return;
+
+        const booked = Number(match[1]);
+        const total = Number(match[2]);
+
+        const fill = total > 0
+          ? Math.max(
+              0,
+              Math.min(
+                100,
+                booked / total * 100
+              )
+            )
+          : 0;
+
+        const progress =
+          document.createElement("div");
+
+        progress.className =
+          "afo-capacity-progress";
+
+        progress.innerHTML = `
+          <div class="afo-capacity-label">
+            <span>
+              ${text(
+                "Capacity",
+                "Auslastung",
+                "Occupation"
+              )}
+            </span>
+
+            <strong>
+              ${booked} / ${total}
+            </strong>
+          </div>
+
+          <div
+            class="afo-capacity-track"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="${total}"
+            aria-valuenow="${booked}"
+          >
+            <div
+              class="afo-capacity-fill"
+              style="width:${fill}%"
+            ></div>
+          </div>
+        `;
+
+        card
+          .querySelector(".info-grid")
+          ?.after(progress);
+      });
+  }
+
+  /* =====================================================
+     LOAD INSTRUCTORS
+     ===================================================== */
+
+  async function fetchInstructors() {
+    if (updating) return;
+
+    updating = true;
+
+    try {
+      const { data, error } =
+        await supabaseClient.rpc(
+          "list_academy_instructors_admin"
+        );
+
+      if (
+        !error &&
+        Array.isArray(data)
+      ) {
+        instructors = data;
+      }
+
+      updateCreationPicker();
+      updateAssignPickers();
+
+    } finally {
+      updating = false;
+    }
+  }
+
+  /* =====================================================
+     INITIALIZATION
+     ===================================================== */
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+      addStyles();
+      updateCreationPicker();
+
+      $("academyTrainingCategory")
+        ?.addEventListener(
+          "change",
+          updateCreationPicker
+        );
+
+      /* Refresh decorated training cards */
+
+      const schedule = $("academyTrainingBoard");
+
+      if (schedule) {
+        new MutationObserver(
+          decorateCards
+        ).observe(
+          schedule,
+          {
+            childList: true,
+            subtree: true
+          }
+        );
+      }
+
+      decorateCards();
+
+      /* Watch admin training rendering */
+
+      const adminBoard =
+        $("academyAdminTrainingList");
+
+      if (adminBoard) {
+        new MutationObserver(
+          updateAssignPickers
+        ).observe(
+          adminBoard,
+          {
+            childList: true,
+            subtree: true
+          }
+        );
+
+        /* Prevent accidental empty assignment */
+
+        adminBoard.addEventListener(
+          "click",
+          event => {
+
+            const button = event.target.closest(
+              'button[data-training-action="assign"]'
+            );
+
+            if (
+              button &&
+              !$(
+                "assign-" +
+                button.dataset.trainingId
+              )?.value
+            ) {
+              event.stopImmediatePropagation();
+
+              $(
+                "assign-" +
+                button.dataset.trainingId
+              )?.reportValidity();
+            }
+
+          },
+          true
+        );
+      }
+
+      /* Reload names when instructors change */
+
+      const instructorBoard =
+        $("academyAdminInstructorList");
+
+      if (instructorBoard) {
+        new MutationObserver(() => {
+          fetchInstructors().catch(
+            console.error
+          );
+        }).observe(
+          instructorBoard,
+          {
+            childList: true
+          }
+        );
+      }
+
+      /* Language changes */
+
+      document.addEventListener(
+        "afo-language-change",
+        () => {
+          updateCreationPicker();
+          decorateCards();
+        }
+      );
+
+      fetchInstructors().catch(
+        console.error
+      );
+    }
+  );
+
+})();
